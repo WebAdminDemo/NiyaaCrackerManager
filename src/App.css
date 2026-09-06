@@ -1,0 +1,27 @@
+/* ----- Pagination centering ----- */
+.pagination {
+  flex-wrap: wrap;
+  justify-content: center !important;
+}
+
+.pagination .page-item {
+  margin: 2px;
+}
+
+@media (max-width: 575.98px) {
+  .pagination .page-link {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.85rem;
+    min-width: 34px;
+  }
+}
+
+.clickable-stat {
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.clickable-stat:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08) !important;
+}
+
