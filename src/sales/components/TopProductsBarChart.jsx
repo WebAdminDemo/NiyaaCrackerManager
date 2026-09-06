@@ -1,5 +1,5 @@
 // src/sales/components/TopProductsBarChart.jsx
-import React from "react";
+import React, { useMemo } from "react";
 import { Card } from "react-bootstrap";
 import {
   BarChart,
@@ -9,105 +9,142 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  Cell,
 } from "recharts";
 
-const currency = (v) =>
-  `₹${Number(v).toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
+const PRODUCT_COLORS = [
+  "#2196F3",
+  "#FF4B16",
+  "#FFD21F",
+  "#00B894",
+  "#6C5CE7",
+  "#D63384",
+];
 
-const CustomTooltip = ({ active, payload, label }) => {
+const currency = (value) =>
+  `₹${Number(value || 0).toLocaleString("en-IN", {
+    maximumFractionDigits: 0,
+  })}`;
+
+const CustomTooltip = ({ active, payload }) => {
   if (!active || !payload?.length) return null;
+
+  const item = payload[0]?.payload;
+  if (!item) return null;
+
   return (
     <div className="top-products-tooltip">
-      <div className="tooltip-label">{label}</div>
-      <div className="tooltip-value">{currency(payload[0].value)}</div>
+      <div className="tooltip-label">{item.fullName}</div>
+      <div className="tooltip-value">{currency(item.revenue)}</div>
     </div>
   );
 };
 
 const TopProductsBarChart = ({ products }) => {
-  // Defensive: ensure products is an array, fallback to empty array
-  const safeProducts = Array.isArray(products) ? products : [];
+  // Show the top six products.
+  const data = useMemo(() => {
+    const safeProducts = Array.isArray(products) ? products : [];
 
-  // Take top 6, truncate names, map to chart data
-  const data = safeProducts.slice(0, 6).map((p) => ({
-    name: p.name?.length > 18 ? `${p.name.slice(0, 18)}…` : p.name || "Unnamed",
-    revenue: p.revenue || 0,
-  }));
+    return safeProducts.slice(0, 6).map((product) => {
+      const fullName = product.name || "Unnamed product";
+
+      return {
+        fullName,
+        name:
+          fullName.length > 15
+            ? `${fullName.slice(0, 15)}…`
+            : fullName,
+        revenue: Number(product.revenue || 0),
+      };
+    });
+  }, [products]);
 
   return (
-    <Card className="chart-container border-0 shadow-sm rounded-4">
+    <Card className="chart-container top-products-chart">
       <Card.Body>
-        <div className="d-flex align-items-center justify-content-between mb-3">
-          <h6 className="fw-bold mb-0" style={{ color: "#0F172A" }}>
-            Top Products by Revenue
-          </h6>
+        <div className="chart-heading">
+          <div>
+            <p className="chart-eyebrow">PRODUCT PERFORMANCE</p>
+            <h6>Top products by revenue</h6>
+          </div>
           {data.length > 0 && (
-            <span className="text-muted" style={{ fontSize: "0.75rem" }}>
-              Top {data.length}
-            </span>
+            <span className="chart-meta">Top {data.length}</span>
           )}
         </div>
 
-        {data.length === 0 ? (
-          <div className="text-center text-muted py-5">
-            <small>No product revenue data available</small>
+        {!data.length ? (
+          <div className="sales-chart-empty">
+            No product revenue data available
           </div>
         ) : (
-          <ResponsiveContainer width="100%" height={230}>
-            <BarChart
-              layout="vertical"
-              data={data}
-              margin={{ top: 0, right: 16, left: 8, bottom: 0 }}
-              barCategoryGap={10}
-            >
-              <CartesianGrid horizontal={false} stroke="#EEF1F5" />
-              <XAxis
-                type="number"
-                tick={{ fontSize: 10, fill: "#64748B" }}
-                tickFormatter={(v) => `₹${v}`}
-                axisLine={false}
-                tickLine={false}
-              />
-              <YAxis
-                type="category"
-                dataKey="name"
-                tick={{ fontSize: 11, fill: "#334155" }}
-                width={100}
-                axisLine={false}
-                tickLine={false}
-              />
-              <Tooltip
-                cursor={{ fill: "rgba(108, 92, 231, 0.06)" }}
-                content={<CustomTooltip />}
-              />
-              <Bar
-                dataKey="revenue"
-                fill="#6C5CE7" // brand color (matches dashboard theme)
-                radius={[0, 6, 6, 0]} // rounded right corners
-                barSize={16}
-              />
-            </BarChart>
-          </ResponsiveContainer>
-        )}
+          <div className="top-products-chart-area">
+            <ResponsiveContainer width="100%" height={285}>
+              <BarChart
+                layout="horizontal"
+                data={data}
+                margin={{ top: 12, right: 12, left: 4, bottom: 12 }}
+                barCategoryGap="18%"
+              >
+                <CartesianGrid
+                  stroke="var(--sd-border)"
+                  strokeDasharray="3 3"
+                  vertical={false}
+                />
 
-        <style>{`
-          .top-products-tooltip {
-            background: #0F172A;
-            color: #fff;
-            padding: 6px 10px;
-            border-radius: 8px;
-            font-size: 0.75rem;
-            box-shadow: 0 8px 16px -8px rgba(15, 23, 42, 0.4);
-          }
-          .tooltip-label {
-            font-weight: 600;
-            margin-bottom: 2px;
-          }
-          .tooltip-value {
-            color: #C4B5FD;
-            font-weight: 700;
-          }
-        `}</style>
+                <XAxis
+                  type="category"
+                  dataKey="name"
+                  axisLine={false}
+                  tickLine={false}
+                  interval={0}
+                  tick={{
+                    fill: "var(--sd-text-3)",
+                    fontSize: 11,
+                  }}
+                  height={42}
+                />
+
+                <YAxis
+                  type="number"
+                  axisLine={false}
+                  tickLine={false}
+                  width={50}
+                  tick={{
+                    fill: "var(--sd-text-3)",
+                    fontSize: 11,
+                  }}
+                  tickFormatter={(value) =>
+                    value >= 1000
+                      ? `₹${Math.round(value / 1000)}K`
+                      : `₹${value}`
+                  }
+                />
+
+                <Tooltip
+                  cursor={{ fill: "var(--sd-chart-hover)" }}
+                  content={<CustomTooltip />}
+                />
+
+                <Bar
+                  dataKey="revenue"
+                  radius={[9, 9, 2, 2]}
+                  barSize={34}
+                  isAnimationActive
+                  animationBegin={0}
+                  animationDuration={550}
+                  animationEasing="ease-out"
+                >
+                  {data.map((entry, index) => (
+                    <Cell
+                      key={entry.fullName}
+                      fill={PRODUCT_COLORS[index % PRODUCT_COLORS.length]}
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        )}
       </Card.Body>
     </Card>
   );

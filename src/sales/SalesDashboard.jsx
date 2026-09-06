@@ -1,14 +1,14 @@
-import { useState, useMemo } from "react";
+import React, { useCallback, useMemo, useState } from "react";
+// Sales dashboard entry point.
 import { Container, Row, Col, Spinner, Alert, Button } from "react-bootstrap";
-import { motion } from "framer-motion";
 import dayjs from "dayjs";
+import { useTheme } from "../context/ThemeContext";
 
 import { useSalesAnalytics } from "./hooks/useSalesAnalytics";
 import SalesFilters from "./components/SalesFilters";
 import KpiCards from "./components/KpiCards";
 import RevenueAreaChart from "./components/RevenueAreaChart";
 import CategoryDonutChart from "./components/CategoryDonutChart";
-import ChannelPieChart from "./components/ChannelPieChart";
 import TopProductsBarChart from "./components/TopProductsBarChart";
 import CustomerAnalytics from "./components/CustomerAnalytics";
 import RecentOrdersTable from "./components/RecentOrdersTable";
@@ -17,28 +17,54 @@ import { exportSalesExcel, exportSalesPdf } from "./utils/exportReports";
 
 import "./sales.css";
 
+// Build the selected date range.
 const rangeFor = (period, year, month) => {
-  const now = dayjs();
   if (period === "all") return {};
-  const base =
-    period === "custom"
-      ? dayjs(`${year}-${String(month).padStart(2, "0")}-01`)
-      : now;
-  const ranges = {
-    today: [base.startOf("day"), base.endOf("day")],
-    week: [base.startOf("week"), base.endOf("week")],
-    lastMonth: [
-      base.subtract(1, "month").startOf("month"),
-      base.subtract(1, "month").endOf("month"),
-    ],
-    month: [base.startOf("month"), base.endOf("month")],
-    custom: [base.startOf("month"), base.endOf("month")],
+
+  const now = dayjs();
+  const selectedMonth = dayjs(
+    `${year}-${String(month).padStart(2, "0")}-01`,
+  );
+
+  let base = period === "custom" ? selectedMonth : now;
+  let from;
+  let to;
+
+  switch (period) {
+    case "today":
+      from = base.startOf("day");
+      to = base.endOf("day");
+      break;
+    case "week":
+      from = base.startOf("week");
+      to = base.endOf("week");
+      break;
+    case "lastMonth":
+      from = base.subtract(1, "month").startOf("month");
+      to = base.subtract(1, "month").endOf("month");
+      break;
+    case "custom":
+      from = selectedMonth.startOf("month");
+      to = selectedMonth.endOf("month");
+      break;
+    case "month":
+    default:
+      from = base.startOf("month");
+      to = base.endOf("month");
+      break;
+  }
+
+  return {
+    startDate: from.toISOString(),
+    endDate: to.toISOString(),
   };
-  const [from, to] = ranges[period] || ranges.month;
-  return { from: from.format("YYYY-MM-DD"), to: to.format("YYYY-MM-DD") };
 };
 
-const SalesDashboard = () => {
+const SalesDashboard = ({
+  onNavigateToOrders,
+  onViewSoldProducts,
+}) => {
+  const { darkMode } = useTheme();
   const [period, setPeriod] = useState("month");
   const [customYear, setCustomYear] = useState(dayjs().year());
   const [customMonth, setCustomMonth] = useState(dayjs().month() + 1);
@@ -52,14 +78,26 @@ const SalesDashboard = () => {
   const [page, setPage] = useState(1);
   const [showOrderModal, setShowOrderModal] = useState(false);
 
+  // Keep filter values stable between renders.
   const requestFilters = useMemo(
-    () => ({ ...rangeFor(period, customYear, customMonth), ...filters }),
+    () => ({
+      ...rangeFor(period, customYear, customMonth),
+      ...filters,
+    }),
     [period, customYear, customMonth, filters],
   );
 
-  const { orders, analytics, loading, error, refresh, updateStatus } =
-    useSalesAnalytics(requestFilters);
+  const {
+    orders,
+    analytics,
+    loading,
+    refreshing,
+    error,
+    refresh,
+    updateStatus,
+  } = useSalesAnalytics(requestFilters, { includeAnalytics: true });
 
+  // Build filter options from the loaded orders.
   const categories = useMemo(
     () =>
       [
@@ -71,74 +109,84 @@ const SalesDashboard = () => {
       ].sort(),
     [orders],
   );
+
   const channels = useMemo(
     () =>
       [...new Set(orders.map((order) => order.channel).filter(Boolean))].sort(),
     [orders],
   );
 
-  const hasActiveFilters = useMemo(
-    () =>
-      filters.search || filters.status || filters.category || filters.channel,
-    [filters],
+  const hasActiveFilters = Boolean(
+    filters.search || filters.status || filters.category || filters.channel,
   );
 
-  const updateFilter = (key, value) => {
+  const updateFilter = useCallback((key, value) => {
     setFilters((current) => ({ ...current, [key]: value }));
     setPage(1);
-  };
+  }, []);
 
-  const clearFilters = () => {
-    setFilters({ search: "", status: "", category: "", channel: "" });
-    setPeriod("month");
+  const handlePeriodChange = useCallback((value) => {
+    setPeriod(value);
     setPage(1);
-  };
 
-  const handlePeriodChange = (newPeriod) => {
-    setPeriod(newPeriod);
-    if (newPeriod === "custom") {
+    if (value === "custom") {
       setCustomYear(dayjs().year());
       setCustomMonth(dayjs().month() + 1);
     }
-  };
+  }, []);
 
-  const openOrderModal = (order) => {
+  const handleCustomDateChange = useCallback((year, month) => {
+    setCustomYear(year);
+    setCustomMonth(month);
+    setPeriod("custom");
+    setPage(1);
+  }, []);
+
+  const clearFilters = useCallback(() => {
+    setFilters({ search: "", status: "", category: "", channel: "" });
+    setPeriod("month");
+    setCustomYear(dayjs().year());
+    setCustomMonth(dayjs().month() + 1);
+    setPage(1);
+  }, []);
+
+  const dateLabel = useMemo(() => {
+    if (period === "all") return "All-time performance";
+    if (period === "custom") {
+      return `${dayjs()
+        .month(customMonth - 1)
+        .format("MMMM")} ${customYear}`;
+    }
+    if (period === "today") return "Today";
+    if (period === "week") return "This week";
+    if (period === "lastMonth") return "Last month";
+    return "This month";
+  }, [period, customYear, customMonth]);
+
+  // Open the order details modal.
+  const openOrderModal = useCallback((order) => {
     setSelectedOrder(order);
     setShowOrderModal(true);
-  };
+  }, []);
 
-  const closeOrderModal = () => {
+  const closeOrderModal = useCallback(() => {
     setShowOrderModal(false);
     setSelectedOrder(null);
-  };
-
-  const dateLabel =
-    period === "all"
-      ? "All-time performance"
-      : period === "custom"
-        ? `${dayjs()
-            .month(customMonth - 1)
-            .format("MMMM")} ${customYear}`
-        : period === "today"
-          ? "Today"
-          : period === "week"
-            ? "This week"
-            : period === "lastMonth"
-              ? "Last month"
-              : "This month";
+  }, []);
 
   if (loading && !analytics) {
     return (
       <div className="sales-loading">
         <Spinner animation="border" />
-        <span>Loading sales intelligence…</span>
+        <span>Loading sales intelligence...</span>
       </div>
     );
   }
-  if (error) {
+
+  if (error && !analytics) {
     return (
-      <Alert variant="danger" className="m-4">
-        {error}{" "}
+      <Alert variant="danger" className="sales-page-alert">
+        <div>{error}</div>
         <Button variant="link" onClick={refresh}>
           Try again
         </Button>
@@ -147,20 +195,14 @@ const SalesDashboard = () => {
   }
 
   return (
-    <Container fluid className="sales-dashboard py-4">
-      <motion.header
-        className="sales-hero"
-        initial={{ opacity: 0, y: 14 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45 }}
-      >
+    <Container fluid className="sales-dashboard py-4" data-sales-theme={darkMode ? "dark" : "light"}>
+      <header className="sales-hero">
         <div>
           <p className="eyebrow">NIYAA · SALES INTELLIGENCE</p>
           <h1>Sales at a glance</h1>
-          <p>
-            A live view of revenue, customer demand, and fulfilment momentum.
-          </p>
+          <p>Live revenue, customer demand and fulfilment performance.</p>
         </div>
+
         <div className="sales-hero__actions">
           <Button
             variant="light"
@@ -179,7 +221,7 @@ const SalesDashboard = () => {
             PDF
           </Button>
         </div>
-      </motion.header>
+      </header>
 
       <SalesFilters
         period={period}
@@ -189,107 +231,59 @@ const SalesDashboard = () => {
         categories={categories}
         channels={channels}
         onPeriodChange={handlePeriodChange}
-        onCustomDateChange={(year, month) => {
-          setCustomYear(year);
-          setCustomMonth(month);
-          setPeriod("custom");
-        }}
+        onCustomDateChange={handleCustomDateChange}
         onFilterChange={updateFilter}
       />
 
       <div className="sales-results-bar">
         <span>
-          <i className="bi bi-funnel" /> {dateLabel} · {orders.length} visible
-          orders
+          <i className="bi bi-funnel" /> {dateLabel} · {orders.length} visible orders
         </span>
-        {hasActiveFilters && (
-          <motion.button
-            className="btn btn-outline-secondary reset-filters-btn"
-            onClick={clearFilters}
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ type: "spring", stiffness: 400, damping: 15 }}
-          >
-            <i className="bi bi-arrow-counterclockwise me-1" />
-            Reset filters
-          </motion.button>
-        )}
+
+        <div className="sales-results-actions">
+          {refreshing && (
+            <span className="sales-refreshing">
+              <Spinner size="sm" animation="border" /> Updating...
+            </span>
+          )}
+
+          {hasActiveFilters && (
+            <button className="btn reset-filters-btn" onClick={clearFilters}>
+              <i className="bi bi-arrow-counterclockwise me-1" />
+              Reset filters
+            </button>
+          )}
+        </div>
       </div>
 
-      <KpiCards analytics={analytics} />
+      {error && (
+        <Alert variant="warning" className="sales-inline-alert">
+          Some data could not be refreshed. Showing the last successful result.
+        </Alert>
+      )}
+
+      <KpiCards
+        analytics={analytics}
+        orders={orders}
+        onNavigateToOrders={onNavigateToOrders}
+        onViewSoldProducts={onViewSoldProducts}
+      />
 
       <Row className="g-3 sales-visuals">
         <Col xl={8}>
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.1, duration: 0.4 }}
-          >
-            <RevenueAreaChart orders={orders} />
-          </motion.div>
+          <RevenueAreaChart orders={orders} />
         </Col>
         <Col xl={4}>
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.15, duration: 0.4 }}
-          >
-            <CategoryDonutChart data={analytics?.categoryRevenue || []} />
-          </motion.div>
-        </Col>
-      </Row>
-
-      <Row className="g-3 mt-2">
-        <Col lg={4}>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.4 }}
-          >
-            <ChannelPieChart data={analytics?.channelDistribution || {}} />
-          </motion.div>
-        </Col>
-        <Col lg={8}>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25, duration: 0.4 }}
-          >
-            <TopProductsBarChart products={analytics?.topProducts || []} />
-          </motion.div>
+          <CategoryDonutChart data={analytics?.categoryRevenue || []} />
         </Col>
       </Row>
 
       <Row className="g-3 mt-2">
         <Col lg={6}>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.4 }}
-          >
-            <CustomerAnalytics topCustomers={analytics?.topCustomers || []} />
-          </motion.div>
+          <TopProductsBarChart products={analytics?.topProducts || []} />
         </Col>
         <Col lg={6}>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.35, duration: 0.4 }}
-          >
-            <div className="category-revenue-list">
-              <h6 className="fw-bold">Category Revenue</h6>
-              <ul>
-                {(analytics?.categoryRevenue || [])
-                  .slice(0, 5)
-                  .map(([cat, rev]) => (
-                    <li key={cat}>
-                      <span>{cat}</span>
-                      <span>₹{rev.toLocaleString()}</span>
-                    </li>
-                  ))}
-              </ul>
-            </div>
-          </motion.div>
+          <CustomerAnalytics orders={orders} />
         </Col>
       </Row>
 

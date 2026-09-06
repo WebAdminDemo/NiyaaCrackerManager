@@ -1,5 +1,5 @@
 // src/sales/SalesOrders.jsx
-import React, { useState, useMemo } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   Container,
   Card,
@@ -9,11 +9,14 @@ import {
   Spinner,
   Alert,
 } from "react-bootstrap";
-import { motion } from "framer-motion";
+import dayjs from "dayjs";
+import { useTheme } from "../context/ThemeContext";
 import { useSalesAnalytics } from "./hooks/useSalesAnalytics";
 import SalesFilters from "./components/SalesFilters";
 import OrderDetailsModal from "./components/OrderDetailsModal";
-import dayjs from "dayjs";
+import "./sales.css";
+
+const PAGE_SIZE = 10;
 
 const statusColor = {
   pending: "warning",
@@ -26,7 +29,13 @@ const statusColor = {
 
 const getPeriodDates = (period, customYear, customMonth) => {
   const now = dayjs();
-  let start, end;
+  const selectedMonth = dayjs(
+    `${customYear}-${String(customMonth).padStart(2, "0")}-01`,
+  );
+
+  let start = null;
+  let end = null;
+
   switch (period) {
     case "today":
       start = now.startOf("day");
@@ -45,16 +54,16 @@ const getPeriodDates = (period, customYear, customMonth) => {
       end = now.subtract(1, "month").endOf("month");
       break;
     case "custom":
-      start = dayjs(`${customYear}-${customMonth}-01`).startOf("month");
-      end = dayjs(`${customYear}-${customMonth}-01`).endOf("month");
+      start = selectedMonth.startOf("month");
+      end = selectedMonth.endOf("month");
       break;
     default:
-      start = null;
-      end = null;
+      break;
   }
+
   return {
-    startDate: start?.toISOString() || null,
-    endDate: end?.toISOString() || null,
+    startDate: start ? start.toISOString() : undefined,
+    endDate: end ? end.toISOString() : undefined,
   };
 };
 
@@ -65,10 +74,10 @@ const categoryText = (order) =>
     ),
   ].join(", ") || "Uncategorised";
 
-/** Same as Excel / PDF export */
 const itemsOrdered = (order) => {
   const list = order.items || [];
   if (!list.length) return "—";
+
   return list
     .map((item) => {
       const name = item.name || item.productName || item.title || "Item";
@@ -85,6 +94,7 @@ const customerPhone = (order) =>
   order.customer?.phone || order.customerPhone || "—";
 
 const SalesOrders = () => {
+  const { darkMode } = useTheme();
   const [period, setPeriod] = useState("month");
   const [customYear, setCustomYear] = useState(dayjs().year());
   const [customMonth, setCustomMonth] = useState(dayjs().month() + 1);
@@ -96,6 +106,7 @@ const SalesOrders = () => {
   });
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [page, setPage] = useState(1);
 
   const dateRange = useMemo(
     () => getPeriodDates(period, customYear, customMonth),
@@ -107,54 +118,144 @@ const SalesOrders = () => {
     [dateRange, filters],
   );
 
-  const { orders, loading, error, updateStatus } =
-    useSalesAnalytics(apiFilters);
+  const {
+    orders,
+    loading,
+    refreshing,
+    error,
+    refresh,
+    updateStatus,
+  } = useSalesAnalytics(apiFilters, { includeAnalytics: false });
 
   const categories = useMemo(() => {
-    const cats = new Set();
-    orders.forEach((o) =>
-      o.items?.forEach((i) => i.category && cats.add(i.category)),
+    const values = new Set();
+    orders.forEach((order) =>
+      order.items?.forEach((item) => {
+        if (item.category) values.add(item.category);
+      }),
     );
-    return Array.from(cats).sort();
+    return Array.from(values).sort();
   }, [orders]);
 
-  const channels = useMemo(() => {
-    const ch = new Set();
-    orders.forEach((o) => o.channel && ch.add(o.channel));
-    return Array.from(ch).sort();
-  }, [orders]);
+  const channels = useMemo(
+    () =>
+      [...new Set(orders.map((order) => order.channel).filter(Boolean))].sort(),
+    [orders],
+  );
 
-  const handleStatusUpdate = async (orderId, newStatus) => {
-    await updateStatus(orderId, newStatus);
-    setShowModal(false);
-  };
+  const pageCount = Math.max(1, Math.ceil(orders.length / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount);
+  const visibleOrders = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return orders.slice(start, start + PAGE_SIZE);
+  }, [orders, currentPage]);
 
-  const openOrder = (order) => {
+  const handleFilterChange = useCallback((key, value) => {
+    setFilters((current) => ({ ...current, [key]: value }));
+    setPage(1);
+  }, []);
+
+  const handlePeriodChange = useCallback((value) => {
+    setPeriod(value);
+    setPage(1);
+
+    if (value === "custom") {
+      setCustomYear(dayjs().year());
+      setCustomMonth(dayjs().month() + 1);
+    }
+  }, []);
+
+  const handleCustomDateChange = useCallback((year, month) => {
+    setCustomYear(year);
+    setCustomMonth(month);
+    setPeriod("custom");
+    setPage(1);
+  }, []);
+
+  const openOrder = useCallback((order) => {
     setSelectedOrder(order);
     setShowModal(true);
-  };
+  }, []);
 
-  if (loading) {
+  const closeOrder = useCallback(() => {
+    setShowModal(false);
+    setSelectedOrder(null);
+  }, []);
+
+  const handleStatusUpdate = useCallback(
+    async (orderId, newStatus) => {
+      const updated = await updateStatus(orderId, newStatus);
+      setSelectedOrder(updated);
+      return updated;
+    },
+    [updateStatus],
+  );
+
+  const clearFilters = useCallback(() => {
+    setFilters({ search: "", status: "", category: "", channel: "" });
+    setPeriod("month");
+    setCustomYear(dayjs().year());
+    setCustomMonth(dayjs().month() + 1);
+    setPage(1);
+  }, []);
+
+  if (loading && !orders.length) {
     return (
-      <div className="text-center p-5">
-        <Spinner animation="border" variant="primary" />
-      </div>
+      <Container
+        fluid
+        className="py-4 sales-orders-page"
+        data-sales-theme={darkMode ? "dark" : "light"}
+      >
+        <div className="sales-loading">
+          <Spinner animation="border" />
+          <span>Loading orders...</span>
+        </div>
+      </Container>
     );
   }
 
-  if (error) {
+  if (error && !orders.length) {
     return (
-      <Container fluid className="py-4">
-        <Alert variant="danger">{error}</Alert>
+      <Container
+        fluid
+        className="py-4 sales-orders-page"
+        data-sales-theme={darkMode ? "dark" : "light"}
+      >
+        <Alert variant="danger">
+          <div>{error}</div>
+          <Button variant="link" onClick={() => refresh(true)}>
+            Try again
+          </Button>
+        </Alert>
       </Container>
     );
   }
 
   return (
-    <Container fluid className="py-4 sales-orders-page">
-      <h4 className="fw-bold mb-4">All Orders</h4>
+    <Container
+      fluid
+      className="py-4 sales-orders-page"
+      data-sales-theme={darkMode ? "dark" : "light"}
+    >
+      <div className="orders-page-header">
+        <div>
+          <p className="orders-page-eyebrow">ORDER MANAGEMENT</p>
+          <h4>All Orders</h4>
+          <p>Search, review and update customer orders.</p>
+        </div>
 
-      {/* Filters — uses SalesFilters with solid dropdown styles */}
+        <Button
+          variant="outline-primary"
+          className="orders-refresh-btn"
+          onClick={() => refresh(true)}
+          disabled={refreshing}
+        >
+          <i className="bi bi-arrow-clockwise me-1" />
+          Refresh
+        </Button>
+      </div>
+
+      {/* Filters use the same controls as the Sales dashboard. */}
       <SalesFilters
         period={period}
         customYear={customYear}
@@ -162,182 +263,199 @@ const SalesOrders = () => {
         filters={filters}
         categories={categories}
         channels={channels}
-        onPeriodChange={setPeriod}
-        onCustomDateChange={(y, m) => {
-          setCustomYear(y);
-          setCustomMonth(m);
-        }}
-        onFilterChange={(key, value) =>
-          setFilters((prev) => ({ ...prev, [key]: value }))
-        }
+        onPeriodChange={handlePeriodChange}
+        onCustomDateChange={handleCustomDateChange}
+        onFilterChange={handleFilterChange}
       />
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-      >
-        <Card className="shadow-sm border-0 mt-3">
-          <Card.Body>
-            <div className="d-flex justify-content-between align-items-center mb-3">
-              <span className="text-muted small">
-                {orders.length} result{orders.length !== 1 ? "s" : ""}
+      <Card className="orders-table-card">
+        <div className="orders-table-toolbar">
+          <div>
+            <strong>{orders.length.toLocaleString("en-IN")}</strong>
+            <span> orders found</span>
+          </div>
+
+          <div className="orders-table-toolbar__right">
+            {refreshing && (
+              <span className="sales-refreshing">
+                <Spinner size="sm" animation="border" /> Updating...
               </span>
-            </div>
-
-            <div className="table-responsive">
-              <Table
-                bordered
-                hover
-                className="align-middle mb-0 sales-all-orders-table"
-              >
-                <thead>
-                  <tr>
-                    <th>Order ID</th>
-                    <th>Customer</th>
-                    <th>Category</th>
-                    <th>Items Ordered</th>
-                    <th>Channel</th>
-                    <th>Amount</th>
-                    <th>Items</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {orders.map((order) => (
-                    <tr key={order.id}>
-                      <td>
-                        <code className="order-ref">
-                          {order.ref || String(order.id).slice(-8)}
-                        </code>
-                      </td>
-                      <td>
-                        <strong>{customerName(order)}</strong>
-                        <small className="d-block text-muted">
-                          {customerPhone(order)}
-                        </small>
-                      </td>
-                      <td>{categoryText(order)}</td>
-                      <td className="items-ordered-cell">
-                        <span className="items-ordered-list">
-                          {itemsOrdered(order)}
-                        </span>
-                      </td>
-                      <td>{order.channel || "Direct"}</td>
-                      <td className="amount">
-                        ₹
-                        {Number(order.totalAmount || 0).toLocaleString(
-                          "en-IN",
-                        )}
-                      </td>
-                      <td>
-                        {order.totalQuantity ||
-                          order.items?.reduce(
-                            (sum, i) => sum + (i.quantity || 0),
-                            0,
-                          ) ||
-                          0}
-                      </td>
-                      <td>
-                        {order.orderDate || order.createdAt
-                          ? dayjs(order.orderDate || order.createdAt).format(
-                              "DD MMM YYYY",
-                            )
-                          : "—"}
-                      </td>
-                      <td>
-                        <Badge
-                          bg={
-                            statusColor[order.status?.toLowerCase()] ||
-                            "secondary"
-                          }
-                        >
-                          {order.status || "pending"}
-                        </Badge>
-                      </td>
-                      <td>
-                        <Button
-                          variant="outline-primary"
-                          size="sm"
-                          onClick={() => openOrder(order)}
-                        >
-                          View
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </div>
-
-            {orders.length === 0 && (
-              <p className="text-muted text-center py-4 mb-0">
-                No orders found for these filters.
-              </p>
             )}
-          </Card.Body>
-        </Card>
-      </motion.div>
+
+            {(filters.search ||
+              filters.status ||
+              filters.category ||
+              filters.channel ||
+              period !== "month") && (
+              <button
+                type="button"
+                className="orders-clear-btn"
+                onClick={clearFilters}
+              >
+                Clear filters
+              </button>
+            )}
+          </div>
+        </div>
+
+        {error && orders.length > 0 && (
+          <div className="orders-inline-warning">
+            Some data could not be refreshed. Showing the last successful result.
+          </div>
+        )}
+
+        <div className="table-responsive">
+          <Table hover className="align-middle mb-0 sales-all-orders-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Category</th>
+                <th>Items Ordered</th>
+                <th>Channel</th>
+                <th>Amount</th>
+                <th>Items</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {visibleOrders.map((order) => {
+                const status = String(order.status || "pending").toLowerCase();
+                const quantity =
+                  order.totalQuantity ||
+                  order.items?.reduce(
+                    (sum, item) => sum + Number(item.quantity || 0),
+                    0,
+                  ) ||
+                  0;
+
+                return (
+                  <tr key={order.id}>
+                    <td>
+                      <code className="order-ref">
+                        {order.ref || String(order.id).slice(-8)}
+                      </code>
+                    </td>
+                    <td>
+                      <strong>{customerName(order)}</strong>
+                      <small className="d-block text-muted order-phone">
+                        {customerPhone(order)}
+                      </small>
+                    </td>
+                    <td>
+                      <span className="table-category-text">
+                        {categoryText(order)}
+                      </span>
+                    </td>
+                    <td className="items-ordered-cell">
+                      <span className="items-ordered-list">
+                        {itemsOrdered(order)}
+                      </span>
+                    </td>
+                    <td>
+                      <span className="channel-pill">
+                        {order.channel || "Direct"}
+                      </span>
+                    </td>
+                    <td className="amount">
+                      ₹
+                      {Number(order.totalAmount || 0).toLocaleString("en-IN")}
+                    </td>
+                    <td>{quantity.toLocaleString("en-IN")}</td>
+                    <td>
+                      {order.orderDate || order.createdAt
+                        ? dayjs(order.orderDate || order.createdAt).format(
+                            "DD MMM YYYY",
+                          )
+                        : "—"}
+                    </td>
+                    <td>
+                      <Badge
+                        bg={statusColor[status] || "secondary"}
+                        className={`status-badge status-badge--${status}`}
+                      >
+                        {order.status || "pending"}
+                      </Badge>
+                    </td>
+                    <td>
+                      <Button
+                        variant="outline-primary"
+                        className="order-view-text-btn"
+                        size="sm"
+                        onClick={() => openOrder(order)}
+                      >
+                        View order
+                      </Button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </Table>
+        </div>
+
+        {orders.length === 0 && (
+          <div className="sales-orders-empty">
+            <i className="bi bi-inbox" />
+            <strong>No orders found</strong>
+            <span>Try changing the selected filters.</span>
+          </div>
+        )}
+
+        {orders.length > 0 && (
+          <div className="orders-pagination">
+            <span>
+              Showing {((currentPage - 1) * PAGE_SIZE) + 1}–
+              {Math.min(currentPage * PAGE_SIZE, orders.length)} of {orders.length} entries
+            </span>
+
+            <div className="orders-pagination__controls">
+              <Button
+                variant="light"
+                disabled={currentPage === 1}
+                onClick={() => setPage((value) => Math.max(1, value - 1))}
+              >
+                Previous
+              </Button>
+
+              {Array.from({ length: pageCount }, (_, index) => index + 1)
+                .slice(
+                  Math.max(0, currentPage - 3),
+                  Math.min(pageCount, currentPage + 2),
+                )
+                .map((pageNumber) => (
+                  <Button
+                    key={pageNumber}
+                    variant={pageNumber === currentPage ? "primary" : "light"}
+                    className={pageNumber === currentPage ? "is-active" : ""}
+                    onClick={() => setPage(pageNumber)}
+                  >
+                    {pageNumber}
+                  </Button>
+                ))}
+
+              <Button
+                variant="light"
+                disabled={currentPage === pageCount}
+                onClick={() =>
+                  setPage((value) => Math.min(pageCount, value + 1))
+                }
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        )}
+      </Card>
 
       <OrderDetailsModal
         show={showModal}
-        onHide={() => setShowModal(false)}
+        onHide={closeOrder}
         order={selectedOrder}
         onStatusChange={handleStatusUpdate}
       />
-
-      {/* Table design: full borders, bold headers, multi-line items */}
-      <style>{`
-        .sales-all-orders-table {
-          border-collapse: collapse;
-          width: 100%;
-        }
-        .sales-all-orders-table th,
-        .sales-all-orders-table td {
-          border: 1px solid #E0E0E8 !important;
-          vertical-align: top;
-          padding: 0.75rem 0.85rem;
-        }
-        .sales-all-orders-table thead th {
-          font-weight: 700 !important;
-          background: #F6F5FD;
-          color: #1C1B29;
-          font-size: 0.8rem;
-          letter-spacing: 0.02em;
-          white-space: nowrap;
-        }
-        .sales-all-orders-table tbody td {
-          font-size: 0.875rem;
-          color: #1C1B29;
-        }
-        .sales-all-orders-table tbody tr:nth-child(even) {
-          background: #FAFAFC;
-        }
-        .sales-all-orders-table .order-ref {
-          font-size: 0.8rem;
-          background: #F0EEFC;
-          color: #4B3F9A;
-          padding: 0.15rem 0.4rem;
-          border-radius: 4px;
-        }
-        .sales-all-orders-table .amount {
-          font-weight: 600;
-          white-space: nowrap;
-        }
-        .items-ordered-cell {
-          min-width: 160px;
-          max-width: 240px;
-        }
-        .items-ordered-list {
-          display: block;
-          white-space: pre-line;
-          line-height: 1.45;
-          font-size: 0.82rem;
-          color: #1C1B29;
-        }
-      `}</style>
     </Container>
   );
 };

@@ -42,6 +42,8 @@ function normalizeText(value) {
 export default function ProductManager({
   filterCategory: propFilterCategory = null,
   filterStatus: propFilterStatus = null,
+  soldProductNames: propSoldProductNames = [],
+  onClearExternalFilters,
   onProductsLoaded,
   showAlert,
 }) {
@@ -54,6 +56,10 @@ export default function ProductManager({
 
   const [internalCategory, setInternalCategory] = useState(propFilterCategory || '');
   const [internalStatus, setInternalStatus] = useState(propFilterStatus || '');
+  const soldProductSet = useMemo(
+    () => new Set((Array.isArray(propSoldProductNames) ? propSoldProductNames : []).map(normalizeText)),
+    [propSoldProductNames],
+  );
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
@@ -257,9 +263,11 @@ export default function ProductManager({
         normalizeText(p.category).includes(query);
       const matchesCategory = !internalCategory || p.category === internalCategory;
       const matchesStatus = !internalStatus || p.status === internalStatus;
-      return matchesSearch && matchesCategory && matchesStatus;
+      const matchesSoldProducts =
+        soldProductSet.size === 0 || soldProductSet.has(normalizeText(p.name));
+      return matchesSearch && matchesCategory && matchesStatus && matchesSoldProducts;
     });
-  }, [products, search, internalCategory, internalStatus]);
+  }, [products, search, internalCategory, internalStatus, soldProductSet]);
 
   const categoryOptions = useMemo(
     () => categories.map((c) => ({ label: c, value: c })),
@@ -307,9 +315,9 @@ export default function ProductManager({
           </span>
           <span className="badge bg-secondary ms-2">{filtered.length} total</span>
           {isSaving && <span className="badge bg-primary ms-2">Saving...</span>}
-          {(internalCategory || internalStatus) && (
+          {(internalCategory || internalStatus || soldProductSet.size > 0) && (
             <Badge bg="warning" className="ms-2">
-              <i className="bi bi-funnel me-1"></i> Filtered
+              <i className="bi bi-funnel me-1"></i> {soldProductSet.size > 0 ? 'Sold products' : 'Filtered'}
             </Badge>
           )}
         </div>
@@ -356,7 +364,7 @@ export default function ProductManager({
             styles={reactSelectStyles}
           />
         </Col>
-        {(internalCategory || internalStatus) && (
+        {(internalCategory || internalStatus || soldProductSet.size > 0) && (
           <Col xs={12} md="auto">
             <Button
               variant="outline-secondary"
@@ -364,6 +372,7 @@ export default function ProductManager({
               onClick={() => {
                 setInternalCategory('');
                 setInternalStatus('');
+                onClearExternalFilters?.();
               }}
             >
               <i className="bi bi-x-circle me-1"></i> Clear Filters

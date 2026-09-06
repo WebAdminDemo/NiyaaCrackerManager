@@ -1,7 +1,5 @@
-// src/sales/components/KpiCards.jsx
-import React from "react";
+import React, { useMemo, useState } from "react";
 import { Row, Col, Card } from "react-bootstrap";
-import { motion } from "framer-motion";
 import {
   IndianRupee,
   Package,
@@ -13,140 +11,184 @@ import {
   Truck,
   CheckCircle2,
   XCircle,
+  ArrowUpRight,
 } from "lucide-react";
+import KpiDetailsModal, {
+  buildCustomers,
+  buildSoldProducts,
+} from "./KpiDetailsModal";
 
 const METRICS = [
   {
     key: "totalRevenue",
     label: "Revenue",
     icon: IndianRupee,
-    accent: "#16A34A",
-    tint: "#EAF9EF",
-    format: (v) => `₹${Number(v).toLocaleString("en-IN")}`,
+    className: "revenue",
+    clickable: false,
+    format: (value) =>
+      `₹${Number(value || 0).toLocaleString("en-IN", {
+        maximumFractionDigits: 0,
+      })}`,
   },
   {
     key: "totalOrders",
     label: "Orders",
     icon: Package,
-    accent: "#2563EB",
-    tint: "#EAF2FE",
-    format: (v) => Number(v).toLocaleString("en-IN"),
+    className: "orders",
+    clickable: true,
+    hint: "Open orders",
+    format: (value) => Number(value || 0).toLocaleString("en-IN"),
   },
   {
     key: "totalCustomers",
     label: "Customers",
     icon: Users,
-    accent: "#7C3AED",
-    tint: "#F2ECFE",
-    format: (v) => Number(v).toLocaleString("en-IN"),
+    className: "customers",
+    clickable: true,
+    hint: "View customers",
+    format: (value) => Number(value || 0).toLocaleString("en-IN"),
   },
   {
     key: "totalQuantity",
     label: "Units Sold",
     icon: ShoppingCart,
-    accent: "#D97706",
-    tint: "#FDF3E7",
-    format: (v) => Number(v).toLocaleString("en-IN"),
+    className: "units",
+    clickable: true,
+    hint: "View sold products",
+    format: (value) => Number(value || 0).toLocaleString("en-IN"),
   },
 ];
 
 const STATUS_CONFIG = {
-  pending: { label: "Pending", icon: Clock, color: "#B45309", bg: "#FEF6E7" },
-  processing: { label: "Processing", icon: RefreshCw, color: "#1D4ED8", bg: "#EAF2FE" },
-  packaging: { label: "Packaging", icon: PackageCheck, color: "#6D28D9", bg: "#F2ECFE" },
-  shipped: { label: "Shipped", icon: Truck, color: "#0F766E", bg: "#E7F7F4" },
-  delivered: { label: "Delivered", icon: CheckCircle2, color: "#15803D", bg: "#EAF9EF" },
-  cancelled: { label: "Cancelled", icon: XCircle, color: "#B91C1C", bg: "#FDEDED" },
+  pending: { label: "Pending", icon: Clock, className: "pending" },
+  processing: { label: "Processing", icon: RefreshCw, className: "processing" },
+  packaging: { label: "Packaging", icon: PackageCheck, className: "packaging" },
+  shipped: { label: "Shipped", icon: Truck, className: "shipped" },
+  delivered: { label: "Delivered", icon: CheckCircle2, className: "delivered" },
+  cancelled: { label: "Cancelled", icon: XCircle, className: "cancelled" },
 };
 
-const cardMotion = {
-  whileHover: { y: -3, boxShadow: "0 12px 24px -12px rgba(15, 23, 42, 0.18)" },
-  transition: { duration: 0.2, ease: "easeOut" },
-};
+const KpiCards = ({
+  analytics,
+  orders = [],
+  onNavigateToOrders,
+  onViewSoldProducts,
+}) => {
+  const [modalType, setModalType] = useState(null);
 
-const MetricCard = ({ label, value, icon: Icon, accent, tint }) => (
-  <motion.div {...cardMotion} style={{ height: "100%" }}>
-    <Card className="border-0 shadow-sm rounded-4 h-100 metric-card">
-      <Card.Body className="d-flex align-items-center justify-content-between">
-        <div>
-          <div className="metric-label">{label}</div>
-          <div className="metric-value">{value}</div>
-        </div>
-        <div className="metric-icon" style={{ background: tint, color: accent }}>
-          <Icon size={20} strokeWidth={2.25} />
-        </div>
-      </Card.Body>
-    </Card>
-  </motion.div>
-);
+  const customers = useMemo(() => buildCustomers(orders), [orders]);
+  const soldProducts = useMemo(() => buildSoldProducts(orders), [orders]);
 
-const StatusPill = ({ status, count }) => {
-  const cfg = STATUS_CONFIG[status];
-  const Icon = cfg.icon;
-  return (
-    <Col xs={4} md={2}>
-      <motion.div
-        whileHover={{ y: -2 }}
-        transition={{ duration: 0.15, ease: "easeOut" }}
-        style={{ height: "100%" }}
-      >
-        <Card
-          className="border-0 h-100 status-pill"
-          style={{ background: cfg.bg }}
-        >
-          <Card.Body className="d-flex flex-column align-items-center text-center py-3">
-            <Icon size={18} strokeWidth={2.25} color={cfg.color} />
-            <div className="status-label" style={{ color: cfg.color }}>
-              {cfg.label}
-            </div>
-            <div className="status-count" style={{ color: cfg.color }}>
-              {count || 0}
-            </div>
-          </Card.Body>
-        </Card>
-      </motion.div>
-    </Col>
+  const totals = useMemo(
+    () => ({
+      totalRevenue: Number(analytics?.totalRevenue ?? 0),
+      totalOrders: Number(analytics?.totalOrders ?? orders.length),
+      totalCustomers: customers.length,
+      totalQuantity: Number(
+        analytics?.totalQuantity ??
+          orders.reduce(
+            (sum, order) =>
+              sum +
+              Number(
+                order.totalQuantity ??
+                  (order.items || []).reduce(
+                    (itemSum, item) =>
+                      itemSum + Number(item.quantity || 0),
+                    0,
+                  ),
+              ),
+            0,
+          ),
+      ),
+    }),
+    [analytics, orders, customers],
   );
-};
 
-const KpiCards = ({ analytics }) => {
   if (!analytics) return null;
 
-  const {
-    totalRevenue = 0,
-    totalOrders = 0,
-    totalQuantity = 0,
-    totalCustomers = 0,
-    statusCounts = {},
-  } = analytics;
+  const openMetric = (key) => {
+    if (key === "totalOrders") {
+      onNavigateToOrders?.();
+      return;
+    }
 
-  const values = { totalRevenue, totalOrders, totalQuantity, totalCustomers };
+    if (key === "totalCustomers") {
+      setModalType("customers");
+      return;
+    }
+
+    if (key === "totalQuantity") {
+      setModalType("soldProducts");
+    }
+  };
 
   return (
     <>
       <Row className="g-3 mb-3 kpi-cards">
-        {METRICS.map((m) => (
-          <Col xs={6} md={3} key={m.key}>
-            <MetricCard
-              label={m.label}
-              value={m.format(values[m.key])}
-              icon={m.icon}
-              accent={m.accent}
-              tint={m.tint}
-            />
+        {METRICS.map(({ key, label, icon: Icon, className, clickable, hint, format }) => (
+          <Col xs={6} md={3} key={key}>
+            <Card
+              className={`metric-card metric-card--${className} h-100 ${clickable ? "metric-card--clickable" : ""}`}
+              role={clickable ? "button" : undefined}
+              tabIndex={clickable ? 0 : undefined}
+              onClick={clickable ? () => openMetric(key) : undefined}
+              onKeyDown={
+                clickable
+                  ? (event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        openMetric(key);
+                      }
+                    }
+                  : undefined
+              }
+            >
+              <Card.Body>
+                <div className="metric-card__content">
+                  <div className="metric-label">{label}</div>
+                  <div className="metric-value">{format(totals[key])}</div>
+                  {clickable && (
+                    <span className="metric-card__hint">
+                      {hint}
+                      <ArrowUpRight size={13} />
+                    </span>
+                  )}
+                </div>
+                <div className={`metric-icon metric-icon--${className}`}>
+                  <Icon size={19} strokeWidth={2.25} />
+                </div>
+              </Card.Body>
+            </Card>
           </Col>
         ))}
       </Row>
 
-      <Row className="g-2 mb-3 kpi-cards">
-        {Object.keys(STATUS_CONFIG).map((status) => (
-          <StatusPill
-            key={status}
-            status={status}
-            count={statusCounts[status]}
-          />
-        ))}
+      <Row className="g-2 mb-3 status-cards">
+        {Object.entries(STATUS_CONFIG).map(([status, config]) => {
+          const Icon = config.icon;
+          return (
+            <Col xs={4} md={2} key={status}>
+              <Card className={`status-pill status-pill--${config.className}`}>
+                <Card.Body>
+                  <Icon size={17} />
+                  <div className="status-label">{config.label}</div>
+                  <div className="status-count">
+                    {analytics.statusCounts?.[status] || 0}
+                  </div>
+                </Card.Body>
+              </Card>
+            </Col>
+          );
+        })}
       </Row>
+
+      <KpiDetailsModal
+        type={modalType}
+        show={Boolean(modalType)}
+        onHide={() => setModalType(null)}
+        orders={orders}
+        onViewSoldProducts={onViewSoldProducts}
+      />
     </>
   );
 };

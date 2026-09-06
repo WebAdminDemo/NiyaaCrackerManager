@@ -65,6 +65,7 @@ const Dashboard = memo(function Dashboard() {
   const [showOffcanvas, setShowOffcanvas] = useState(false);
   const [filterCategory, setFilterCategory] = useState(null);
   const [filterStatus, setFilterStatus] = useState(null);
+  const [soldProductNames, setSoldProductNames] = useState([]);
 
   const [alert, setAlert] = useState({
     show: false,
@@ -87,12 +88,26 @@ const Dashboard = memo(function Dashboard() {
 
   const handleNavClick = useCallback((key) => {
     if (!VALID_VIEWS.includes(key)) return;
+
+    if (key !== 'products') {
+      setFilterCategory(null);
+      setFilterStatus(null);
+      setSoldProductNames([]);
+    }
+
     setView(key);
     setShowOffcanvas(false);
   }, []);
 
   const handleDesktopNavClick = useCallback((key) => {
     if (!VALID_VIEWS.includes(key)) return;
+
+    if (key !== 'products') {
+      setFilterCategory(null);
+      setFilterStatus(null);
+      setSoldProductNames([]);
+    }
+
     setView(key);
   }, []);
 
@@ -100,21 +115,14 @@ const Dashboard = memo(function Dashboard() {
     setStoredView(view);
   }, [view]);
 
-  // --- THE FIX ---
-  // Previously productStats only got set inside handleProductsLoaded, which is
-  // passed to <ProductsManager>. That component only mounts when view === 'products',
-  // so refreshing the page while on the dashboard (or landing there directly)
-  // left productStats at its initial {0,[],0} state forever.
-  // We now fetch stats independently as soon as Dashboard mounts, regardless of view.
   const fetchProductStats = useCallback(async () => {
     setStatsLoading(true);
     try {
-      const res = await getProducts(); // axios response
+      const res = await getProducts();
       const products = Array.isArray(res.data) ? res.data : (res.data?.data ?? []);
       setProductStats(computeStats(products));
     } catch (err) {
       console.error('Failed to fetch product stats:', err);
-      // keep previous stats instead of forcing to 0 on a transient error
     } finally {
       setStatsLoading(false);
       hasFetchedOnce.current = true;
@@ -135,8 +143,6 @@ const Dashboard = memo(function Dashboard() {
     []
   );
 
-  // ProductsManager still reports back its freshest list (e.g. after create/edit/delete)
-  // so stats stay in sync without waiting for a full refetch.
   const handleProductsLoaded = useCallback((products) => {
     setProductStats(computeStats(products || []));
   }, []);
@@ -151,6 +157,7 @@ const Dashboard = memo(function Dashboard() {
   const clearFilters = useCallback(() => {
     setFilterCategory(null);
     setFilterStatus(null);
+    setSoldProductNames([]);
   }, []);
 
   const navigateToProducts = useCallback(() => {
@@ -158,6 +165,26 @@ const Dashboard = memo(function Dashboard() {
     setView('products');
     setShowOffcanvas(false);
   }, [clearFilters]);
+
+  const navigateToOrders = useCallback(() => {
+    setFilterCategory(null);
+    setFilterStatus(null);
+    setSoldProductNames([]);
+    setView('orders');
+    setShowOffcanvas(false);
+  }, []);
+
+  const navigateToSoldProducts = useCallback((soldProducts) => {
+    const names = (soldProducts || [])
+      .map((product) => product?.name)
+      .filter(Boolean);
+
+    setFilterCategory(null);
+    setFilterStatus(null);
+    setSoldProductNames(names);
+    setView('products');
+    setShowOffcanvas(false);
+  }, []);
 
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [showOutOfStockModal, setShowOutOfStockModal] = useState(false);
@@ -276,6 +303,8 @@ const Dashboard = memo(function Dashboard() {
               <ProductsManager
                 filterCategory={filterCategory}
                 filterStatus={filterStatus}
+                soldProductNames={soldProductNames}
+                onClearExternalFilters={clearFilters}
                 onProductsLoaded={handleProductsLoaded}
                 showAlert={showAlert}
               />
@@ -286,7 +315,10 @@ const Dashboard = memo(function Dashboard() {
                 fallback={<div className="p-5 text-center text-muted">Loading sales dashboard...</div>}
               >
                 <div className="p-3">
-                  <SalesDashboard />
+                  <SalesDashboard
+                    onNavigateToOrders={navigateToOrders}
+                    onViewSoldProducts={navigateToSoldProducts}
+                  />
                 </div>
               </Suspense>
             )}

@@ -12,12 +12,10 @@ const buildQuery = (filters = {}) => {
 
 const normalizeOrder = (order) => ({
   ...order,
-  // Create customer object for components that expect it
   customer: {
     name: order.customerName || 'Walk‑in customer',
     phone: order.customerPhone || '—',
   },
-  // Keep direct fields for convenience
   customerName: order.customerName || 'Walk‑in customer',
   customerPhone: order.customerPhone || '—',
   orderDate: order.orderDate || order.createdAt,
@@ -35,13 +33,13 @@ const normalizeOrder = (order) => ({
 });
 
 export const salesApi = {
-  async getOrders(filters = {}) {
-    const response = await api.get(`/sales/orders${buildQuery(filters)}`);
+  async getOrders(filters = {}, signal) {
+    const response = await api.get(`/sales/orders${buildQuery(filters)}`, { signal });
     return Array.isArray(response.data) ? response.data.map(normalizeOrder) : [];
   },
 
-  async getAnalytics(filters = {}) {
-    const response = await api.get(`/sales/analytics${buildQuery(filters)}`);
+  async getAnalytics(filters = {}, signal) {
+    const response = await api.get(`/sales/analytics${buildQuery(filters)}`, { signal });
     const data = response.data;
     return {
       totalRevenue: Number(data.totalRevenue || 0),
