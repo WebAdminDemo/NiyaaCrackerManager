@@ -279,10 +279,15 @@ const SalesDashboard = ({
       </Row>
 
       <Row className="g-3 mt-2">
-        <Col lg={6}>
+        <Col lg={12}>
           <TopProductsBarChart products={analytics?.topProducts || []} />
         </Col>
-        <Col lg={6}>
+        
+      </Row>
+
+       <Row className="g-3 mt-2">
+        
+        <Col lg={12}>
           <CustomerAnalytics orders={orders} />
         </Col>
       </Row>
