@@ -9,11 +9,22 @@ import {
   updateProduct,
   deleteProduct,
   updateProductStatus,
+  replaceAllProducts,
 } from './products/productsApi';
 import { formatINR } from '../utils/utils';
 import { reactSelectStyles, portalSelectProps } from '../utils/selectStyles';
+import ExportImport from './ExportImport';
+import { exportProductsToExcel, parseProductsExcel } from './products/productExcel';
 
-const FALLBACK_IMAGE = 'https://via.placeholder.com/400x300/f0edf5/6C5CE7?text=No+Image';
+const FALLBACK_IMAGE =
+  'data:image/svg+xml;charset=UTF-8,' +
+  encodeURIComponent(`
+    <svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
+      <rect width="400" height="300" fill="#f0edf5"/>
+      <text x="200" y="150" text-anchor="middle" dominant-baseline="middle"
+        font-family="Arial, sans-serif" font-size="24" fill="#6C5CE7">No Image</text>
+    </svg>
+  `);
 const STATUS_FILTER_OPTIONS = [
   { value: '', label: 'All Status' },
   { value: 'in_stock', label: 'In Stock' },
@@ -23,6 +34,7 @@ const STATUS_FILTER_OPTIONS = [
 function normalizeProducts(products) {
   if (!Array.isArray(products)) return [];
   return products.map((p) => ({
+    ...p,
     rowid: p.rowid || p.id,
     name: p.name ?? '',
     category: p.category ?? '',
@@ -30,10 +42,27 @@ function normalizeProducts(products) {
     price: p.price ?? 0,
     image: p.image ?? '',
     contents: p.contents ?? '',
-    discount_percent: Number(p.discountPercent) || 0,
+    discount_percent: Number(p.discountPercent ?? p.discount_percent) || 0,
     status: p.status === 'no_stock' ? 'no_stock' : 'in_stock',
   }));
 }
+
+function buildImportPayload(product) {
+  return {
+    ...product,
+    discountPercent: Number(product.discountPercent ?? product.discount_percent ?? 0),
+    discount_percent: Number(product.discountPercent ?? product.discount_percent ?? 0),
+    amount: Number(product.amount ?? 0),
+    price: Number(product.price ?? 0),
+    taxRate: Number(product.taxRate ?? 0),
+    minOrderQty: Number(product.minOrderQty ?? 1),
+    stockQuantity: product.stockQuantity === null || product.stockQuantity === '' ? null : Number(product.stockQuantity),
+    maxOrderQty: product.maxOrderQty === null || product.maxOrderQty === '' ? null : Number(product.maxOrderQty),
+    tags: Array.isArray(product.tags) ? product.tags : [],
+    uiFlags: product.uiFlags || { featured: false, hidden: false },
+  };
+}
+
 
 function normalizeText(value) {
   return String(value ?? '').trim().toLowerCase();
@@ -288,6 +317,71 @@ export default function ProductManager({
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
+  // Excel export/import
+  const handleExportExcel = useCallback(() => {
+    try {
+      exportProductsToExcel(products);
+      showLocalAlert('Export complete', `${products.length} product(s) exported to Excel.`, 'success');
+    } catch (err) {
+      console.error('Excel export error:', err);
+      showLocalAlert('Export failed', err.message || 'Unable to export products to Excel.', 'danger');
+    }
+  }, [products, showLocalAlert]);
+
+  const performImport = useCallback(async (importedProducts) => {
+    if (!Array.isArray(importedProducts) || importedProducts.length === 0) return;
+
+    setIsSaving(true);
+    try {
+      const payload = importedProducts.map(buildImportPayload);
+      const response = await replaceAllProducts(payload);
+      const imported = Array.isArray(response.data) ? response.data : [];
+
+      const normalized = normalizeProducts(imported);
+      setProducts(normalized);
+      setCategories([...new Set(normalized.map((p) => p.category).filter(Boolean))]);
+      if (onProductsLoaded) onProductsLoaded(normalized);
+
+      showLocalAlert(
+        'Import complete',
+        `The product catalog was replaced successfully with ${normalized.length} product(s). Old products were removed atomically.`,
+        'success',
+      );
+    } catch (err) {
+      console.error('Excel import error:', err);
+      showLocalAlert(
+        'Import failed',
+        err.response?.data?.message || err.message || 'Unable to import products. The existing catalog was not changed.',
+        'danger',
+      );
+    } finally {
+      setIsSaving(false);
+    }
+  }, [onProductsLoaded, showLocalAlert]);
+
+  const handleImportExcel = useCallback(async (file) => {
+    try {
+      const importedProducts = await parseProductsExcel(file);
+      setAlert({
+        show: true,
+        title: 'Replace Products?',
+        message: `This Excel file contains ${importedProducts.length} product(s). Products not present in the Excel file will be deleted from the database. Existing products with the same rowid will be updated. Do you want to continue?`,
+        variant: 'warning',
+        confirmText: 'Import & Replace',
+        showCancel: true,
+        cancelText: 'Cancel',
+        onConfirm: async () => {
+          setAlert((prev) => ({ ...prev, show: false }));
+          await performImport(importedProducts);
+        },
+        onCancel: () => setAlert((prev) => ({ ...prev, show: false })),
+      });
+    } catch (err) {
+      console.error('Excel parse error:', err);
+      showLocalAlert('Invalid Excel file', err.message || 'Please use the exported Products Excel format.', 'danger');
+    }
+  }, [performImport, showLocalAlert]);
+
   // Render
   if (loading && products.length === 0) {
     return (
@@ -322,7 +416,8 @@ export default function ProductManager({
           )}
         </div>
         <div className="d-flex gap-2 flex-wrap">
-          <Button variant="primary" size="sm" onClick={openAddModal}>
+          <ExportImport onExport={handleExportExcel} onImport={handleImportExcel} />
+          <Button variant="primary" size="sm" onClick={openAddModal} disabled={isSaving}>
             <i className="bi bi-plus-lg me-1" aria-hidden="true"></i> Add Product
           </Button>
         </div>

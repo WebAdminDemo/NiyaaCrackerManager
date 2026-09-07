@@ -361,19 +361,39 @@ body[data-bs-theme="dark"] .sales-orders-page,
   padding: 20px 18px 18px 22px;
 }
 
-.metric-card--revenue { --metric-color: #6c5ce7; --icon-bg: #eeeaff; }
-.metric-card--orders { --metric-color: #1688d9; --icon-bg: #e6f4ff; }
-.metric-card--customers { --metric-color: #07966f; --icon-bg: #e5f8f2; }
-.metric-card--units { --metric-color: #d88900; --icon-bg: #fff3dc; }
+.metric-card--revenue {
+  --metric-color: #6c5ce7;
+  --icon-bg: #eeeaff;
+}
+.metric-card--orders {
+  --metric-color: #1688d9;
+  --icon-bg: #e6f4ff;
+}
+.metric-card--customers {
+  --metric-color: #07966f;
+  --icon-bg: #e5f8f2;
+}
+.metric-card--units {
+  --metric-color: #d88900;
+  --icon-bg: #fff3dc;
+}
 
 [data-sales-theme="dark"] .metric-card--revenue,
-body.dark .metric-card--revenue { --icon-bg: #292443; }
+body.dark .metric-card--revenue {
+  --icon-bg: #292443;
+}
 [data-sales-theme="dark"] .metric-card--orders,
-body.dark .metric-card--orders { --icon-bg: #172d40; }
+body.dark .metric-card--orders {
+  --icon-bg: #172d40;
+}
 [data-sales-theme="dark"] .metric-card--customers,
-body.dark .metric-card--customers { --icon-bg: #15352e; }
+body.dark .metric-card--customers {
+  --icon-bg: #15352e;
+}
 [data-sales-theme="dark"] .metric-card--units,
-body.dark .metric-card--units { --icon-bg: #382b17; }
+body.dark .metric-card--units {
+  --icon-bg: #382b17;
+}
 
 .metric-card__content {
   min-width: 0;
@@ -439,12 +459,24 @@ body.dark .metric-card--units { --icon-bg: #382b17; }
   color: var(--status-color);
 }
 
-.status-pill--pending { --status-color: #c88900; }
-.status-pill--processing { --status-color: #287fd7; }
-.status-pill--packaging { --status-color: #7c6f9d; }
-.status-pill--shipped { --status-color: #6c5ce7; }
-.status-pill--delivered { --status-color: #07966f; }
-.status-pill--cancelled { --status-color: #d64555; }
+.status-pill--pending {
+  --status-color: #c88900;
+}
+.status-pill--processing {
+  --status-color: #287fd7;
+}
+.status-pill--packaging {
+  --status-color: #7c6f9d;
+}
+.status-pill--shipped {
+  --status-color: #6c5ce7;
+}
+.status-pill--delivered {
+  --status-color: #07966f;
+}
+.status-pill--cancelled {
+  --status-color: #d64555;
+}
 
 .status-label {
   color: var(--sd-text-2);
@@ -564,12 +596,24 @@ body.dark .metric-card--units { --icon-bg: #382b17; }
   border-radius: 50%;
 }
 
-.category-pie-color-0 { background: #2196f3; }
-.category-pie-color-1 { background: #ff4b16; }
-.category-pie-color-2 { background: #ffd21f; }
-.category-pie-color-3 { background: #00b894; }
-.category-pie-color-4 { background: #6c5ce7; }
-.category-pie-color-5 { background: #d63384; }
+.category-pie-color-0 {
+  background: #2196f3;
+}
+.category-pie-color-1 {
+  background: #ff4b16;
+}
+.category-pie-color-2 {
+  background: #ffd21f;
+}
+.category-pie-color-3 {
+  background: #00b894;
+}
+.category-pie-color-4 {
+  background: #6c5ce7;
+}
+.category-pie-color-5 {
+  background: #d63384;
+}
 
 .category-pie-name {
   min-width: 0;
@@ -1102,25 +1146,61 @@ body.dark .sales-order-modal .modal-header .btn-close {
   font-weight: 800;
 }
 
-.sales-status-badge--pending { color: #9b6c00 !important; background: #fff4d8 !important; }
-.sales-status-badge--processing { color: #1767a9 !important; background: #e3f2ff !important; }
-.sales-status-badge--packaging { color: #675a87 !important; background: #eeeaf8 !important; }
-.sales-status-badge--shipped { color: #5546d1 !important; background: #ece9ff !important; }
-.sales-status-badge--delivered { color: #08795a !important; background: #def7ee !important; }
-.sales-status-badge--cancelled { color: #ad3442 !important; background: #ffe5e8 !important; }
+.sales-status-badge--pending {
+  color: #9b6c00 !important;
+  background: #fff4d8 !important;
+}
+.sales-status-badge--processing {
+  color: #1767a9 !important;
+  background: #e3f2ff !important;
+}
+.sales-status-badge--packaging {
+  color: #675a87 !important;
+  background: #eeeaf8 !important;
+}
+.sales-status-badge--shipped {
+  color: #5546d1 !important;
+  background: #ece9ff !important;
+}
+.sales-status-badge--delivered {
+  color: #08795a !important;
+  background: #def7ee !important;
+}
+.sales-status-badge--cancelled {
+  color: #ad3442 !important;
+  background: #ffe5e8 !important;
+}
 
 .sales-order-modal[data-sales-theme="dark"] .sales-status-badge--pending,
-body.dark .sales-order-modal .sales-status-badge--pending { color: #f2c14d !important; background: #3b3017 !important; }
+body.dark .sales-order-modal .sales-status-badge--pending {
+  color: #f2c14d !important;
+  background: #3b3017 !important;
+}
 .sales-order-modal[data-sales-theme="dark"] .sales-status-badge--processing,
-body.dark .sales-order-modal .sales-status-badge--processing { color: #6db9f4 !important; background: #173147 !important; }
+body.dark .sales-order-modal .sales-status-badge--processing {
+  color: #6db9f4 !important;
+  background: #173147 !important;
+}
 .sales-order-modal[data-sales-theme="dark"] .sales-status-badge--packaging,
-body.dark .sales-order-modal .sales-status-badge--packaging { color: #b9a9df !important; background: #302941 !important; }
+body.dark .sales-order-modal .sales-status-badge--packaging {
+  color: #b9a9df !important;
+  background: #302941 !important;
+}
 .sales-order-modal[data-sales-theme="dark"] .sales-status-badge--shipped,
-body.dark .sales-order-modal .sales-status-badge--shipped { color: #a49af7 !important; background: #292443 !important; }
+body.dark .sales-order-modal .sales-status-badge--shipped {
+  color: #a49af7 !important;
+  background: #292443 !important;
+}
 .sales-order-modal[data-sales-theme="dark"] .sales-status-badge--delivered,
-body.dark .sales-order-modal .sales-status-badge--delivered { color: #5bd1ad !important; background: #15352e !important; }
+body.dark .sales-order-modal .sales-status-badge--delivered {
+  color: #5bd1ad !important;
+  background: #15352e !important;
+}
 .sales-order-modal[data-sales-theme="dark"] .sales-status-badge--cancelled,
-body.dark .sales-order-modal .sales-status-badge--cancelled { color: #ff7d89 !important; background: #422329 !important; }
+body.dark .sales-order-modal .sales-status-badge--cancelled {
+  color: #ff7d89 !important;
+  background: #422329 !important;
+}
 
 .sales-order-modal__body {
   padding: 22px 24px;
@@ -2240,5 +2320,2000 @@ body.dark .sales-details-modal .modal-header .btn-close {
     width: 100%;
     justify-content: center;
     flex-wrap: wrap;
+  }
+}
+
+/* ============================================================
+   SALES RESPONSIVE / THEME PATCH
+   ------------------------------------------------------------
+   This section intentionally overrides only sales.css rules.
+   index.css is not modified.
+   Goals:
+   - keep the sales page inside the available viewport
+   - use the same theme tokens as index.css where available
+   - make light/dark mode reliable for sales + orders
+   - keep wide tables inside their own horizontal scroll area
+   - give Recent Orders a complete table border on every side
+   - make Order Details fit small screens
+   ============================================================ */
+
+/* ---------- Viewport / container safety ---------- */
+
+.sales-dashboard,
+.sales-orders-page {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin-left: 0;
+  margin-right: 0;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+.sales-dashboard *,
+.sales-orders-page *,
+.sales-order-modal *,
+.sales-details-modal * {
+  box-sizing: border-box;
+}
+
+.sales-dashboard .row,
+.sales-orders-page .row {
+  min-width: 0;
+}
+
+.sales-dashboard [class*="col-"],
+.sales-orders-page [class*="col-"] {
+  min-width: 0;
+}
+
+/* Let the page inherit the application's theme instead of creating
+   a separate visual system. These values intentionally mirror the
+   tokens already defined in index.css. */
+.sales-dashboard,
+.sales-orders-page {
+  --sd-brand: var(--brand, #6c5ce7);
+  --sd-brand-dark: var(--brand-3, #5a4bd1);
+  --sd-brand-soft: var(--bg-muted, #efe9ff);
+  --sd-bg: var(--bg-app, #f7f4ff);
+  --sd-card: var(--bg-card-2, #ffffff);
+  --sd-input: var(--bg-input, #ffffff);
+  --sd-muted-bg: var(--bg-muted, #efe9ff);
+  --sd-text: var(--text-1, #1f1832);
+  --sd-text-2: var(--text-2, #5e5873);
+  --sd-text-3: var(--text-3, #867fa0);
+  --sd-border: var(--border, rgba(130, 111, 255, 0.14));
+  --sd-border-strong: var(--border-strong, rgba(108, 92, 231, 0.22));
+  --sd-bg-card: var(--bg-card-2, #ffffff);
+}
+
+/* Dark mode can be applied to the document by ThemeContext/index.css.
+   Keep both Bootstrap's current mechanism and the common legacy classes
+   supported without changing index.css. */
+[data-bs-theme="dark"] .sales-dashboard,
+[data-bs-theme="dark"] .sales-orders-page,
+body.dark .sales-dashboard,
+body.dark .sales-orders-page,
+body[data-theme="dark"] .sales-dashboard,
+body[data-theme="dark"] .sales-orders-page,
+.dark .sales-dashboard,
+.dark .sales-orders-page,
+.sales-dashboard[data-sales-theme="dark"],
+.sales-orders-page[data-sales-theme="dark"] {
+  --sd-bg: var(--bg-app, #120f1d);
+  --sd-card: var(--bg-card-2, #1d182c);
+  --sd-input: var(--bg-input, #211b33);
+  --sd-muted-bg: var(--bg-muted, #241f36);
+  --sd-text: var(--text-1, #f3efff);
+  --sd-text-2: var(--text-2, #c7c0dd);
+  --sd-text-3: var(--text-3, #9b94b6);
+  --sd-border: var(--border, rgba(163, 151, 255, 0.12));
+  --sd-border-strong: var(--border-strong, rgba(163, 151, 255, 0.18));
+  --sd-bg-card: var(--bg-card-2, #1d182c);
+}
+
+/* ---------- Hero ---------- */
+
+.sales-dashboard .sales-hero {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.sales-dashboard .sales-hero > div:first-child {
+  min-width: 0;
+}
+
+.sales-dashboard .sales-hero h1,
+.sales-dashboard .sales-hero p {
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Filters ---------- */
+
+.sales-dashboard .sales-filter-bar,
+.sales-orders-page .sales-filter-bar {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.sales-dashboard .sales-filter-bar > *,
+.sales-orders-page .sales-filter-bar > * {
+  min-width: 0;
+}
+
+/* ---------- Cards / charts ---------- */
+
+.sales-dashboard .chart-container,
+.sales-dashboard .customer-analytics,
+.sales-dashboard .sales-table-card,
+.sales-dashboard .metric-card,
+.sales-orders-page > .card,
+.sales-orders-page .orders-table-card {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.sales-dashboard .recharts-responsive-container {
+  max-width: 100%;
+}
+
+/* ---------- Recent Orders / Orders tables ---------- */
+
+/*
+ * The 10-column Recent Orders table cannot be made readable at 320-600px
+ * without either hiding information or turning it into cards.
+ * We therefore keep it as a real table and put the horizontal scrolling
+ * INSIDE .table-responsive. The outer card itself always fits the screen.
+ */
+.sales-dashboard .recent-orders-table,
+.sales-dashboard .sales-table-card,
+.sales-orders-page .orders-table-card {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.sales-dashboard .recent-orders-table .table-responsive,
+.sales-orders-page .orders-table-card .table-responsive {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto !important;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+/* Complete outer + inner table borders. */
+.sales-dashboard .recent-orders-table .sales-orders-table,
+.sales-orders-page .sales-all-orders-table {
+  width: max-content;
+  min-width: 1180px;
+  margin: 0 !important;
+  border: 1px solid var(--sd-border) !important;
+  border-collapse: collapse !important;
+  border-spacing: 0 !important;
+  background: var(--sd-card) !important;
+  color: var(--sd-text) !important;
+}
+
+.sales-dashboard .recent-orders-table .sales-orders-table thead th,
+.sales-dashboard .recent-orders-table .sales-orders-table tbody td,
+.sales-orders-page .sales-all-orders-table thead th,
+.sales-orders-page .sales-all-orders-table tbody td {
+  border: 1px solid var(--sd-border) !important;
+  border-left: 1px solid var(--sd-border) !important;
+  border-right: 1px solid var(--sd-border) !important;
+  border-top: 1px solid var(--sd-border) !important;
+  border-bottom: 1px solid var(--sd-border) !important;
+}
+
+.sales-dashboard .recent-orders-table .sales-orders-table thead th,
+.sales-orders-page .sales-all-orders-table thead th {
+  background: var(--sd-muted-bg) !important;
+  color: var(--sd-text-2) !important;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.sales-dashboard .recent-orders-table .sales-orders-table tbody td,
+.sales-orders-page .sales-all-orders-table tbody td {
+  background: var(--sd-card) !important;
+  color: var(--sd-text) !important;
+  vertical-align: middle;
+}
+
+.sales-dashboard .recent-orders-table .sales-orders-table tbody tr:hover td,
+.sales-orders-page .sales-all-orders-table tbody tr:hover td {
+  background: var(--sd-muted-bg) !important;
+}
+
+.sales-dashboard .recent-orders-table .items-ordered-cell {
+  min-width: 230px;
+}
+
+.sales-dashboard .recent-orders-table .items-ordered-list,
+.sales-dashboard .recent-orders-table .category-stack {
+  max-width: 250px;
+  overflow-wrap: anywhere;
+}
+
+/* Never let the table itself create page-level horizontal overflow. */
+.sales-dashboard .recent-orders-table .table-responsive > table,
+.sales-orders-page .table-responsive > table {
+  margin-bottom: 0 !important;
+}
+
+/* ---------- Pagination ---------- */
+
+.sales-pagination {
+  width: 100%;
+  min-width: 0;
+}
+
+.sales-pagination .pagination {
+  flex-wrap: wrap;
+}
+
+/* ---------- Orders page ---------- */
+
+.sales-orders-page .orders-page-header,
+.sales-orders-page .orders-table-toolbar,
+.sales-orders-page .orders-pagination {
+  min-width: 0;
+}
+
+.sales-orders-page .orders-page-header > *,
+.sales-orders-page .orders-table-toolbar > *,
+.sales-orders-page .orders-pagination > * {
+  min-width: 0;
+}
+
+.sales-orders-page .orders-page-header p,
+.sales-orders-page .orders-table-toolbar span {
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Order Details modal ---------- */
+
+.sales-order-modal,
+.sales-details-modal {
+  --sd-modal-bg: var(--bg-card-2, #ffffff);
+  --sd-modal-text: var(--text-1, #1f1832);
+  --sd-modal-text-2: var(--text-2, #5e5873);
+  --sd-modal-text-3: var(--text-3, #867fa0);
+  --sd-modal-border: var(--border, rgba(130, 111, 255, 0.14));
+  --sd-modal-muted: var(--bg-muted, #efe9ff);
+  --sd-modal-brand: var(--brand, #6c5ce7);
+}
+
+/* ThemeContext passes data-sales-theme directly on the modal.
+   Keep this as the strongest selector so the portal remains themed. */
+.sales-order-modal[data-sales-theme="dark"],
+.sales-details-modal[data-sales-theme="dark"] {
+  --sd-modal-bg: #1d182c;
+  --sd-modal-text: #f3efff;
+  --sd-modal-text-2: #c7c0dd;
+  --sd-modal-text-3: #9b94b6;
+  --sd-modal-border: rgba(163, 151, 255, 0.18);
+  --sd-modal-muted: #241f36;
+  --sd-modal-brand: #897cf0;
+}
+
+body.dark .sales-order-modal,
+body[data-theme="dark"] .sales-order-modal,
+body[data-bs-theme="dark"] .sales-order-modal,
+.dark .sales-order-modal,
+body.dark .sales-details-modal,
+body[data-theme="dark"] .sales-details-modal,
+body[data-bs-theme="dark"] .sales-details-modal,
+.dark .sales-details-modal {
+  --sd-modal-bg: #1d182c;
+  --sd-modal-text: #f3efff;
+  --sd-modal-text-2: #c7c0dd;
+  --sd-modal-text-3: #9b94b6;
+  --sd-modal-border: rgba(163, 151, 255, 0.18);
+  --sd-modal-muted: #241f36;
+  --sd-modal-brand: #897cf0;
+}
+
+.sales-order-modal .modal-dialog,
+.sales-details-modal .modal-dialog {
+  width: calc(100vw - 32px);
+  max-width: 920px;
+  margin: 16px auto;
+}
+
+.sales-order-modal .modal-content,
+.sales-details-modal .modal-content {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  max-height: calc(100dvh - 32px);
+  overflow: hidden;
+  background: var(--sd-modal-bg) !important;
+  color: var(--sd-modal-text) !important;
+  border: 1px solid var(--sd-modal-border) !important;
+}
+
+/* Ensure every Bootstrap child inherits the modal theme. */
+.sales-order-modal .modal-header,
+.sales-order-modal .modal-body,
+.sales-order-modal .modal-footer,
+.sales-details-modal .modal-header,
+.sales-details-modal .modal-body,
+.sales-details-modal .modal-footer {
+  background: var(--sd-modal-bg) !important;
+  color: var(--sd-modal-text) !important;
+  border-color: var(--sd-modal-border) !important;
+}
+
+.sales-order-modal .modal-body,
+.sales-details-modal .modal-body {
+  min-width: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: calc(100dvh - 150px);
+}
+
+.sales-order-modal .modal-title,
+.sales-details-modal .modal-title,
+.sales-order-modal strong,
+.sales-order-modal h6,
+.sales-details-modal strong,
+.sales-details-modal h6 {
+  color: var(--sd-modal-text) !important;
+}
+
+.sales-order-modal span,
+.sales-order-modal p,
+.sales-details-modal span,
+.sales-details-modal p {
+  max-width: 100%;
+}
+
+.sales-order-modal .form-select,
+.sales-order-modal .form-control,
+.sales-details-modal .form-select,
+.sales-details-modal .form-control {
+  background-color: var(--sd-modal-bg) !important;
+  color: var(--sd-modal-text) !important;
+  border-color: var(--sd-modal-border) !important;
+}
+
+.sales-order-modal .form-select option,
+.sales-details-modal .form-select option {
+  background: var(--sd-modal-bg);
+  color: var(--sd-modal-text);
+}
+
+/* Order items table scrolls inside the modal, not the viewport. */
+.sales-order-modal .sales-order-items-wrap,
+.sales-details-modal .sales-details-table-wrap {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto !important;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.sales-order-modal .sales-order-items-table,
+.sales-details-modal .sales-details-table {
+  width: max-content;
+  margin: 0 !important;
+  border-collapse: collapse !important;
+  border-spacing: 0 !important;
+}
+
+.sales-order-modal .sales-order-items-table th,
+.sales-order-modal .sales-order-items-table td,
+.sales-details-modal .sales-details-table th,
+.sales-details-modal .sales-details-table td {
+  border: 1px solid var(--sd-modal-border) !important;
+}
+
+/* Timeline is also allowed to scroll inside its own area on small screens. */
+.sales-order-modal .sales-order-timeline {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+.sales-order-modal .sales-order-timeline__item {
+  min-width: 92px;
+}
+
+/* ---------- Mobile: 767px and below ---------- */
+
+@media (max-width: 767.98px) {
+  .sales-dashboard,
+  .sales-orders-page {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+
+  .sales-dashboard .sales-hero {
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    padding: 20px 16px;
+    border-radius: 18px;
+  }
+
+  .sales-dashboard .sales-hero__actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .sales-dashboard .sales-hero__actions .btn {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .sales-dashboard .sales-filter-bar,
+  .sales-orders-page .sales-filter-bar {
+    width: 100%;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding: 9px;
+  }
+
+  .sales-dashboard .sales-filter-bar > *,
+  .sales-orders-page .sales-filter-bar > * {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .sales-dashboard .sales-search {
+    grid-column: 1 / -1;
+  }
+
+  .sales-dashboard .sales-results-bar {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .sales-results-actions {
+    width: 100%;
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+
+  /* Prevent Bootstrap row/column gutters from creating a viewport overflow. */
+  .sales-dashboard .sales-visuals,
+  .sales-dashboard > .row {
+    width: auto;
+    max-width: none;
+    min-width: 0;
+  }
+
+  .sales-dashboard .sales-visuals > [class*="col-"],
+  .sales-dashboard > .row > [class*="col-"] {
+    min-width: 0;
+  }
+
+  /* KPI cards */
+  .sales-dashboard .metric-card,
+  .sales-dashboard .metric-card .card-body {
+    min-width: 0;
+  }
+
+  .sales-dashboard .metric-card .card-body {
+    padding: 15px 13px 14px 16px;
+    gap: 9px;
+  }
+
+  .metric-value {
+    font-size: clamp(20px, 6vw, 24px);
+  }
+
+  /* Charts */
+  .sales-dashboard .chart-container,
+  .sales-dashboard .customer-analytics {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .sales-dashboard .chart-container .card-body,
+  .sales-dashboard .customer-analytics .card-body {
+    padding: 13px;
+    min-width: 0;
+  }
+
+  .category-pie-chart-area {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  /* Recent Orders card always fits; only the table scrolls. */
+  .sales-dashboard .recent-orders-table {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .sales-dashboard .recent-orders-table .sales-table-card__heading {
+    padding: 14px 13px 10px;
+  }
+
+  .sales-dashboard .recent-orders-table .table-responsive {
+    width: 100%;
+    max-width: 100%;
+    border-top: 1px solid var(--sd-border);
+    border-bottom: 1px solid var(--sd-border);
+  }
+
+  .sales-dashboard .recent-orders-table .sales-orders-table {
+    min-width: 1180px;
+  }
+
+  /* Orders page */
+  .sales-orders-page .orders-page-header {
+    width: 100%;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .sales-orders-page .orders-refresh-btn {
+    width: 100%;
+  }
+
+  .sales-orders-page .orders-table-card {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .sales-orders-page .orders-table-toolbar {
+    width: 100%;
+  }
+
+  .sales-orders-page .orders-pagination {
+    width: 100%;
+  }
+
+  /* Order Details: near-full-screen modal with internal scrolling. */
+  .sales-order-modal .modal-dialog,
+  .sales-details-modal .modal-dialog {
+    width: calc(100vw - 16px) !important;
+    max-width: calc(100vw - 16px) !important;
+    margin: 8px auto !important;
+  }
+
+  .sales-order-modal .modal-content,
+  .sales-details-modal .modal-content {
+    max-height: calc(100dvh - 16px);
+    border-radius: 16px !important;
+  }
+
+  .sales-order-modal .modal-header,
+  .sales-details-modal .modal-header {
+    padding: 14px 15px !important;
+    gap: 10px;
+  }
+
+  .sales-order-modal__title-wrap {
+    min-width: 0;
+  }
+
+  .sales-order-modal .modal-title,
+  .sales-details-modal .modal-title {
+    font-size: 18px;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+  }
+
+  .sales-order-modal__subtitle {
+    overflow-wrap: anywhere;
+  }
+
+  .sales-order-modal .modal-body,
+  .sales-details-modal .modal-body {
+    max-height: calc(100dvh - 132px);
+    padding: 14px 15px 16px !important;
+  }
+
+  .sales-order-summary {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 13px;
+  }
+
+  .sales-order-summary__main {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .sales-order-summary__stats {
+    width: 100%;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .sales-order-summary__stats div {
+    min-width: 0;
+  }
+
+  .sales-order-summary__stats strong {
+    font-size: 12px;
+    overflow-wrap: anywhere;
+  }
+
+  .sales-order-summary__stats span {
+    font-size: 9px;
+  }
+
+  .sales-status-control {
+    grid-template-columns: 1fr;
+  }
+
+  .sales-order-items-table {
+    min-width: 650px !important;
+  }
+
+  .sales-order-timeline {
+    min-width: 0 !important;
+    overflow-x: auto !important;
+  }
+
+  .sales-order-timeline > * {
+    flex-shrink: 0;
+  }
+
+  .sales-order-meta-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sales-order-modal__footer,
+  .sales-details-modal__footer {
+    padding: 10px 15px !important;
+  }
+
+  .sales-order-modal__footer .btn,
+  .sales-details-modal__footer .btn {
+    width: 100%;
+  }
+}
+
+/* ---------- Small phones: 575px and below ---------- */
+
+@media (max-width: 575.98px) {
+  .sales-dashboard,
+  .sales-orders-page {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+
+  .sales-dashboard .sales-hero {
+    padding: 18px 14px;
+    border-radius: 16px;
+  }
+
+  .sales-dashboard .sales-hero h1 {
+    font-size: 25px;
+  }
+
+  .sales-dashboard .sales-hero__actions {
+    grid-template-columns: 1fr;
+  }
+
+  .sales-dashboard .sales-filter-bar,
+  .sales-orders-page .sales-filter-bar {
+    grid-template-columns: 1fr;
+  }
+
+  .sales-dashboard .sales-search {
+    grid-column: auto;
+  }
+
+  .sales-dashboard .sales-results-bar {
+    font-size: 12px;
+  }
+
+  .sales-results-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .sales-results-actions .reset-filters-btn {
+    width: 100%;
+  }
+
+  .sales-pagination {
+    align-items: stretch;
+  }
+
+  .sales-pagination .pagination {
+    justify-content: center;
+  }
+
+  /* Keep the table readable while the card itself stays inside the phone. */
+  .sales-dashboard .recent-orders-table .sales-orders-table {
+    min-width: 1080px;
+  }
+
+  .sales-dashboard .recent-orders-table .sales-orders-table th,
+  .sales-dashboard .recent-orders-table .sales-orders-table td {
+    padding: 9px 10px;
+  }
+
+  .sales-orders-page .sales-all-orders-table {
+    min-width: 1080px;
+  }
+
+  .sales-order-modal .modal-dialog,
+  .sales-details-modal .modal-dialog {
+    width: calc(100vw - 10px) !important;
+    max-width: calc(100vw - 10px) !important;
+    margin: 5px auto !important;
+  }
+
+  .sales-order-modal .modal-content,
+  .sales-details-modal .modal-content {
+    max-height: calc(100dvh - 10px);
+    border-radius: 14px !important;
+  }
+
+  .sales-order-modal .modal-header,
+  .sales-details-modal .modal-header {
+    padding: 12px 13px !important;
+  }
+
+  .sales-order-modal .modal-body,
+  .sales-details-modal .modal-body {
+    max-height: calc(100dvh - 112px);
+    padding: 12px 13px 14px !important;
+  }
+
+  .sales-order-customer strong {
+    font-size: 14px;
+    overflow-wrap: anywhere;
+  }
+
+  .sales-order-summary__stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .sales-order-summary__stats div:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .sales-order-section {
+    margin-top: 16px;
+  }
+
+  .sales-order-section__heading h6 {
+    font-size: 14px;
+  }
+
+  .sales-order-items-table {
+    min-width: 620px !important;
+  }
+
+  .sales-order-modal .sales-order-timeline__item {
+    min-width: 86px;
+  }
+}
+
+/* ---------- Very narrow phones ---------- */
+
+@media (max-width: 360px) {
+  .sales-dashboard,
+  .sales-orders-page {
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+  }
+
+  .sales-dashboard .sales-hero h1 {
+    font-size: 23px;
+  }
+
+  .sales-dashboard .metric-card .card-body {
+    padding-left: 12px;
+    padding-right: 10px;
+  }
+
+  .metric-icon {
+    width: 34px;
+    height: 34px;
+    flex-basis: 34px;
+  }
+
+  .metric-value {
+    font-size: 19px;
+  }
+
+  .sales-order-modal .modal-header,
+  .sales-details-modal .modal-header {
+    padding: 10px 11px !important;
+  }
+
+  .sales-order-modal .modal-body,
+  .sales-details-modal .modal-body {
+    padding: 10px 11px 12px !important;
+  }
+}
+
+/* ---------- Accessibility ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .sales-dashboard *,
+  .sales-orders-page *,
+  .sales-order-modal *,
+  .sales-details-modal * {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+/* ========================================================================
+   TOP PRODUCTS - MOBILE PRODUCT LABELS
+   The desktop chart keeps its x-axis labels. On small screens the labels
+   move into a clean list below the graph so long product names never look
+   cramped or overlap.
+   ======================================================================== */
+
+.top-products-mobile-list {
+  display: none;
+}
+
+.top-products-mobile-row {
+  display: grid;
+  grid-template-columns: 9px minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 9px;
+  width: 100%;
+  min-width: 0;
+  padding: 9px 2px;
+  border-bottom: 1px solid var(--sd-border);
+}
+
+.top-products-mobile-row:last-child {
+  border-bottom: 0;
+}
+
+.top-products-mobile-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex: 0 0 9px;
+}
+
+.top-products-mobile-name {
+  min-width: 0;
+  color: var(--sd-text-2);
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.top-products-mobile-value {
+  color: var(--sd-text);
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+  text-align: right;
+}
+
+/* Mobile: keep the chart itself compact and move product names underneath. */
+@media (max-width: 767px) {
+  .sales-dashboard .top-products-chart {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .sales-dashboard .top-products-chart .card-body {
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .sales-dashboard .top-products-chart-area {
+    width: 100%;
+    min-width: 0;
+    height: 245px;
+    min-height: 245px;
+    overflow: hidden;
+  }
+
+  .sales-dashboard .top-products-chart-area .recharts-responsive-container {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Remove cramped product names from the SVG x-axis on phones. */
+  .sales-dashboard .top-products-x-axis,
+  .sales-dashboard .top-products-x-axis .recharts-cartesian-axis-ticks,
+  .sales-dashboard .top-products-x-axis .recharts-cartesian-axis-tick {
+    display: none !important;
+  }
+
+  .sales-dashboard .top-products-mobile-list {
+    display: block;
+    width: 100%;
+    margin-top: 4px;
+    border-top: 1px solid var(--sd-border);
+  }
+}
+
+@media (max-width: 575px) {
+  .sales-dashboard .top-products-chart .card-body {
+    padding: 14px 13px 12px;
+  }
+
+  .sales-dashboard .top-products-chart-area {
+    height: 225px;
+    min-height: 225px;
+  }
+
+  .top-products-mobile-row {
+    grid-template-columns: 8px minmax(0, 1fr) auto;
+    column-gap: 8px;
+    padding: 9px 0;
+  }
+
+  .top-products-mobile-dot {
+    width: 8px;
+    height: 8px;
+    flex-basis: 8px;
+  }
+
+  .top-products-mobile-name {
+    font-size: 11.5px;
+    line-height: 1.4;
+  }
+
+  .top-products-mobile-value {
+    font-size: 11.5px;
+  }
+}
+
+@media (max-width: 360px) {
+  .sales-dashboard .top-products-chart .card-body {
+    padding-left: 11px;
+    padding-right: 11px;
+  }
+
+  .sales-dashboard .top-products-chart-area {
+    height: 215px;
+    min-height: 215px;
+  }
+
+  .top-products-mobile-row {
+    column-gap: 7px;
+    padding: 8px 0;
+  }
+
+  .top-products-mobile-name,
+  .top-products-mobile-value {
+    font-size: 11px;
+  }
+}
+
+/* Keep the order tables as real tables on mobile. Only their own wrapper
+   scrolls horizontally; never convert rows/cells into cards or a grid. */
+@media (max-width: 767px) {
+  .sales-dashboard .recent-orders-table .table-responsive,
+  .sales-orders-page .table-responsive {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+
+  .sales-dashboard .recent-orders-table .sales-orders-table,
+  .sales-orders-page .sales-all-orders-table {
+    display: table !important;
+    width: max-content !important;
+    table-layout: auto !important;
+    border-collapse: collapse !important;
+  }
+
+  .sales-dashboard .recent-orders-table .sales-orders-table thead,
+  .sales-dashboard .recent-orders-table .sales-orders-table tbody,
+  .sales-dashboard .recent-orders-table .sales-orders-table tr,
+  .sales-dashboard .recent-orders-table .sales-orders-table th,
+  .sales-dashboard .recent-orders-table .sales-orders-table td,
+  .sales-orders-page .sales-all-orders-table thead,
+  .sales-orders-page .sales-all-orders-table tbody,
+  .sales-orders-page .sales-all-orders-table tr,
+  .sales-orders-page .sales-all-orders-table th,
+  .sales-orders-page .sales-all-orders-table td {
+    display: table-cell !important;
+  }
+
+  .sales-dashboard .recent-orders-table .sales-orders-table th,
+  .sales-dashboard .recent-orders-table .sales-orders-table td,
+  .sales-orders-page .sales-all-orders-table th,
+  .sales-orders-page .sales-all-orders-table td {
+    border: 1px solid var(--sd-border-strong) !important;
+    white-space: nowrap;
+  }
+}
+
+.top-products-mobile-color-0 {
+  background: #2196f3;
+}
+.top-products-mobile-color-1 {
+  background: #ff4b16;
+}
+.top-products-mobile-color-2 {
+  background: #ffd21f;
+}
+.top-products-mobile-color-3 {
+  background: #00b894;
+}
+.top-products-mobile-color-4 {
+  background: #6c5ce7;
+}
+.top-products-mobile-color-5 {
+  background: #d63384;
+}
+
+/* ========================================================================
+   RECENT ORDERS — MATCH THE ORDERS PAGE TABLE EXACTLY
+   The dashboard Recent Orders component intentionally uses the same
+   .orders-table-card + .sales-all-orders-table structure as SalesOrders.
+   On phones it remains a real table. Only the table wrapper scrolls.
+   ======================================================================== */
+
+.sales-dashboard .recent-orders-table.orders-table-card {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  margin-top: 0;
+  padding: 0 !important;
+  overflow: hidden !important;
+  border: 1px solid var(--sd-border) !important;
+  border-radius: var(--sd-radius) !important;
+  background: var(--sd-card) !important;
+  box-shadow: var(--sd-shadow) !important;
+}
+
+.sales-dashboard .recent-orders-toolbar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  min-height: 59px !important;
+  width: 100% !important;
+  padding: 13px 18px !important;
+  margin: 0 !important;
+  border-bottom: 1px solid var(--sd-border) !important;
+  background: var(--sd-card) !important;
+  color: var(--sd-text-3) !important;
+  box-sizing: border-box !important;
+}
+
+.sales-dashboard .recent-orders-toolbar > div:first-child {
+  color: var(--sd-text-3) !important;
+  font-size: 13px !important;
+  line-height: 1.4;
+}
+
+.sales-dashboard .recent-orders-toolbar > div:first-child strong {
+  color: var(--sd-text) !important;
+  font-size: 15px !important;
+  font-weight: 800 !important;
+}
+
+.sales-dashboard .recent-orders-toolbar__right {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.sales-dashboard .recent-orders-toolbar-label {
+  color: var(--sd-text-3) !important;
+  font-size: 12px !important;
+  white-space: nowrap;
+}
+
+.sales-dashboard .recent-orders-table-responsive {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-width: thin;
+  border: 0 !important;
+}
+
+.sales-dashboard .recent-orders-table .sales-all-orders-table {
+  display: table !important;
+  width: max-content !important;
+  min-width: 1180px !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  table-layout: auto !important;
+  border-collapse: collapse !important;
+  border-spacing: 0 !important;
+  background: var(--sd-card) !important;
+  color: var(--sd-text) !important;
+}
+
+.sales-dashboard .recent-orders-table .sales-all-orders-table thead,
+.sales-dashboard .recent-orders-table .sales-all-orders-table tbody {
+  display: table-row-group !important;
+}
+
+.sales-dashboard .recent-orders-table .sales-all-orders-table tr {
+  display: table-row !important;
+}
+
+.sales-dashboard .recent-orders-table .sales-all-orders-table th,
+.sales-dashboard .recent-orders-table .sales-all-orders-table td {
+  display: table-cell !important;
+  box-sizing: border-box !important;
+  border: 1px solid var(--sd-border) !important;
+  vertical-align: middle !important;
+}
+
+.sales-dashboard .recent-orders-table .sales-all-orders-table thead th {
+  padding: 12px 13px !important;
+  background: var(--sd-muted-bg) !important;
+  color: var(--sd-text-2) !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.05em !important;
+  line-height: 1.3 !important;
+  text-transform: uppercase !important;
+  white-space: nowrap !important;
+}
+
+.sales-dashboard .recent-orders-table .sales-all-orders-table tbody td {
+  padding: 13px !important;
+  background: var(--sd-card) !important;
+  color: var(--sd-text) !important;
+  font-size: 13px !important;
+  line-height: 1.45 !important;
+  white-space: nowrap !important;
+}
+
+.sales-dashboard
+  .recent-orders-table
+  .sales-all-orders-table
+  tbody
+  tr:hover
+  td {
+  background: var(--sd-muted-bg) !important;
+}
+
+.sales-dashboard
+  .recent-orders-table
+  .sales-all-orders-table
+  .table-category-text,
+.sales-dashboard
+  .recent-orders-table
+  .sales-all-orders-table
+  .items-ordered-list {
+  display: block !important;
+  max-width: 250px !important;
+  color: var(--sd-text-2) !important;
+  white-space: pre-line !important;
+  overflow-wrap: normal !important;
+  word-break: normal !important;
+  line-height: 1.5 !important;
+}
+
+.sales-dashboard
+  .recent-orders-table
+  .sales-all-orders-table
+  .items-ordered-cell {
+  min-width: 230px !important;
+}
+
+.sales-dashboard .recent-orders-table .sales-all-orders-table .order-phone {
+  color: var(--sd-text-3) !important;
+}
+
+.sales-dashboard .recent-orders-table .sales-all-orders-table .amount {
+  color: var(--sd-text) !important;
+  font-weight: 800 !important;
+  white-space: nowrap !important;
+}
+
+.sales-dashboard
+  .recent-orders-table
+  .sales-all-orders-table
+  .order-view-text-btn,
+.sales-dashboard .recent-orders-table .sales-all-orders-table .order-view-btn {
+  white-space: nowrap !important;
+}
+
+.sales-dashboard .recent-orders-pagination {
+  width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* Phone: same behavior as All Orders — horizontal table, never cards/grid. */
+@media (max-width: 767.98px) {
+  .sales-dashboard .recent-orders-table.orders-table-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  .sales-dashboard .recent-orders-toolbar {
+    min-height: 56px !important;
+    padding: 12px 14px !important;
+  }
+
+  .sales-dashboard .recent-orders-toolbar-label {
+    font-size: 11px !important;
+  }
+
+  .sales-dashboard .recent-orders-table-responsive {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    touch-action: pan-x pan-y !important;
+  }
+
+  .sales-dashboard .recent-orders-table .sales-all-orders-table {
+    display: table !important;
+    width: max-content !important;
+    min-width: 1180px !important;
+    max-width: none !important;
+    table-layout: auto !important;
+  }
+
+  .sales-dashboard .recent-orders-table .sales-all-orders-table thead,
+  .sales-dashboard .recent-orders-table .sales-all-orders-table tbody {
+    display: table-row-group !important;
+  }
+
+  .sales-dashboard .recent-orders-table .sales-all-orders-table tr {
+    display: table-row !important;
+  }
+
+  .sales-dashboard .recent-orders-table .sales-all-orders-table th,
+  .sales-dashboard .recent-orders-table .sales-all-orders-table td {
+    display: table-cell !important;
+    white-space: nowrap !important;
+    border: 1px solid var(--sd-border) !important;
+  }
+
+  .sales-dashboard .recent-orders-table .sales-all-orders-table th {
+    padding: 11px 12px !important;
+    font-size: 10.5px !important;
+  }
+
+  .sales-dashboard .recent-orders-table .sales-all-orders-table td {
+    padding: 12px !important;
+    font-size: 12.5px !important;
+  }
+
+  .sales-dashboard
+    .recent-orders-table
+    .sales-all-orders-table
+    .items-ordered-cell {
+    min-width: 230px !important;
+  }
+
+  .sales-dashboard
+    .recent-orders-table
+    .sales-all-orders-table
+    .table-category-text,
+  .sales-dashboard
+    .recent-orders-table
+    .sales-all-orders-table
+    .items-ordered-list {
+    max-width: 250px !important;
+  }
+
+  .sales-dashboard .recent-orders-pagination {
+    padding: 12px 14px !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+  }
+
+  .sales-dashboard .recent-orders-pagination .orders-pagination__controls {
+    width: 100% !important;
+    overflow-x: auto !important;
+    justify-content: flex-start !important;
+    padding-bottom: 2px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .sales-dashboard .recent-orders-toolbar {
+    padding: 11px 12px !important;
+  }
+
+  .sales-dashboard .recent-orders-toolbar-label {
+    display: none !important;
+  }
+
+  .sales-dashboard .recent-orders-table .sales-all-orders-table {
+    min-width: 1120px !important;
+  }
+
+  .sales-dashboard .recent-orders-table .sales-all-orders-table th {
+    padding: 10px 11px !important;
+  }
+
+  .sales-dashboard .recent-orders-table .sales-all-orders-table td {
+    padding: 10px 11px !important;
+  }
+}
+
+/* ========================================================================
+   FINAL FIX — RECENT ORDERS MUST BEHAVE EXACTLY LIKE ALL ORDERS ON MOBILE
+   IMPORTANT: index.css intentionally has a mobile card layout for
+   .recent-orders-table. Do NOT change index.css; these more-specific rules
+   override that behavior only for the Sales Dashboard Recent Orders table.
+   ======================================================================== */
+
+.sales-dashboard .recent-orders-table {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+.sales-dashboard .recent-orders-table > .table-responsive {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior-x: contain !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.sales-dashboard .recent-orders-table .sales-orders-table {
+  display: table !important;
+  width: max-content !important;
+  min-width: 1180px !important;
+  max-width: none !important;
+  margin: 0 !important;
+  table-layout: auto !important;
+  border-collapse: collapse !important;
+  border-spacing: 0 !important;
+  background: var(--sd-card) !important;
+  color: var(--sd-text) !important;
+}
+
+.sales-dashboard .recent-orders-table .sales-orders-table thead {
+  display: table-header-group !important;
+  visibility: visible !important;
+}
+
+.sales-dashboard .recent-orders-table .sales-orders-table tbody {
+  display: table-row-group !important;
+}
+
+.sales-dashboard .recent-orders-table .sales-orders-table tr {
+  display: table-row !important;
+  background: var(--sd-card) !important;
+}
+
+.sales-dashboard .recent-orders-table .sales-orders-table th,
+.sales-dashboard .recent-orders-table .sales-orders-table td {
+  display: table-cell !important;
+  box-sizing: border-box !important;
+  border: 1px solid var(--sd-border) !important;
+  vertical-align: middle !important;
+}
+
+.sales-dashboard .recent-orders-table .sales-orders-table thead th {
+  padding: 12px 13px !important;
+  background: var(--sd-muted-bg) !important;
+  color: var(--sd-text-2) !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  line-height: 1.3 !important;
+  letter-spacing: 0.05em !important;
+  text-transform: uppercase !important;
+  white-space: nowrap !important;
+  border: 1px solid var(--sd-border) !important;
+}
+
+.sales-dashboard .recent-orders-table .sales-orders-table tbody td {
+  padding: 13px !important;
+  background: var(--sd-card) !important;
+  color: var(--sd-text) !important;
+  font-size: 13px !important;
+  line-height: 1.45 !important;
+  white-space: nowrap !important;
+  border: 1px solid var(--sd-border) !important;
+}
+
+.sales-dashboard .recent-orders-table .sales-orders-table tbody tr:hover td {
+  background: var(--sd-muted-bg) !important;
+}
+
+.sales-dashboard .recent-orders-table .sales-orders-table .category-stack,
+.sales-dashboard .recent-orders-table .sales-orders-table .items-ordered-list {
+  display: block !important;
+  max-width: 250px !important;
+  white-space: pre-line !important;
+  overflow-wrap: normal !important;
+  word-break: normal !important;
+  color: var(--sd-text-2) !important;
+  line-height: 1.5 !important;
+}
+
+.sales-dashboard .recent-orders-table .sales-orders-table .items-ordered-cell {
+  min-width: 230px !important;
+}
+
+.sales-dashboard .recent-orders-table .sales-orders-table .amount {
+  color: var(--sd-text) !important;
+  font-weight: 800 !important;
+  white-space: nowrap !important;
+}
+
+.sales-dashboard .recent-orders-table .sales-orders-table .order-view-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 35px !important;
+  height: 35px !important;
+  min-width: 35px !important;
+  padding: 0 !important;
+  border: 1px solid rgba(108, 92, 231, 0.2) !important;
+  border-radius: 9px !important;
+  background: var(--sd-brand-soft) !important;
+  color: var(--sd-brand) !important;
+  white-space: nowrap !important;
+}
+
+.sales-dashboard
+  .recent-orders-table
+  .sales-orders-table
+  .order-view-btn:hover {
+  border-color: var(--sd-brand) !important;
+  background: var(--sd-brand) !important;
+  color: #fff !important;
+}
+
+@media (max-width: 767.98px) {
+  /* Never let index.css convert Recent Orders into stacked cards. */
+  .sales-dashboard .recent-orders-table .table thead {
+    display: table-header-group !important;
+  }
+
+  .sales-dashboard .recent-orders-table .table tbody {
+    display: table-row-group !important;
+  }
+
+  .sales-dashboard .recent-orders-table .table tbody tr {
+    display: table-row !important;
+    width: auto !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: var(--sd-card) !important;
+  }
+
+  .sales-dashboard .recent-orders-table .table tbody td {
+    display: table-cell !important;
+    width: auto !important;
+    padding: 12px !important;
+    border: 1px solid var(--sd-border) !important;
+    background: var(--sd-card) !important;
+    color: var(--sd-text) !important;
+  }
+
+  .sales-dashboard .recent-orders-table .table tbody td::before {
+    display: none !important;
+    content: none !important;
+  }
+
+  .sales-dashboard .recent-orders-table .sales-orders-table {
+    display: table !important;
+    width: max-content !important;
+    min-width: 1180px !important;
+    max-width: none !important;
+    table-layout: auto !important;
+  }
+
+  .sales-dashboard .recent-orders-table .sales-orders-table thead,
+  .sales-dashboard .recent-orders-table .sales-orders-table tbody {
+    display: table-row-group !important;
+  }
+
+  .sales-dashboard .recent-orders-table .sales-orders-table thead {
+    display: table-header-group !important;
+  }
+
+  .sales-dashboard .recent-orders-table .sales-orders-table tr {
+    display: table-row !important;
+  }
+
+  .sales-dashboard .recent-orders-table .sales-orders-table th,
+  .sales-dashboard .recent-orders-table .sales-orders-table td {
+    display: table-cell !important;
+    width: auto !important;
+    min-width: 0 !important;
+    white-space: nowrap !important;
+    border: 1px solid var(--sd-border) !important;
+  }
+
+  .sales-dashboard .recent-orders-table .sales-orders-table th {
+    padding: 11px 12px !important;
+    font-size: 10.5px !important;
+  }
+
+  .sales-dashboard .recent-orders-table .sales-orders-table td {
+    padding: 12px !important;
+    font-size: 12.5px !important;
+  }
+
+  .sales-dashboard
+    .recent-orders-table
+    .sales-orders-table
+    .items-ordered-cell {
+    min-width: 230px !important;
+  }
+
+  .sales-dashboard .recent-orders-table .sales-orders-table .category-stack,
+  .sales-dashboard
+    .recent-orders-table
+    .sales-orders-table
+    .items-ordered-list {
+    max-width: 250px !important;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .sales-dashboard .recent-orders-table .table-responsive {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+  }
+
+  .sales-dashboard .recent-orders-table .sales-orders-table {
+    min-width: 1180px !important;
+  }
+
+  .sales-dashboard .recent-orders-table .sales-orders-table th {
+    padding: 10px 11px !important;
+    font-size: 10px !important;
+  }
+
+  .sales-dashboard .recent-orders-table .sales-orders-table td {
+    padding: 10px 11px !important;
+    font-size: 12px !important;
+  }
+}
+
+/* ========================================================================
+   FINAL MOBILE KPI FIX
+   Keeps every KPI/status label and value inside its card.
+   index.css is intentionally not modified.
+   ======================================================================== */
+
+.sales-dashboard .metric-card,
+.sales-dashboard .status-pill {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+}
+
+.sales-dashboard .metric-card .card-body {
+  min-width: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.sales-dashboard .metric-card__content {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+.sales-dashboard .metric-label,
+.sales-dashboard .metric-value,
+.sales-dashboard .metric-card__hint {
+  max-width: 100% !important;
+  min-width: 0 !important;
+}
+
+.sales-dashboard .metric-label {
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.sales-dashboard .metric-value {
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+@media (max-width: 767.98px) {
+  /* ----------------------------------------------------------------------
+     Main four KPI cards
+     On small screens the icon sits in the top-right corner instead of
+     consuming half of the card width. This gives the value the full card
+     width, so values such as ₹24,418 never break digit-by-digit.
+     ---------------------------------------------------------------------- */
+  .sales-dashboard .metric-card .card-body {
+    position: relative !important;
+    display: block !important;
+    min-height: 118px !important;
+    height: 100% !important;
+    padding: 12px 10px 11px 13px !important;
+  }
+
+  .sales-dashboard .metric-card__content {
+    display: block !important;
+    width: 100% !important;
+    padding-right: 0 !important;
+  }
+
+  .sales-dashboard .metric-label {
+    width: calc(100% - 38px) !important;
+    margin: 0 0 7px !important;
+    padding-right: 2px !important;
+    font-size: 11px !important;
+    line-height: 1.2 !important;
+    font-weight: 750 !important;
+    white-space: normal !important;
+    overflow-wrap: break-word !important;
+  }
+
+  .sales-dashboard .metric-value {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    font-size: clamp(17px, 5.1vw, 22px) !important;
+    line-height: 1.05 !important;
+    letter-spacing: -0.045em !important;
+    font-weight: 850 !important;
+    white-space: nowrap !important;
+  }
+
+  .sales-dashboard .metric-card__hint {
+    display: inline-flex !important;
+    max-width: 100% !important;
+    margin-top: 9px !important;
+    font-size: 9px !important;
+    line-height: 1.2 !important;
+    white-space: normal !important;
+    overflow-wrap: break-word !important;
+  }
+
+  .sales-dashboard .metric-icon {
+    position: absolute !important;
+    top: 9px !important;
+    right: 8px !important;
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    flex: 0 0 32px !important;
+    border-radius: 9px !important;
+    z-index: 1 !important;
+  }
+
+  /* ----------------------------------------------------------------------
+     Status KPI cards
+     Keep 3 cards per row, but stack icon+label and count so words such as
+     Processing / Packaging / Delivered / Cancelled remain readable.
+     ---------------------------------------------------------------------- */
+  .sales-dashboard .status-pill {
+    min-height: 82px !important;
+    height: auto !important;
+  }
+
+  .sales-dashboard .status-pill .card-body {
+    display: grid !important;
+    grid-template-columns: 16px minmax(0, 1fr) !important;
+    grid-template-rows: auto auto !important;
+    align-items: center !important;
+    column-gap: 4px !important;
+    row-gap: 3px !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    min-height: 82px !important;
+    padding: 8px 6px !important;
+    box-sizing: border-box !important;
+  }
+
+  .sales-dashboard .status-pill svg {
+    width: 14px !important;
+    height: 14px !important;
+    min-width: 14px !important;
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+  }
+
+  .sales-dashboard .status-label {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    font-size: 8.5px !important;
+    line-height: 1.15 !important;
+    font-weight: 750 !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: normal !important;
+  }
+
+  .sales-dashboard .status-count {
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    margin: 1px 0 0 !important;
+    text-align: center !important;
+    font-size: 17px !important;
+    line-height: 1 !important;
+    font-weight: 850 !important;
+    white-space: nowrap !important;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .sales-dashboard .metric-card .card-body {
+    min-height: 112px !important;
+    padding: 11px 9px 10px 12px !important;
+  }
+
+  .sales-dashboard .metric-label {
+    width: calc(100% - 34px) !important;
+    font-size: 10.5px !important;
+  }
+
+  .sales-dashboard .metric-value {
+    font-size: clamp(16px, 5vw, 20px) !important;
+  }
+
+  .sales-dashboard .metric-card__hint {
+    margin-top: 8px !important;
+    font-size: 8.5px !important;
+  }
+
+  .sales-dashboard .metric-icon {
+    top: 8px !important;
+    right: 7px !important;
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+  }
+
+  .sales-dashboard .status-pill {
+    min-height: 78px !important;
+  }
+
+  .sales-dashboard .status-pill .card-body {
+    min-height: 78px !important;
+    padding: 7px 5px !important;
+    column-gap: 3px !important;
+  }
+
+  .sales-dashboard .status-pill svg {
+    width: 13px !important;
+    height: 13px !important;
+    min-width: 13px !important;
+  }
+
+  .sales-dashboard .status-label {
+    font-size: 8px !important;
+  }
+
+  .sales-dashboard .status-count {
+    font-size: 16px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .sales-dashboard .metric-card .card-body {
+    min-height: 108px !important;
+    padding: 10px 8px 9px 11px !important;
+  }
+
+  .sales-dashboard .metric-label {
+    width: calc(100% - 32px) !important;
+    font-size: 10px !important;
+  }
+
+  .sales-dashboard .metric-value {
+    font-size: 15px !important;
+    letter-spacing: -0.04em !important;
+  }
+
+  .sales-dashboard .metric-card__hint {
+    font-size: 8px !important;
+  }
+
+  .sales-dashboard .metric-icon {
+    width: 28px !important;
+    height: 28px !important;
+    min-width: 28px !important;
+    right: 6px !important;
+  }
+
+  .sales-dashboard .status-pill {
+    min-height: 75px !important;
+  }
+
+  .sales-dashboard .status-pill .card-body {
+    min-height: 75px !important;
+    padding: 6px 4px !important;
+  }
+
+  .sales-dashboard .status-label {
+    font-size: 7.5px !important;
+  }
+
+  .sales-dashboard .status-count {
+    font-size: 15px !important;
+  }
+}
+
+/* FINAL SALES FILTER DROPDOWN FIX */
+.sales-dashboard .sales-filter-bar,
+.sales-orders-page .sales-filter-bar {
+  position: relative;
+  z-index: 100;
+  overflow: visible !important;
+}
+.sales-dashboard .sales-filter-select,
+.sales-orders-page .sales-filter-select {
+  position: relative;
+  z-index: 110;
+  min-width: 0;
+  width: 100%;
+}
+
+.sales-dashboard .sd-select__control,
+.sales-orders-page .sd-select__control {
+  background: var(--sd-input) !important;
+  border-color: var(--sd-border) !important;
+  color: var(--sd-text) !important;
+}
+.sales-dashboard .sd-select__single-value,
+.sales-dashboard .sd-select__placeholder,
+.sales-dashboard .sd-select__input-container,
+.sales-orders-page .sd-select__single-value,
+.sales-orders-page .sd-select__placeholder,
+.sales-orders-page .sd-select__input-container {
+  color: var(--sd-text) !important;
+}
+
+/* Works for react-select menus rendered inside the filter OR through a portal. */
+.sd-select__menu,
+.sales-dashboard .sd-select__menu,
+.sales-orders-page .sd-select__menu {
+  z-index: 99999 !important;
+  margin-top: 5px !important;
+  overflow: hidden !important;
+  border: 1px solid var(--sd-border) !important;
+  border-radius: 10px !important;
+  background: var(--sd-card) !important;
+  box-shadow: 0 16px 36px rgba(20, 16, 35, 0.28) !important;
+}
+
+.sd-select__menu-list,
+.sales-dashboard .sd-select__menu-list,
+.sales-orders-page .sd-select__menu-list {
+  max-height: 280px !important;
+  padding: 5px !important;
+  background: var(--sd-card) !important;
+}
+
+.sd-select__option,
+.sales-dashboard .sd-select__option,
+.sales-orders-page .sd-select__option {
+  min-height: 40px !important;
+  padding: 10px 11px !important;
+  border-radius: 7px !important;
+  background: var(--sd-card) !important;
+  color: var(--sd-text) !important;
+  font-size: 13px !important;
+  line-height: 1.25 !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+}
+
+.sd-select__option--is-focused,
+.sales-dashboard .sd-select__option--is-focused,
+.sales-orders-page .sd-select__option--is-focused,
+.sd-select__option:hover,
+.sales-dashboard .sd-select__option:hover,
+.sales-orders-page .sd-select__option:hover {
+  background: var(--sd-muted-bg) !important;
+  color: var(--sd-text) !important;
+}
+
+.sd-select__option--is-selected,
+.sales-dashboard .sd-select__option--is-selected,
+.sales-orders-page .sd-select__option--is-selected {
+  background: var(--sd-brand) !important;
+  color: #fff !important;
+}
+
+.sd-select__menu-portal,
+.sales-dashboard .sd-select__menu-portal,
+.sales-orders-page .sd-select__menu-portal {
+  z-index: 99999 !important;
+}
+
+/* Native select fallback */
+.sales-dashboard .sales-filter-bar .form-select,
+.sales-orders-page .sales-filter-bar .form-select {
+  background-color: var(--sd-input) !important;
+  color: var(--sd-text) !important;
+  border-color: var(--sd-border) !important;
+}
+.sales-dashboard .sales-filter-bar .form-select option,
+.sales-orders-page .sales-filter-bar .form-select option {
+  background-color: var(--sd-card) !important;
+  color: var(--sd-text) !important;
+}
+
+/* Explicit dark-mode protection for a portaled menu. */
+body.dark .sd-select__menu,
+body.dark .sd-select__menu-list,
+body.dark .sd-select__option,
+body[data-theme="dark"] .sd-select__menu,
+body[data-theme="dark"] .sd-select__menu-list,
+body[data-theme="dark"] .sd-select__option,
+[data-bs-theme="dark"] .sd-select__menu,
+[data-bs-theme="dark"] .sd-select__menu-list,
+[data-bs-theme="dark"] .sd-select__option {
+  background: var(--bg-card, #1d192d) !important;
+  color: var(--text-1, #f5f2ff) !important;
+}
+body.dark .sd-select__option--is-focused,
+body[data-theme="dark"] .sd-select__option--is-focused,
+[data-bs-theme="dark"] .sd-select__option--is-focused {
+  background: var(--bg-muted, #2a2440) !important;
+  color: var(--text-1, #f5f2ff) !important;
+}
+body.dark .sd-select__option--is-selected,
+body[data-theme="dark"] .sd-select__option--is-selected,
+[data-bs-theme="dark"] .sd-select__option--is-selected {
+  background: var(--brand, #6c5ce7) !important;
+  color: #fff !important;
+}
+
+@media (max-width: 767.98px) {
+  .sales-dashboard .sd-select__menu,
+  .sales-orders-page .sd-select__menu {
+    max-width: calc(100vw - 32px) !important;
+  }
+  .sales-dashboard .sd-select__option,
+  .sales-orders-page .sd-select__option {
+    min-height: 38px !important;
+    padding: 9px 10px !important;
+    font-size: 12px !important;
+  }
+  .sales-dashboard .sd-select__menu-list,
+  .sales-orders-page .sd-select__menu-list {
+    max-height: 250px !important;
   }
 }

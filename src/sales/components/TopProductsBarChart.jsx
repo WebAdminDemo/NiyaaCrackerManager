@@ -77,73 +77,101 @@ const TopProductsBarChart = ({ products }) => {
             No product revenue data available
           </div>
         ) : (
-          <div className="top-products-chart-area">
-            <ResponsiveContainer width="100%" height={285}>
-              <BarChart
-                layout="horizontal"
-                data={data}
-                margin={{ top: 12, right: 12, left: 4, bottom: 12 }}
-                barCategoryGap="18%"
-              >
-                <CartesianGrid
-                  stroke="var(--sd-border)"
-                  strokeDasharray="3 3"
-                  vertical={false}
-                />
-
-                <XAxis
-                  type="category"
-                  dataKey="name"
-                  axisLine={false}
-                  tickLine={false}
-                  interval={0}
-                  tick={{
-                    fill: "var(--sd-text-3)",
-                    fontSize: 11,
-                  }}
-                  height={42}
-                />
-
-                <YAxis
-                  type="number"
-                  axisLine={false}
-                  tickLine={false}
-                  width={50}
-                  tick={{
-                    fill: "var(--sd-text-3)",
-                    fontSize: 11,
-                  }}
-                  tickFormatter={(value) =>
-                    value >= 1000
-                      ? `₹${Math.round(value / 1000)}K`
-                      : `₹${value}`
-                  }
-                />
-
-                <Tooltip
-                  cursor={{ fill: "var(--sd-chart-hover)" }}
-                  content={<CustomTooltip />}
-                />
-
-                <Bar
-                  dataKey="revenue"
-                  radius={[9, 9, 2, 2]}
-                  barSize={34}
-                  isAnimationActive
-                  animationBegin={0}
-                  animationDuration={550}
-                  animationEasing="ease-out"
+          <>
+            <div className="top-products-chart-area">
+              <ResponsiveContainer width="100%" height={285}>
+                <BarChart
+                  layout="horizontal"
+                  data={data}
+                  margin={{ top: 12, right: 12, left: 4, bottom: 12 }}
+                  barCategoryGap="18%"
                 >
-                  {data.map((entry, index) => (
-                    <Cell
-                      key={entry.fullName}
-                      fill={PRODUCT_COLORS[index % PRODUCT_COLORS.length]}
-                    />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+                  <CartesianGrid
+                    stroke="var(--sd-border)"
+                    strokeDasharray="3 3"
+                    vertical={false}
+                  />
+
+                  <XAxis
+                    className="top-products-x-axis"
+                    type="category"
+                    dataKey="name"
+                    axisLine={false}
+                    tickLine={false}
+                    interval={0}
+                    tick={{
+                      fill: "var(--sd-text-3)",
+                      fontSize: 11,
+                    }}
+                    height={42}
+                  />
+
+                  <YAxis
+                    type="number"
+                    axisLine={false}
+                    tickLine={false}
+                    width={50}
+                    tick={{
+                      fill: "var(--sd-text-3)",
+                      fontSize: 11,
+                    }}
+                    tickFormatter={(value) =>
+                      value >= 1000
+                        ? `₹${Math.round(value / 1000)}K`
+                        : `₹${value}`
+                    }
+                  />
+
+                  <Tooltip
+                    cursor={{ fill: "var(--sd-chart-hover)" }}
+                    content={<CustomTooltip />}
+                  />
+
+                  <Bar
+                    dataKey="revenue"
+                    radius={[9, 9, 2, 2]}
+                    barSize={34}
+                    isAnimationActive
+                    animationBegin={0}
+                    animationDuration={550}
+                    animationEasing="ease-out"
+                  >
+                    {data.map((entry, index) => (
+                      <Cell
+                        key={entry.fullName}
+                        fill={PRODUCT_COLORS[index % PRODUCT_COLORS.length]}
+                      />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/*
+              On phones the chart x-axis becomes too narrow for long product
+              names. Keep the graph clean and show the complete product names
+              in a readable list below it, similar to the category chart.
+            */}
+            <div className="top-products-mobile-list">
+              {data.map((entry, index) => (
+                <div
+                  className="top-products-mobile-row"
+                  key={`mobile-${entry.fullName}`}
+                  title={entry.fullName}
+                >
+                  <span
+                    className={`top-products-mobile-dot top-products-mobile-color-${index % PRODUCT_COLORS.length}`}
+                  />
+                  <span className="top-products-mobile-name">
+                    {entry.fullName}
+                  </span>
+                  <strong className="top-products-mobile-value">
+                    {currency(entry.revenue)}
+                  </strong>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </Card.Body>
     </Card>

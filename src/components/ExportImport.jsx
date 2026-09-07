@@ -8,36 +8,37 @@ export default function ExportImport({ onExport, onImport }) {
     fileInputRef.current?.click();
   }, []);
 
-  const handleFileChange = useCallback((e) => {
-    const file = e.target.files?.[0];
+  const handleFileChange = useCallback((event) => {
+    const file = event.target.files?.[0];
     if (file && typeof onImport === 'function') {
       onImport(file);
     }
-    e.target.value = '';
+    event.target.value = '';
   }, [onImport]);
 
   return (
-    <>
-      <Dropdown>
-        <Dropdown.Toggle variant="outline-secondary" size="sm" id="export-import-dropdown">
-          <i className="bi bi-upload-download me-1"></i> Import/Export
-        </Dropdown.Toggle>
-        <Dropdown.Menu align="end">
-          <Dropdown.Item onClick={onExport}>
-            <i className="bi bi-download me-2"></i> Export JSON
-          </Dropdown.Item>
-          <Dropdown.Item onClick={handleImportClick}>
-            <i className="bi bi-upload me-2"></i> Import JSON
-          </Dropdown.Item>
-        </Dropdown.Menu>
-      </Dropdown>
+    <Dropdown>
+      <Dropdown.Toggle variant="outline-secondary" size="sm" id="product-excel-dropdown">
+        <i className="bi bi-file-earmark-spreadsheet me-1" aria-hidden="true" />
+        Excel
+      </Dropdown.Toggle>
+      <Dropdown.Menu align="end">
+        <Dropdown.Item onClick={onExport}>
+          <i className="bi bi-file-earmark-excel me-2" aria-hidden="true" />
+          Export Excel
+        </Dropdown.Item>
+        <Dropdown.Item onClick={handleImportClick}>
+          <i className="bi bi-upload me-2" aria-hidden="true" />
+          Import Excel
+        </Dropdown.Item>
+      </Dropdown.Menu>
       <input
-        type="file"
         ref={fileInputRef}
-        accept=".json"
-        style={{ display: 'none' }}
+        type="file"
+        accept=".xlsx,.xls"
+        hidden
         onChange={handleFileChange}
       />
-    </>
+    </Dropdown>
   );
 }
