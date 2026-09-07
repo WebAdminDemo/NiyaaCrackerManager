@@ -4317,3 +4317,355 @@ body[data-theme="dark"] .sd-select__option--is-selected,
     max-height: 250px !important;
   }
 }
+/* ================================================================
+   FINAL FIX — SALES ORDERS PAGE TABLE ONLY
+   ----------------------------------------------------------------
+   The complete existing sales.css above is intentionally preserved.
+   Recent Orders on the Sales Dashboard is NOT touched.
+   index.css is NOT touched.
+   Other Sales Dashboard styles are NOT touched.
+
+   Mobile behavior:
+   - Keep the All Orders table as a REAL HTML table.
+   - Never convert rows/cells to cards or grid.
+   - Keep all columns available.
+   - Only the table wrapper scrolls horizontally.
+   - Keep the Orders card itself inside the phone viewport.
+   ================================================================ */
+
+/* The orders card itself must fit the viewport. */
+.sales-orders-page .orders-table-card {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+/* Only this wrapper is allowed to scroll horizontally. */
+.sales-orders-page .orders-table-card .table-responsive {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+  box-sizing: border-box !important;
+}
+
+/* Keep the Orders table as a normal table. */
+.sales-orders-page .orders-table-card .sales-all-orders-table {
+  display: table !important;
+  width: max-content !important;
+  min-width: 1180px !important;
+  max-width: none !important;
+  margin: 0 !important;
+  table-layout: auto !important;
+  border-collapse: collapse !important;
+  border-spacing: 0 !important;
+  transform: none !important;
+  position: static !important;
+}
+
+/* Explicitly restore normal table layout on every table element. */
+.sales-orders-page .orders-table-card .sales-all-orders-table thead {
+  display: table-header-group !important;
+}
+
+.sales-orders-page .orders-table-card .sales-all-orders-table tbody {
+  display: table-row-group !important;
+}
+
+.sales-orders-page .orders-table-card .sales-all-orders-table tr {
+  display: table-row !important;
+}
+
+.sales-orders-page .orders-table-card .sales-all-orders-table th,
+.sales-orders-page .orders-table-card .sales-all-orders-table td {
+  display: table-cell !important;
+  box-sizing: border-box !important;
+  vertical-align: middle !important;
+  white-space: nowrap !important;
+}
+
+/* All four borders on the Orders table. */
+.sales-orders-page .orders-table-card .sales-all-orders-table {
+  border: 1px solid var(--sd-border) !important;
+}
+
+.sales-orders-page .orders-table-card .sales-all-orders-table th,
+.sales-orders-page .orders-table-card .sales-all-orders-table td {
+  border: 1px solid var(--sd-border) !important;
+}
+
+/* Header */
+.sales-orders-page .orders-table-card .sales-all-orders-table thead th {
+  min-height: 42px !important;
+  padding: 11px 13px !important;
+  background: var(--sd-muted-bg) !important;
+  color: var(--sd-text-2) !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.05em !important;
+  text-transform: uppercase !important;
+  white-space: nowrap !important;
+}
+
+/* Body */
+.sales-orders-page .orders-table-card .sales-all-orders-table tbody td {
+  min-height: 58px !important;
+  padding: 13px !important;
+  background: var(--sd-card) !important;
+  color: var(--sd-text) !important;
+  font-size: 13px !important;
+  line-height: 1.45 !important;
+}
+
+.sales-orders-page .orders-table-card .sales-all-orders-table tbody tr {
+  background: var(--sd-card) !important;
+}
+
+.sales-orders-page .orders-table-card .sales-all-orders-table tbody tr:hover td {
+  background: var(--sd-muted-bg) !important;
+}
+
+/*
+ * Give the ten columns stable widths.
+ * This prevents the columns from collapsing/clumping on phones.
+ */
+.sales-orders-page .sales-all-orders-table th:nth-child(1),
+.sales-orders-page .sales-all-orders-table td:nth-child(1) {
+  min-width: 120px !important;
+}
+
+.sales-orders-page .sales-all-orders-table th:nth-child(2),
+.sales-orders-page .sales-all-orders-table td:nth-child(2) {
+  min-width: 145px !important;
+}
+
+.sales-orders-page .sales-all-orders-table th:nth-child(3),
+.sales-orders-page .sales-all-orders-table td:nth-child(3) {
+  min-width: 175px !important;
+}
+
+.sales-orders-page .sales-all-orders-table th:nth-child(4),
+.sales-orders-page .sales-all-orders-table td:nth-child(4) {
+  min-width: 220px !important;
+  white-space: normal !important;
+}
+
+.sales-orders-page .sales-all-orders-table th:nth-child(5),
+.sales-orders-page .sales-all-orders-table td:nth-child(5) {
+  min-width: 105px !important;
+}
+
+.sales-orders-page .sales-all-orders-table th:nth-child(6),
+.sales-orders-page .sales-all-orders-table td:nth-child(6) {
+  min-width: 105px !important;
+}
+
+.sales-orders-page .sales-all-orders-table th:nth-child(7),
+.sales-orders-page .sales-all-orders-table td:nth-child(7) {
+  min-width: 80px !important;
+  text-align: center !important;
+}
+
+.sales-orders-page .sales-all-orders-table th:nth-child(8),
+.sales-orders-page .sales-all-orders-table td:nth-child(8) {
+  min-width: 125px !important;
+}
+
+.sales-orders-page .sales-all-orders-table th:nth-child(9),
+.sales-orders-page .sales-all-orders-table td:nth-child(9) {
+  min-width: 110px !important;
+}
+
+.sales-orders-page .sales-all-orders-table th:nth-child(10),
+.sales-orders-page .sales-all-orders-table td:nth-child(10) {
+  min-width: 120px !important;
+  text-align: center !important;
+}
+
+/* Prevent long values from changing the table layout. */
+.sales-orders-page .sales-all-orders-table .table-category-text {
+  display: block;
+  max-width: 170px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap !important;
+}
+
+.sales-orders-page .sales-all-orders-table .category-stack {
+  max-width: 170px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sales-orders-page .sales-all-orders-table .items-ordered-list {
+  display: block;
+  width: 205px;
+  max-width: 205px;
+  white-space: pre-line !important;
+  overflow-wrap: anywhere;
+}
+
+.sales-orders-page .sales-all-orders-table .order-ref,
+.sales-orders-page .sales-all-orders-table .channel-pill,
+.sales-orders-page .sales-all-orders-table .badge,
+.sales-orders-page .sales-all-orders-table .order-view-btn,
+.sales-orders-page .sales-all-orders-table .order-view-text-btn {
+  white-space: nowrap !important;
+}
+
+/* ================================================================
+   MOBILE — SAME TABLE, NEVER GRID/CARDS
+   ================================================================ */
+
+@media (max-width: 767.98px) {
+  .sales-orders-page {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
+  }
+
+  .sales-orders-page .orders-table-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+  }
+
+  .sales-orders-page .orders-table-card .table-responsive {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: thin;
+  }
+
+  .sales-orders-page .orders-table-card .sales-all-orders-table {
+    display: table !important;
+    width: max-content !important;
+    min-width: 1180px !important;
+    max-width: none !important;
+    table-layout: auto !important;
+    margin: 0 !important;
+    transform: none !important;
+  }
+
+  /* Never allow Bootstrap/mobile CSS to turn this into cards. */
+  .sales-orders-page .orders-table-card .sales-all-orders-table thead {
+    display: table-header-group !important;
+  }
+
+  .sales-orders-page .orders-table-card .sales-all-orders-table tbody {
+    display: table-row-group !important;
+  }
+
+  .sales-orders-page .orders-table-card .sales-all-orders-table tr {
+    display: table-row !important;
+  }
+
+  .sales-orders-page .orders-table-card .sales-all-orders-table th,
+  .sales-orders-page .orders-table-card .sales-all-orders-table td {
+    display: table-cell !important;
+  }
+
+  .sales-orders-page .orders-table-card .sales-all-orders-table thead th {
+    padding: 10px 12px !important;
+    font-size: 10px !important;
+    height: 42px !important;
+  }
+
+  .sales-orders-page .orders-table-card .sales-all-orders-table tbody td {
+    padding: 12px !important;
+    font-size: 12px !important;
+    min-height: 56px !important;
+  }
+
+  /* Mobile widths — still a real table; scroll inside wrapper. */
+  .sales-orders-page .sales-all-orders-table th:nth-child(1),
+  .sales-orders-page .sales-all-orders-table td:nth-child(1) {
+    min-width: 120px !important;
+  }
+
+  .sales-orders-page .sales-all-orders-table th:nth-child(2),
+  .sales-orders-page .sales-all-orders-table td:nth-child(2) {
+    min-width: 140px !important;
+  }
+
+  .sales-orders-page .sales-all-orders-table th:nth-child(3),
+  .sales-orders-page .sales-all-orders-table td:nth-child(3) {
+    min-width: 165px !important;
+  }
+
+  .sales-orders-page .sales-all-orders-table th:nth-child(4),
+  .sales-orders-page .sales-all-orders-table td:nth-child(4) {
+    min-width: 200px !important;
+  }
+
+  .sales-orders-page .sales-all-orders-table th:nth-child(5),
+  .sales-orders-page .sales-all-orders-table td:nth-child(5) {
+    min-width: 105px !important;
+  }
+
+  .sales-orders-page .sales-all-orders-table th:nth-child(6),
+  .sales-orders-page .sales-all-orders-table td:nth-child(6) {
+    min-width: 105px !important;
+  }
+
+  .sales-orders-page .sales-all-orders-table th:nth-child(7),
+  .sales-orders-page .sales-all-orders-table td:nth-child(7) {
+    min-width: 75px !important;
+  }
+
+  .sales-orders-page .sales-all-orders-table th:nth-child(8),
+  .sales-orders-page .sales-all-orders-table td:nth-child(8) {
+    min-width: 120px !important;
+  }
+
+  .sales-orders-page .sales-all-orders-table th:nth-child(9),
+  .sales-orders-page .sales-all-orders-table td:nth-child(9) {
+    min-width: 105px !important;
+  }
+
+  .sales-orders-page .sales-all-orders-table th:nth-child(10),
+  .sales-orders-page .sales-all-orders-table td:nth-child(10) {
+    min-width: 115px !important;
+  }
+
+  /* Keep the toolbar and pagination inside the viewport. */
+  .sales-orders-page .orders-table-toolbar,
+  .sales-orders-page .orders-pagination {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .sales-orders-page {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+
+  .sales-orders-page .orders-table-card .sales-all-orders-table {
+    min-width: 1120px !important;
+  }
+
+  .sales-orders-page .orders-table-card .sales-all-orders-table th,
+  .sales-orders-page .orders-table-card .sales-all-orders-table td {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+}
