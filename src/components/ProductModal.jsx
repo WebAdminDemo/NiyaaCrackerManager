@@ -35,7 +35,7 @@ function buildFormFromProduct(product) {
     price: product.price ?? '',
     image: product.image ?? '',
     contents: product.contents ?? '',
-    discount_percent: product.discount_percent ?? '',
+    discount_percent: product.discountPercent ?? product.discount_percent ?? '',
     status: product.status === 'no_stock' ? 'no_stock' : 'in_stock',
   };
 }
@@ -153,12 +153,13 @@ const ProductModal = memo(function ProductModal({
   }, [product, show]);
 
   const recalcAmount = useCallback((price, discount) => {
-    const p = toNumber(price);
-    const d = toNumber(discount);
-    if (p > 0 && d >= 0 && d <= 100) {
-      return (p * (1 - d / 100)).toFixed(2);
-    }
-    return '';
+    const p = Number(price);
+    const d = Number(discount);
+
+    if (!Number.isFinite(p) || p < 0) return '';
+    if (!Number.isFinite(d) || d < 0 || d > 100) return '';
+
+    return (p * (1 - d / 100)).toFixed(2);
   }, []);
 
   const categoryOptions = useMemo(() => {
@@ -296,7 +297,11 @@ const ProductModal = memo(function ProductModal({
         category: form.category.trim(),
         amount: toNumber(finalAmount),
         price: toNumber(form.price),
+        // Backend API field is discountPercent. Keep discount_percent as a
+        // compatibility field for older code, but never use it as the source of truth.
+        discountPercent: Math.max(0, Math.min(100, toNumber(form.discount_percent))),
         discount_percent: Math.max(0, Math.min(100, toNumber(form.discount_percent))),
+        discountAmount: form.amount ? toNumber(form.price) - toNumber(form.amount) : null,
         contents: form.status === 'no_stock' ? '' : form.contents.trim(),
         image: form.image || '',
         status: form.status === 'no_stock' ? 'no_stock' : 'in_stock',
