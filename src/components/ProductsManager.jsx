@@ -416,7 +416,7 @@ export default function ProductManager({
           )}
         </div>
         <div className="d-flex gap-2 flex-wrap">
-          <ExportImport onExport={handleExportExcel} onImport={handleImportExcel} />
+          {/*<ExportImport onExport={handleExportExcel} onImport={handleImportExcel} /> */}
           <Button variant="primary" size="sm" onClick={openAddModal} disabled={isSaving}>
             <i className="bi bi-plus-lg me-1" aria-hidden="true"></i> Add Product
           </Button>
