@@ -4187,6 +4187,7 @@ body[data-bs-theme="dark"] .sales-details-modal,
   z-index: 110;
   min-width: 0;
   width: 100%;
+  background: var(--sd-input) !important;
 }
 
 .sales-dashboard .sd-select__control,
@@ -4428,7 +4429,12 @@ body[data-theme="dark"] .sd-select__option--is-selected,
   background: var(--sd-card) !important;
 }
 
-.sales-orders-page .orders-table-card .sales-all-orders-table tbody tr:hover td {
+.sales-orders-page
+  .orders-table-card
+  .sales-all-orders-table
+  tbody
+  tr:hover
+  td {
   background: var(--sd-muted-bg) !important;
 }
 
@@ -4668,4 +4674,322 @@ body[data-theme="dark"] .sd-select__option--is-selected,
     padding-left: 10px !important;
     padding-right: 10px !important;
   }
+}
+
+
+/* ================================================================
+   FINAL SELECT / DROPDOWN FIX
+   ---------------------------------------------------------------
+   Fixes:
+   - React-Select menus rendered through a portal were transparent
+     because the sales theme variables are scoped to the page.
+   - Light mode: solid white menu + black/dark text.
+   - Dark mode: solid dark menu + white text.
+   - Hover/focused option: soft grey.
+   - Selected option: blue in light mode, violet in dark mode.
+   - Native Order Details status <select> uses the same visual style.
+   - No changes to index.css required.
+   ================================================================ */
+
+/* ---------- React-Select: LIGHT MODE ---------- */
+
+.sd-select__menu,
+.sd-select__menu-list {
+  background: #ffffff !important;
+  color: #171522 !important;
+}
+
+.sd-select__menu {
+  z-index: 99999 !important;
+  border: 1px solid #dedee8 !important;
+  border-radius: 10px !important;
+  box-shadow: 0 14px 32px rgba(20, 16, 35, 0.18) !important;
+  overflow: hidden !important;
+  opacity: 1 !important;
+}
+
+.sd-select__menu-list {
+  padding: 5px !important;
+  max-height: 280px !important;
+}
+
+.sd-select__option {
+  min-height: 40px !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 9px 11px !important;
+  border-radius: 7px !important;
+  background: #ffffff !important;
+  color: #171522 !important;
+  font-size: 13px !important;
+  line-height: 1.3 !important;
+  cursor: pointer !important;
+  opacity: 1 !important;
+}
+
+.sd-select__option--is-focused,
+.sd-select__option:hover {
+  background: #f0f1f4 !important;
+  color: #171522 !important;
+}
+
+.sd-select__option--is-selected {
+  background: #287fd7 !important;
+  color: #ffffff !important;
+}
+
+.sd-select__option--is-selected:hover,
+.sd-select__option--is-selected.sd-select__option--is-focused {
+  background: #287fd7 !important;
+  color: #ffffff !important;
+}
+
+/* React-Select menu when it is rendered inside sales pages */
+.sales-dashboard .sd-select__menu,
+.sales-orders-page .sd-select__menu,
+.sales-dashboard .sd-select__menu-list,
+.sales-orders-page .sd-select__menu-list {
+  background: #ffffff !important;
+  color: #171522 !important;
+  opacity: 1 !important;
+}
+
+.sales-dashboard .sd-select__option,
+.sales-orders-page .sd-select__option {
+  background: #ffffff !important;
+  color: #171522 !important;
+  opacity: 1 !important;
+}
+
+.sales-dashboard .sd-select__option--is-focused,
+.sales-orders-page .sd-select__option--is-focused,
+.sales-dashboard .sd-select__option:hover,
+.sales-orders-page .sd-select__option:hover {
+  background: #f0f1f4 !important;
+  color: #171522 !important;
+}
+
+.sales-dashboard .sd-select__option--is-selected,
+.sales-orders-page .sd-select__option--is-selected {
+  background: #287fd7 !important;
+  color: #ffffff !important;
+}
+
+/* ---------- React-Select: DARK MODE ---------- */
+
+body.dark .sd-select__menu,
+body.dark .sd-select__menu-list,
+body[data-theme="dark"] .sd-select__menu,
+body[data-theme="dark"] .sd-select__menu-list,
+body[data-bs-theme="dark"] .sd-select__menu,
+body[data-bs-theme="dark"] .sd-select__menu-list,
+.dark .sd-select__menu,
+.dark .sd-select__menu-list,
+.sales-dashboard[data-sales-theme="dark"] .sd-select__menu,
+.sales-orders-page[data-sales-theme="dark"] .sd-select__menu,
+.sales-dashboard[data-sales-theme="dark"] .sd-select__menu-list,
+.sales-orders-page[data-sales-theme="dark"] .sd-select__menu-list {
+  background: #1b1b24 !important;
+  color: #f7f6fb !important;
+  border-color: #343440 !important;
+  opacity: 1 !important;
+}
+
+body.dark .sd-select__option,
+body[data-theme="dark"] .sd-select__option,
+body[data-bs-theme="dark"] .sd-select__option,
+.dark .sd-select__option,
+.sales-dashboard[data-sales-theme="dark"] .sd-select__option,
+.sales-orders-page[data-sales-theme="dark"] .sd-select__option {
+  background: #1b1b24 !important;
+  color: #f7f6fb !important;
+  opacity: 1 !important;
+}
+
+body.dark .sd-select__option--is-focused,
+body.dark .sd-select__option:hover,
+body[data-theme="dark"] .sd-select__option--is-focused,
+body[data-theme="dark"] .sd-select__option:hover,
+body[data-bs-theme="dark"] .sd-select__option--is-focused,
+body[data-bs-theme="dark"] .sd-select__option:hover,
+.dark .sd-select__option--is-focused,
+.dark .sd-select__option:hover,
+.sales-dashboard[data-sales-theme="dark"] .sd-select__option--is-focused,
+.sales-dashboard[data-sales-theme="dark"] .sd-select__option:hover,
+.sales-orders-page[data-sales-theme="dark"] .sd-select__option--is-focused,
+.sales-orders-page[data-sales-theme="dark"] .sd-select__option:hover {
+  background: #303038 !important;
+  color: #ffffff !important;
+}
+
+body.dark .sd-select__option--is-selected,
+body[data-theme="dark"] .sd-select__option--is-selected,
+body[data-bs-theme="dark"] .sd-select__option--is-selected,
+.dark .sd-select__option--is-selected,
+.sales-dashboard[data-sales-theme="dark"] .sd-select__option--is-selected,
+.sales-orders-page[data-sales-theme="dark"] .sd-select__option--is-selected {
+  background: #897cf0 !important;
+  color: #ffffff !important;
+}
+
+body.dark .sd-select__option--is-selected:hover,
+body.dark .sd-select__option--is-selected.sd-select__option--is-focused,
+body[data-theme="dark"] .sd-select__option--is-selected:hover,
+body[data-theme="dark"] .sd-select__option--is-selected.sd-select__option--is-focused,
+body[data-bs-theme="dark"] .sd-select__option--is-selected:hover,
+body[data-bs-theme="dark"] .sd-select__option--is-selected.sd-select__option--is-focused,
+.dark .sd-select__option--is-selected:hover,
+.dark .sd-select__option--is-selected.sd-select__option--is-focused {
+  background: #897cf0 !important;
+  color: #ffffff !important;
+}
+
+/* ---------- React-Select text/indicators ---------- */
+
+.sales-dashboard .sd-select__single-value,
+.sales-dashboard .sd-select__placeholder,
+.sales-dashboard .sd-select__input-container,
+.sales-orders-page .sd-select__single-value,
+.sales-orders-page .sd-select__placeholder,
+.sales-orders-page .sd-select__input-container {
+  color: var(--sd-text) !important;
+}
+
+.sd-select__menu-portal {
+  z-index: 99999 !important;
+}
+
+/* ---------- Native <select>: Order Details + all sales selects ---------- */
+
+.sales-order-modal .form-select,
+.sales-details-modal .form-select {
+  min-height: 44px !important;
+  border: 1px solid var(--sd-modal-border) !important;
+  border-radius: 9px !important;
+  background-color: var(--sd-modal-bg) !important;
+  color: var(--sd-modal-text) !important;
+  opacity: 1 !important;
+  box-shadow: none !important;
+}
+
+.sales-order-modal .form-select:focus,
+.sales-details-modal .form-select:focus {
+  border-color: var(--sd-modal-brand) !important;
+  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.12) !important;
+}
+
+.sales-order-modal .form-select option,
+.sales-details-modal .form-select option {
+  background-color: #ffffff !important;
+  color: #171522 !important;
+  opacity: 1 !important;
+}
+
+.sales-order-modal[data-sales-theme="dark"] .form-select option,
+body.dark .sales-order-modal .form-select option,
+body[data-theme="dark"] .sales-order-modal .form-select option,
+body[data-bs-theme="dark"] .sales-order-modal .form-select option,
+.dark .sales-order-modal .form-select option,
+.sales-details-modal[data-sales-theme="dark"] .form-select option,
+body.dark .sales-details-modal .form-select option,
+body[data-theme="dark"] .sales-details-modal .form-select option,
+body[data-bs-theme="dark"] .sales-details-modal .form-select option,
+.dark .sales-details-modal .form-select option {
+  background-color: #1b1b24 !important;
+  color: #f7f6fb !important;
+  opacity: 1 !important;
+}
+
+.sales-order-modal .form-select option:checked,
+.sales-details-modal .form-select option:checked {
+  background-color: #287fd7 !important;
+  color: #ffffff !important;
+}
+
+.sales-order-modal[data-sales-theme="dark"] .form-select option:checked,
+body.dark .sales-order-modal .form-select option:checked,
+body[data-theme="dark"] .sales-order-modal .form-select option:checked,
+body[data-bs-theme="dark"] .sales-order-modal .form-select option:checked,
+.dark .sales-order-modal .form-select option:checked,
+.sales-details-modal[data-sales-theme="dark"] .form-select option:checked,
+body.dark .sales-details-modal .form-select option:checked,
+body[data-theme="dark"] .sales-details-modal .form-select option:checked,
+body[data-bs-theme="dark"] .sales-details-modal .form-select option:checked,
+.dark .sales-details-modal .form-select option:checked {
+  background-color: #897cf0 !important;
+  color: #ffffff !important;
+}
+
+/* Native sales filter selects */
+.sales-dashboard .sales-filter-bar .form-select,
+.sales-orders-page .sales-filter-bar .form-select {
+  background-color: var(--sd-input) !important;
+  color: var(--sd-text) !important;
+  border-color: var(--sd-border) !important;
+  opacity: 1 !important;
+}
+
+.sales-dashboard .sales-filter-bar .form-select option,
+.sales-orders-page .sales-filter-bar .form-select option {
+  background-color: #ffffff !important;
+  color: #171522 !important;
+}
+
+body.dark .sales-dashboard .sales-filter-bar .form-select option,
+body[data-theme="dark"] .sales-dashboard .sales-filter-bar .form-select option,
+body[data-bs-theme="dark"] .sales-dashboard .sales-filter-bar .form-select option,
+.dark .sales-dashboard .sales-filter-bar .form-select option,
+body.dark .sales-orders-page .sales-filter-bar .form-select option,
+body[data-theme="dark"] .sales-orders-page .sales-filter-bar .form-select option,
+body[data-bs-theme="dark"] .sales-orders-page .sales-filter-bar .form-select option,
+.dark .sales-orders-page .sales-filter-bar .form-select option {
+  background-color: #1b1b24 !important;
+  color: #f7f6fb !important;
+}
+
+.sales-dashboard .sales-filter-bar .form-select option:checked,
+.sales-orders-page .sales-filter-bar .form-select option:checked {
+  background-color: #287fd7 !important;
+  color: #ffffff !important;
+}
+
+body.dark .sales-dashboard .sales-filter-bar .form-select option:checked,
+body[data-theme="dark"] .sales-dashboard .sales-filter-bar .form-select option:checked,
+body[data-bs-theme="dark"] .sales-dashboard .sales-filter-bar .form-select option:checked,
+.dark .sales-dashboard .sales-filter-bar .form-select option:checked,
+body.dark .sales-orders-page .sales-filter-bar .form-select option:checked,
+body[data-theme="dark"] .sales-orders-page .sales-filter-bar .form-select option:checked,
+body[data-bs-theme="dark"] .sales-orders-page .sales-filter-bar .form-select option:checked,
+.dark .sales-orders-page .sales-filter-bar .form-select option:checked {
+  background-color: #897cf0 !important;
+  color: #ffffff !important;
+}
+
+/* Keep native option hover readable where the browser supports it. */
+.sales-order-modal .form-select option:hover,
+.sales-details-modal .form-select option:hover,
+.sales-dashboard .sales-filter-bar .form-select option:hover,
+.sales-orders-page .sales-filter-bar .form-select option:hover {
+  background-color: #f0f1f4 !important;
+  color: #171522 !important;
+}
+
+body.dark .sales-order-modal .form-select option:hover,
+body[data-theme="dark"] .sales-order-modal .form-select option:hover,
+body[data-bs-theme="dark"] .sales-order-modal .form-select option:hover,
+.dark .sales-order-modal .form-select option:hover,
+body.dark .sales-details-modal .form-select option:hover,
+body[data-theme="dark"] .sales-details-modal .form-select option:hover,
+body[data-bs-theme="dark"] .sales-details-modal .form-select option:hover,
+.dark .sales-details-modal .form-select option:hover,
+body.dark .sales-dashboard .sales-filter-bar .form-select option:hover,
+body[data-theme="dark"] .sales-dashboard .sales-filter-bar .form-select option:hover,
+body[data-bs-theme="dark"] .sales-dashboard .sales-filter-bar .form-select option:hover,
+.dark .sales-dashboard .sales-filter-bar .form-select option:hover,
+body.dark .sales-orders-page .sales-filter-bar .form-select option:hover,
+body[data-theme="dark"] .sales-orders-page .sales-filter-bar .form-select option:hover,
+body[data-bs-theme="dark"] .sales-orders-page .sales-filter-bar .form-select option:hover,
+.dark .sales-orders-page .sales-filter-bar .form-select option:hover {
+  background-color: #303038 !important;
+  color: #ffffff !important;
 }
