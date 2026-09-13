@@ -15,7 +15,7 @@ const categoryText = (order) =>
     ...new Set(
       (order.items || []).map((item) => item.category).filter(Boolean),
     ),
-  ].join(", ") || "Uncategorised";
+  ].join(", ") || "";
 
 const itemsOrdered = (order) =>
   (order.items || [])
@@ -23,13 +23,20 @@ const itemsOrdered = (order) =>
       (item) =>
         `${item.name || item.productName || item.title || "Item"} ×${item.quantity || 1}`,
     )
-    .join("\n") || "—";
+    .join("\n") || "";
+
+    const BrandText = (order) =>
+  [
+    ...new Set(
+      (order.items || []).map((item) => item.brand).filter(Boolean),
+    ),
+  ].join(", ") || "";
 
 const customerName = (order) =>
-  order.customer?.name || order.customerName || "Walk-in customer";
+  order.customer?.name || order.customerName || "";
 
 const customerPhone = (order) =>
-  order.customer?.phone || order.customerPhone || "—";
+  order.customer?.phone || order.customerPhone || "";
 
 const RecentOrdersTable = ({
   orders = [],
@@ -38,7 +45,18 @@ const RecentOrdersTable = ({
   page = 1,
   onPageChange,
 }) => {
-  const sortedOrders = [...orders].sort(
+  // const sortedOrders = [...orders].sort(
+  //   (a, b) =>
+  //     dayjs(b.createdAt || b.orderDate).valueOf() -
+  //     dayjs(a.createdAt || a.orderDate).valueOf(),
+  // );
+
+  const sortedOrders = [...orders]
+  .filter(
+    (order) =>
+      String(order.status || "pending").toLowerCase() !== "delivered",
+  )
+  .sort(
     (a, b) =>
       dayjs(b.createdAt || b.orderDate).valueOf() -
       dayjs(a.createdAt || a.orderDate).valueOf(),
@@ -85,6 +103,7 @@ const RecentOrdersTable = ({
             <tr>
               <th>Order ID</th>
               <th>Customer</th>
+              <th>Brand</th>
               <th>Category</th>
               <th>Items Ordered</th>
               <th>Channel</th>
@@ -119,7 +138,11 @@ const RecentOrdersTable = ({
                       {customerPhone(order)}
                     </small>
                   </td>
-
+                  <td>
+                    <span className="table-category-text">
+                      {BrandText(order)}
+                    </span>
+                  </td>
                   <td>
                     <span className="table-category-text">
                       {categoryText(order)}
@@ -150,7 +173,7 @@ const RecentOrdersTable = ({
                       ? dayjs(order.createdAt || order.orderDate).format(
                           "DD MMM YYYY",
                         )
-                      : "—"}
+                      : ""}
                   </td>
 
                   <td>

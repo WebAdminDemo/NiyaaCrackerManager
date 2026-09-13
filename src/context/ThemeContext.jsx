@@ -1,6 +1,6 @@
-// ============================================================
-// FILE: src/context/ThemeContext.js
-// ============================================================
+
+
+
 import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
 
 const ThemeContext = createContext({ darkMode: false, toggleTheme: () => {} });
@@ -16,7 +16,7 @@ export const ThemeProvider = ({ children }) => {
     useEffect(() => {
         document.documentElement.setAttribute('data-bs-theme', darkMode ? 'dark' : 'light');
         localStorage.setItem(THEME_KEY, darkMode ? 'dark' : 'light');
-        // Also update the body class for custom CSS
+        
         document.body.style.background = darkMode ? '#0f0c1a' : '#f8f5ff';
         document.body.style.color = darkMode ? '#d4c4e8' : '#2d1b4e';
     }, [darkMode]);

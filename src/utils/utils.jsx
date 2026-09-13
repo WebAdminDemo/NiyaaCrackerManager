@@ -10,7 +10,7 @@ export const formatINR = (value) => {
 };
 
 export const formatValueInteger = (value) => {
-    // Remove all non-digit characters
+    
     const cleaned = String(value).replace(/[^0-9]/g, '');
     const num = Number(cleaned);
     return isNaN(num) ? null : num;

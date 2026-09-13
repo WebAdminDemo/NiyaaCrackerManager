@@ -13,10 +13,6 @@ export const deleteProduct = (rowid) =>
 export const updateProductStatus = (rowid, status) =>
   api.patch(`/products/${encodeURIComponent(rowid)}/status`, { status });
 
-// Excel import/replacement uses the existing POST /products endpoint.
-// A normal product is still sent as an object; Excel sends an array.
+
 export const replaceAllProducts = (products) =>
-  api.post('/products', products, {
-    headers: { 'Content-Type': 'application/json' },
-    timeout: 120000,
-  });
+  api.post('/products/import', products);

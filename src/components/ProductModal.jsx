@@ -3,6 +3,7 @@ import { Modal, Button } from 'react-bootstrap';
 import CreatableSelect from 'react-select/creatable';
 import Select from 'react-select';
 import { buildSelectStyles, portalSelectProps } from '../utils/selectStyles';
+import { PRODUCT_STATUS, PRODUCT_STATUS_OPTIONS, PRODUCT_BRAND_OPTIONS, normalizeBrand, getBrandStatus } from '../utils/common.properties';
 
 const EMPTY_FORM = {
   rowid: '',
@@ -13,13 +14,12 @@ const EMPTY_FORM = {
   image: '',
   contents: '',
   discount_percent: '',
-  status: 'in_stock',
+  status: PRODUCT_STATUS.IN_STOCK,
+  brand: '',
+  brandStatus: null,
 };
 
-const STATUS_OPTIONS = [
-  { value: 'in_stock', label: 'In Stock' },
-  { value: 'no_stock', label: 'No Stock' },
-];
+const STATUS_OPTIONS = PRODUCT_STATUS_OPTIONS.filter((option) => option.value);
 
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
 const TARGET_IMAGE_SIZE = 200 * 1024;
@@ -35,8 +35,10 @@ function buildFormFromProduct(product) {
     price: product.price ?? '',
     image: product.image ?? '',
     contents: product.contents ?? '',
-    discount_percent: product.discountPercent ?? product.discount_percent ?? '',
-    status: product.status === 'no_stock' ? 'no_stock' : 'in_stock',
+    discount_percent: product.discount_percent ?? '',
+    status: product.status === PRODUCT_STATUS.NO_STOCK ? PRODUCT_STATUS.NO_STOCK : PRODUCT_STATUS.IN_STOCK,
+    brand: normalizeBrand(product.brand),
+    brandStatus: getBrandStatus(product.brand),
   };
 }
 
@@ -212,12 +214,22 @@ const ProductModal = memo(function ProductModal({
   }, []);
 
   const handleStatusChange = useCallback((selected) => {
-    const newStatus = selected?.value || 'in_stock';
+    const newStatus = selected?.value || PRODUCT_STATUS.IN_STOCK;
     setForm((prev) => ({
       ...prev,
       status: newStatus,
-      contents: newStatus === 'no_stock' ? '' : prev.contents,
+      contents: newStatus === PRODUCT_STATUS.NO_STOCK ? '' : prev.contents,
     }));
+  }, []);
+
+  const handleBrandChange = useCallback((selected) => {
+    const brand = normalizeBrand(selected?.value || '');
+    setForm((prev) => ({
+      ...prev,
+      brand,
+      brandStatus: getBrandStatus(brand),
+    }));
+    setErrors((prev) => ({ ...prev, brand: '' }));
   }, []);
 
   const handleFileChange = useCallback(
@@ -276,7 +288,7 @@ const ProductModal = memo(function ProductModal({
     if (price < 0) newErrors.price = 'Original price must be a positive number.';
     const discount = toNumber(form.discount_percent);
     if (discount < 0 || discount > 100) newErrors.discount = 'Discount must be between 0 and 100.';
-    if (form.status === 'in_stock' && (!form.contents || form.contents.trim() === '')) {
+    if (form.status === PRODUCT_STATUS.IN_STOCK && (!form.contents || form.contents.trim() === '')) {
       newErrors.contents = 'Quantity is required when product is in stock.';
     }
     setErrors(newErrors);
@@ -296,11 +308,12 @@ const ProductModal = memo(function ProductModal({
         category: form.category.trim(),
         amount: toNumber(finalAmount),
         price: toNumber(form.price),
-        discountPercent: Math.max(0, Math.min(100, toNumber(form.discount_percent))),
         discount_percent: Math.max(0, Math.min(100, toNumber(form.discount_percent))),
-        contents: form.status === 'no_stock' ? '' : form.contents.trim(),
+        contents: form.status === PRODUCT_STATUS.NO_STOCK ? '' : form.contents.trim(),
         image: form.image || '',
-        status: form.status === 'no_stock' ? 'no_stock' : 'in_stock',
+        status: form.status === PRODUCT_STATUS.NO_STOCK ? PRODUCT_STATUS.NO_STOCK : PRODUCT_STATUS.IN_STOCK,
+        brand: normalizeBrand(form.brand),
+        brandStatus: getBrandStatus(form.brand),
         last_updated: new Date().toISOString(),
       };
 
@@ -375,6 +388,26 @@ const ProductModal = memo(function ProductModal({
                   {errors.category && <div className="text-danger small mt-1">{errors.category}</div>}
                 </div>
 
+                <div className="mb-3">
+                  <label htmlFor="productBrand" className="form-label fw-semibold">Brand</label>
+                  <Select
+                    inputId="productBrand"
+                    options={PRODUCT_BRAND_OPTIONS}
+                    value={
+                      PRODUCT_BRAND_OPTIONS.find((option) => option.value === normalizeBrand(form.brand)) ||
+                      PRODUCT_BRAND_OPTIONS[0]
+                    }
+                    onChange={handleBrandChange}
+                    placeholder="Select brand (optional)"
+                    isDisabled={isSaving}
+                    isSearchable={false}
+                    isClearable
+                    {...portalSelectProps}
+                    styles={buildSelectStyles(!!errors.brand)}
+                  />
+                  {errors.brand && <div className="text-danger small mt-1">{errors.brand}</div>}
+                </div>
+
                 <div className="row g-2">
                   <div className="col-6">
                     <label htmlFor="productPrice" className="form-label fw-semibold">
@@ -439,16 +472,16 @@ const ProductModal = memo(function ProductModal({
                     name="contents"
                     value={form.contents}
                     onChange={handleChange}
-                    disabled={isSaving || form.status === 'no_stock'}
+                    disabled={isSaving || form.status === PRODUCT_STATUS.NO_STOCK}
                     className={`form-control form-control-lg rounded-3 shadow-sm ${errors.contents ? 'is-invalid' : ''}`}
-                    placeholder={form.status === 'no_stock' ? 'Quantity disabled (No Stock)' : 'e.g. 50 Pcs, 100 Box, 25 Units'}
+                    placeholder={form.status === PRODUCT_STATUS.NO_STOCK ? 'Quantity disabled (No Stock)' : 'e.g. 50 Pcs, 100 Box, 25 Units'}
                     inputMode="text"
                   />
                   <div className="text-muted small mt-1">
                     <i className="bi bi-info-circle me-1"></i>
                     Allowed: letters, numbers, and spaces only
                   </div>
-                  {form.status === 'no_stock' && (
+                  {form.status === PRODUCT_STATUS.NO_STOCK && (
                     <div className="text-muted small mt-1">
                       <i className="bi bi-exclamation-triangle me-1"></i>
                       Quantity is disabled when product is out of stock

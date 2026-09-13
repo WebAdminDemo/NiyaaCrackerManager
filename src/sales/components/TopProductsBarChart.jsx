@@ -1,4 +1,4 @@
-// src/sales/components/TopProductsBarChart.jsx
+
 import React, { useMemo } from "react";
 import { Card } from "react-bootstrap";
 import {
@@ -41,7 +41,7 @@ const CustomTooltip = ({ active, payload }) => {
 };
 
 const TopProductsBarChart = ({ products }) => {
-  // Show the top six products.
+  
   const data = useMemo(() => {
     const safeProducts = Array.isArray(products) ? products : [];
 
@@ -147,11 +147,11 @@ const TopProductsBarChart = ({ products }) => {
               </ResponsiveContainer>
             </div>
 
-            {/*
-              On phones the chart x-axis becomes too narrow for long product
-              names. Keep the graph clean and show the complete product names
-              in a readable list below it, similar to the category chart.
-            */}
+            {
+
+
+
+}
             <div className="top-products-mobile-list">
               {data.map((entry, index) => (
                 <div

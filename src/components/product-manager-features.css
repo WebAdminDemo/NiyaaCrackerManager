@@ -1,0 +1,84 @@
+/* Product catalogue switch and brand controls.  index.css is intentionally untouched. */
+.product-catalog-toggle,
+.product-mode-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px;
+  border: 1px solid #d9d5e8;
+  border-radius: 999px;
+  background: linear-gradient(145deg, #f8f7fb, #e9e6f1);
+  box-shadow: inset 0 2px 5px rgba(40, 35, 70, .10), 0 3px 8px rgba(40, 35, 70, .10);
+}
+
+.product-catalog-toggle__option,
+.product-mode-option {
+  border: 0;
+  border-radius: 999px;
+  padding: 8px 13px;
+  background: transparent;
+  color: #555164;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .16s ease, background .16s ease, color .16s ease, box-shadow .16s ease;
+}
+
+.product-catalog-toggle__option:hover,
+.product-mode-option:hover {
+  color: #2b2445;
+  background: #eeeef2;
+}
+
+.product-catalog-toggle__option.is-active,
+.product-mode-option.active {
+  color: #fff;
+  background: linear-gradient(145deg, #6c5ce7, #5747cf);
+  box-shadow: 0 4px 10px rgba(108, 92, 231, .28), inset 0 1px 1px rgba(255,255,255,.22);
+  transform: translateY(-1px);
+}
+
+.product-mode-switch {
+  width: 100%;
+  justify-content: stretch;
+}
+
+.product-mode-switch .product-mode-option {
+  flex: 1 1 50%;
+}
+
+body.dark .product-catalog-toggle,
+body[data-theme="dark"] .product-catalog-toggle,
+body.dark .product-mode-switch,
+body[data-theme="dark"] .product-mode-switch {
+  border-color: #403d4e;
+  background: linear-gradient(145deg, #252530, #1b1b24);
+  box-shadow: inset 0 2px 5px rgba(0,0,0,.28), 0 3px 8px rgba(0,0,0,.18);
+}
+
+body.dark .product-catalog-toggle__option,
+body[data-theme="dark"] .product-catalog-toggle__option,
+body.dark .product-mode-option,
+body[data-theme="dark"] .product-mode-option {
+  color: #d9d6e5;
+}
+
+body.dark .product-catalog-toggle__option:hover,
+body[data-theme="dark"] .product-catalog-toggle__option:hover,
+body.dark .product-mode-option:hover,
+body[data-theme="dark"] .product-mode-option:hover {
+  color: #fff;
+  background: #303038;
+}
+
+@media (max-width: 700px) {
+  .product-catalog-toggle {
+    width: 100%;
+  }
+
+  .product-catalog-toggle__option {
+    flex: 1 1 50%;
+    font-size: 11px;
+    padding: 8px 8px;
+  }
+}

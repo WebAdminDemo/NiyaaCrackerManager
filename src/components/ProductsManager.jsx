@@ -15,21 +15,16 @@ import { formatINR } from '../utils/utils';
 import { reactSelectStyles, portalSelectProps } from '../utils/selectStyles';
 import ExportImport from './ExportImport';
 import { exportProductsToExcel, parseProductsExcel } from './products/productExcel';
+import {
+  PRODUCT_STATUS_OPTIONS,
+  PRODUCT_BRAND_FILTER_OPTIONS,
+  normalizeBrand,
+  getBrandStatus,
+  PRODUCT_STATUS,
+} from '../utils/common.properties';
 
-const FALLBACK_IMAGE =
-  'data:image/svg+xml;charset=UTF-8,' +
-  encodeURIComponent(`
-    <svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
-      <rect width="400" height="300" fill="#f0edf5"/>
-      <text x="200" y="150" text-anchor="middle" dominant-baseline="middle"
-        font-family="Arial, sans-serif" font-size="24" fill="#6C5CE7">No Image</text>
-    </svg>
-  `);
-const STATUS_FILTER_OPTIONS = [
-  { value: '', label: 'All Status' },
-  { value: 'in_stock', label: 'In Stock' },
-  { value: 'no_stock', label: 'Out of Stock' },
-];
+const FALLBACK_IMAGE = 'https://via.placeholder.com/400x300/f0edf5/6C5CE7?text=No+Image';
+const STATUS_FILTER_OPTIONS = PRODUCT_STATUS_OPTIONS;
 
 function normalizeProducts(products) {
   if (!Array.isArray(products)) return [];
@@ -43,7 +38,9 @@ function normalizeProducts(products) {
     image: p.image ?? '',
     contents: p.contents ?? '',
     discount_percent: Number(p.discountPercent ?? p.discount_percent) || 0,
-    status: p.status === 'no_stock' ? 'no_stock' : 'in_stock',
+    status: p.status === PRODUCT_STATUS.NO_STOCK ? PRODUCT_STATUS.NO_STOCK : PRODUCT_STATUS.IN_STOCK,
+    brand: normalizeBrand(p.brand),
+    brandStatus: getBrandStatus(p.brand),
   }));
 }
 
@@ -59,6 +56,8 @@ function buildImportPayload(product) {
     stockQuantity: product.stockQuantity === null || product.stockQuantity === '' ? null : Number(product.stockQuantity),
     maxOrderQty: product.maxOrderQty === null || product.maxOrderQty === '' ? null : Number(product.maxOrderQty),
     tags: Array.isArray(product.tags) ? product.tags : [],
+    brand: normalizeBrand(product.brand),
+    brandStatus: getBrandStatus(product.brand),
     uiFlags: product.uiFlags || { featured: false, hidden: false },
   };
 }
@@ -82,6 +81,7 @@ export default function ProductManager({
   const [error, setError] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   const [search, setSearch] = useState('');
+  const [brandFilter, setBrandFilter] = useState('');
 
   const [internalCategory, setInternalCategory] = useState(propFilterCategory || '');
   const [internalStatus, setInternalStatus] = useState(propFilterStatus || '');
@@ -248,7 +248,7 @@ export default function ProductManager({
     async (rowid) => {
       const product = products.find((p) => p.rowid === rowid);
       if (!product) return;
-      const newStatus = product.status === 'in_stock' ? 'no_stock' : 'in_stock';
+      const newStatus = product.status === PRODUCT_STATUS.IN_STOCK ? PRODUCT_STATUS.NO_STOCK : PRODUCT_STATUS.IN_STOCK;
       setIsSaving(true);
       try {
         const response = await updateProductStatus(rowid, newStatus);
@@ -294,9 +294,10 @@ export default function ProductManager({
       const matchesStatus = !internalStatus || p.status === internalStatus;
       const matchesSoldProducts =
         soldProductSet.size === 0 || soldProductSet.has(normalizeText(p.name));
-      return matchesSearch && matchesCategory && matchesStatus && matchesSoldProducts;
+      const matchesBrand = !brandFilter || normalizeBrand(p.brand) === brandFilter;
+      return matchesSearch && matchesCategory && matchesStatus && matchesSoldProducts && matchesBrand;
     });
-  }, [products, search, internalCategory, internalStatus, soldProductSet]);
+  }, [products, search, internalCategory, internalStatus, soldProductSet, brandFilter]);
 
   const categoryOptions = useMemo(
     () => categories.map((c) => ({ label: c, value: c })),
@@ -307,6 +308,9 @@ export default function ProductManager({
   const selectedStatus =
     STATUS_FILTER_OPTIONS.find((opt) => opt.value === internalStatus) ||
     STATUS_FILTER_OPTIONS[0];
+  const selectedBrand =
+    PRODUCT_BRAND_FILTER_OPTIONS.find((opt) => opt.value === brandFilter) ||
+    PRODUCT_BRAND_FILTER_OPTIONS[0];
 
   // Back to top
   useEffect(() => {
@@ -409,14 +413,14 @@ export default function ProductManager({
           </span>
           <span className="badge bg-secondary ms-2">{filtered.length} total</span>
           {isSaving && <span className="badge bg-primary ms-2">Saving...</span>}
-          {(internalCategory || internalStatus || soldProductSet.size > 0) && (
+          {(internalCategory || internalStatus || brandFilter || soldProductSet.size > 0) && (
             <Badge bg="warning" className="ms-2">
               <i className="bi bi-funnel me-1"></i> {soldProductSet.size > 0 ? 'Sold products' : 'Filtered'}
             </Badge>
           )}
         </div>
         <div className="d-flex gap-2 flex-wrap">
-          {/*<ExportImport onExport={handleExportExcel} onImport={handleImportExcel} /> */}
+          <ExportImport onExport={handleExportExcel} onImport={handleImportExcel} />
           <Button variant="primary" size="sm" onClick={openAddModal} disabled={isSaving}>
             <i className="bi bi-plus-lg me-1" aria-hidden="true"></i> Add Product
           </Button>
@@ -459,7 +463,18 @@ export default function ProductManager({
             styles={reactSelectStyles}
           />
         </Col>
-        {(internalCategory || internalStatus || soldProductSet.size > 0) && (
+        <Col xs={12} md={4} lg={2}>
+          <Select
+            options={PRODUCT_BRAND_FILTER_OPTIONS}
+            value={selectedBrand}
+            onChange={(selected) => setBrandFilter(selected?.value || '')}
+            placeholder="All Products"
+            isClearable={false}
+            {...portalSelectProps}
+            styles={reactSelectStyles}
+          />
+        </Col>
+        {(internalCategory || internalStatus || brandFilter || soldProductSet.size > 0) && (
           <Col xs={12} md="auto">
             <Button
               variant="outline-secondary"
@@ -467,6 +482,7 @@ export default function ProductManager({
               onClick={() => {
                 setInternalCategory('');
                 setInternalStatus('');
+                setBrandFilter('');
                 onClearExternalFilters?.();
               }}
             >
@@ -551,7 +567,7 @@ export default function ProductManager({
                               {product.category || 'Others'}
                             </span>
                             <span className="d-flex small gap-2 content-text fw-bold">
-                              {product.status === 'in_stock' &&
+                              {product.status === PRODUCT_STATUS.IN_STOCK &&
                                 product.contents &&
                                 (String(product.contents)
                                   .toLowerCase()
@@ -566,10 +582,10 @@ export default function ProductManager({
                               <div className="d-flex justify-content-between align-items-center gap-2">
                                 <strong className="fs-5">₹{formatINR(displayPrice)}</strong>
                                 <Badge
-                                  bg={product.status === 'in_stock' ? 'success' : 'danger'}
+                                  bg={product.status === PRODUCT_STATUS.IN_STOCK ? 'success' : 'danger'}
                                   pill
                                 >
-                                  {product.status === 'in_stock' ? 'In Stock' : 'No Stock'}
+                                  {product.status === PRODUCT_STATUS.IN_STOCK ? 'In Stock' : 'No Stock'}
                                 </Badge>
                               </div>
                             </div>
@@ -584,18 +600,18 @@ export default function ProductManager({
                                 <i className="bi bi-pencil-square" aria-hidden="true"></i>
                               </Button>
                               <Button
-                                variant={product.status === 'in_stock' ? 'success' : 'danger'}
+                                variant={product.status === PRODUCT_STATUS.IN_STOCK ? 'success' : 'danger'}
                                 size="sm"
                                 className="flex-fill stock-toggle"
                                 onClick={() => handleToggleStatus(product.rowid)}
                                 title="Toggle stock"
                               >
                                 <i
-                                  className={`bi ${product.status === 'in_stock' ? 'bi-check-circle-fill' : 'bi-x-circle-fill'}`}
+                                  className={`bi ${product.status === PRODUCT_STATUS.IN_STOCK ? 'bi-check-circle-fill' : 'bi-x-circle-fill'}`}
                                   aria-hidden="true"
                                 ></i>
                                 <span className="ms-1 small d-none d-sm-inline">
-                                  {product.status === 'in_stock' ? 'In' : 'Out'}
+                                  {product.status === PRODUCT_STATUS.IN_STOCK ? 'In' : 'Out'}
                                 </span>
                               </Button>
                               <Button

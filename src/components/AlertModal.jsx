@@ -6,7 +6,7 @@ export default function AlertModal({
   onHide,
   title = 'Notice',
   message = '',
-  variant = 'info', // 'info', 'success', 'danger', 'warning'
+  variant = 'info', 
   confirmText = 'OK',
   onConfirm,
   cancelText = 'Cancel',

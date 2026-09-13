@@ -2,8 +2,8 @@ import React, { memo } from 'react';
 import { Card } from 'react-bootstrap';
 
 const EnquiryStats = memo(function EnquiryStats({ enquiries = [] }) {
-  // The Spring API returns aggregate counts from enquiry_items. Keep array
-  // support for existing callers that may still supply individual records.
+  
+  
   const summary = !Array.isArray(enquiries) && enquiries && typeof enquiries === 'object'
     ? enquiries
     : null;

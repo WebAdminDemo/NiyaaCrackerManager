@@ -1,3 +1,4 @@
+
 /* Sales dashboard styles. */
 
 .sales-dashboard,
@@ -4676,22 +4677,91 @@ body[data-theme="dark"] .sd-select__option--is-selected,
   }
 }
 
+/* ================================================================
+   ORDER PDF / EDITABLE QUANTITY CONTROLS
+   Added without changing the existing sales layout.
+   ================================================================ */
+.sales-order-header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.sales-order-qty-input {
+  width: 76px;
+  min-height: 36px;
+  padding: 6px 9px;
+  border: 1px solid var(--sd-modal-border, #d9d7e3);
+  border-radius: 9px;
+  background: var(--sd-modal-bg, #fff);
+  color: var(--sd-modal-text, #171522);
+  text-align: center;
+  font-weight: 700;
+}
+
+.sales-order-qty-input:focus {
+  outline: none;
+  border-color: var(--sd-modal-brand, #6c5ce7);
+  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.12);
+}
+
+.sales-order-stock-hint {
+  display: block;
+  margin-top: 3px;
+  color: var(--sd-modal-text-3, #777486);
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.order-pdf-btn {
+  min-width: 36px;
+}
+
+.orders-export-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sales-order-modal[data-sales-theme="dark"] .sales-order-qty-input,
+body.dark .sales-order-modal .sales-order-qty-input {
+  background: #252530;
+  color: #f7f6fb;
+  border-color: #41404d;
+}
+
+.sales-order-modal[data-sales-theme="dark"] .sales-order-stock-hint,
+body.dark .sales-order-modal .sales-order-stock-hint {
+  color: #a8a5b5;
+}
+
+@media (max-width: 700px) {
+  .sales-order-header-actions {
+    flex-wrap: wrap;
+  }
+
+  .orders-export-actions {
+    width: 100%;
+  }
+
+  .orders-export-actions .btn {
+    flex: 1 1 auto;
+  }
+
+  .sales-order-qty-input {
+    width: 68px;
+  }
+}
 
 /* ================================================================
-   FINAL SELECT / DROPDOWN FIX
-   ---------------------------------------------------------------
-   Fixes:
-   - React-Select menus rendered through a portal were transparent
-     because the sales theme variables are scoped to the page.
-   - Light mode: solid white menu + black/dark text.
-   - Dark mode: solid dark menu + white text.
-   - Hover/focused option: soft grey.
-   - Selected option: blue in light mode, violet in dark mode.
-   - Native Order Details status <select> uses the same visual style.
-   - No changes to index.css required.
+   React-Select portal: explicit solid colours so menus remain visible
+   when the menu is rendered directly under document.body.
    ================================================================ */
-
-/* ---------- React-Select: LIGHT MODE ---------- */
+.sd-select__menu-portal {
+  z-index: 99999 !important;
+}
 
 .sd-select__menu,
 .sd-select__menu-list {
@@ -4699,297 +4769,965 @@ body[data-theme="dark"] .sd-select__option--is-selected,
   color: #171522 !important;
 }
 
-.sd-select__menu {
-  z-index: 99999 !important;
-  border: 1px solid #dedee8 !important;
-  border-radius: 10px !important;
-  box-shadow: 0 14px 32px rgba(20, 16, 35, 0.18) !important;
-  overflow: hidden !important;
-  opacity: 1 !important;
-}
-
-.sd-select__menu-list {
-  padding: 5px !important;
-  max-height: 280px !important;
-}
-
 .sd-select__option {
-  min-height: 40px !important;
-  display: flex !important;
-  align-items: center !important;
-  padding: 9px 11px !important;
-  border-radius: 7px !important;
   background: #ffffff !important;
   color: #171522 !important;
-  font-size: 13px !important;
-  line-height: 1.3 !important;
-  cursor: pointer !important;
-  opacity: 1 !important;
 }
 
-.sd-select__option--is-focused,
-.sd-select__option:hover {
-  background: #f0f1f4 !important;
+.sd-select__option--is-focused {
+  background: #eeeef2 !important;
   color: #171522 !important;
 }
 
-.sd-select__option--is-selected {
+.sd-select__option--is-selected,
+.sd-select__option:active {
   background: #287fd7 !important;
   color: #ffffff !important;
 }
 
-.sd-select__option--is-selected:hover,
-.sd-select__option--is-selected.sd-select__option--is-focused {
-  background: #287fd7 !important;
-  color: #ffffff !important;
-}
-
-/* React-Select menu when it is rendered inside sales pages */
-.sales-dashboard .sd-select__menu,
-.sales-orders-page .sd-select__menu,
-.sales-dashboard .sd-select__menu-list,
-.sales-orders-page .sd-select__menu-list {
-  background: #ffffff !important;
-  color: #171522 !important;
-  opacity: 1 !important;
-}
-
-.sales-dashboard .sd-select__option,
-.sales-orders-page .sd-select__option {
-  background: #ffffff !important;
-  color: #171522 !important;
-  opacity: 1 !important;
-}
-
-.sales-dashboard .sd-select__option--is-focused,
-.sales-orders-page .sd-select__option--is-focused,
-.sales-dashboard .sd-select__option:hover,
-.sales-orders-page .sd-select__option:hover {
-  background: #f0f1f4 !important;
-  color: #171522 !important;
-}
-
-.sales-dashboard .sd-select__option--is-selected,
-.sales-orders-page .sd-select__option--is-selected {
-  background: #287fd7 !important;
-  color: #ffffff !important;
-}
-
-/* ---------- React-Select: DARK MODE ---------- */
-
+[data-sales-theme="dark"] ~ .sd-select__menu-portal .sd-select__menu,
 body.dark .sd-select__menu,
 body.dark .sd-select__menu-list,
 body[data-theme="dark"] .sd-select__menu,
 body[data-theme="dark"] .sd-select__menu-list,
-body[data-bs-theme="dark"] .sd-select__menu,
-body[data-bs-theme="dark"] .sd-select__menu-list,
-.dark .sd-select__menu,
-.dark .sd-select__menu-list,
-.sales-dashboard[data-sales-theme="dark"] .sd-select__menu,
-.sales-orders-page[data-sales-theme="dark"] .sd-select__menu,
-.sales-dashboard[data-sales-theme="dark"] .sd-select__menu-list,
-.sales-orders-page[data-sales-theme="dark"] .sd-select__menu-list {
+[data-bs-theme="dark"] .sd-select__menu,
+[data-bs-theme="dark"] .sd-select__menu-list {
   background: #1b1b24 !important;
-  color: #f7f6fb !important;
-  border-color: #343440 !important;
-  opacity: 1 !important;
+  color: #ffffff !important;
 }
 
 body.dark .sd-select__option,
 body[data-theme="dark"] .sd-select__option,
-body[data-bs-theme="dark"] .sd-select__option,
-.dark .sd-select__option,
-.sales-dashboard[data-sales-theme="dark"] .sd-select__option,
-.sales-orders-page[data-sales-theme="dark"] .sd-select__option {
+[data-bs-theme="dark"] .sd-select__option {
   background: #1b1b24 !important;
-  color: #f7f6fb !important;
-  opacity: 1 !important;
+  color: #ffffff !important;
 }
 
 body.dark .sd-select__option--is-focused,
-body.dark .sd-select__option:hover,
 body[data-theme="dark"] .sd-select__option--is-focused,
-body[data-theme="dark"] .sd-select__option:hover,
-body[data-bs-theme="dark"] .sd-select__option--is-focused,
-body[data-bs-theme="dark"] .sd-select__option:hover,
-.dark .sd-select__option--is-focused,
-.dark .sd-select__option:hover,
-.sales-dashboard[data-sales-theme="dark"] .sd-select__option--is-focused,
-.sales-dashboard[data-sales-theme="dark"] .sd-select__option:hover,
-.sales-orders-page[data-sales-theme="dark"] .sd-select__option--is-focused,
-.sales-orders-page[data-sales-theme="dark"] .sd-select__option:hover {
+[data-bs-theme="dark"] .sd-select__option--is-focused {
   background: #303038 !important;
   color: #ffffff !important;
 }
 
 body.dark .sd-select__option--is-selected,
 body[data-theme="dark"] .sd-select__option--is-selected,
-body[data-bs-theme="dark"] .sd-select__option--is-selected,
-.dark .sd-select__option--is-selected,
-.sales-dashboard[data-sales-theme="dark"] .sd-select__option--is-selected,
-.sales-orders-page[data-sales-theme="dark"] .sd-select__option--is-selected {
+[data-bs-theme="dark"] .sd-select__option--is-selected {
   background: #897cf0 !important;
   color: #ffffff !important;
 }
 
-body.dark .sd-select__option--is-selected:hover,
-body.dark .sd-select__option--is-selected.sd-select__option--is-focused,
-body[data-theme="dark"] .sd-select__option--is-selected:hover,
-body[data-theme="dark"] .sd-select__option--is-selected.sd-select__option--is-focused,
-body[data-bs-theme="dark"] .sd-select__option--is-selected:hover,
-body[data-bs-theme="dark"] .sd-select__option--is-selected.sd-select__option--is-focused,
-.dark .sd-select__option--is-selected:hover,
-.dark .sd-select__option--is-selected.sd-select__option--is-focused {
-  background: #897cf0 !important;
-  color: #ffffff !important;
+.sales-status-badge--order_received {
+  color: #1767a9 !important;
+  background: #e3f2ff !important;
 }
 
-/* ---------- React-Select text/indicators ---------- */
-
-.sales-dashboard .sd-select__single-value,
-.sales-dashboard .sd-select__placeholder,
-.sales-dashboard .sd-select__input-container,
-.sales-orders-page .sd-select__single-value,
-.sales-orders-page .sd-select__placeholder,
-.sales-orders-page .sd-select__input-container {
-  color: var(--sd-text) !important;
+.sales-order-modal[data-sales-theme="dark"] .sales-status-badge--order_received,
+body.dark .sales-order-modal .sales-status-badge--order_received {
+  color: #6db9f4 !important;
+  background: #173147 !important;
 }
 
-.sd-select__menu-portal {
-  z-index: 99999 !important;
+/* ================================================================
+   PROFESSIONAL ORDER EDIT / INVOICE UPDATE
+   ================================================================ */
+
+.sales-order-edit-card {
+  margin-bottom: 18px;
+  padding: 20px;
+  border: 1px solid var(--sd-modal-border, #e3e1ea);
+  border-radius: 16px;
+  background: var(--sd-modal-surface, #ffffff);
 }
 
-/* ---------- Native <select>: Order Details + all sales selects ---------- */
+.sales-order-edit-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+}
 
-.sales-order-modal .form-select,
-.sales-details-modal .form-select {
-  min-height: 44px !important;
+.sales-order-edit-card__header > div:first-child > span {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--sd-text-3, #777486);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+}
+
+.sales-order-edit-card__header h6 {
+  margin: 0;
+  color: var(--sd-text, #171522);
+  font-size: 16px;
+  font-weight: 750;
+}
+
+.sales-order-edit-card__hint {
+  max-width: 330px;
+  color: var(--sd-text-3, #777486);
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: right;
+}
+
+.sales-order-edit-card .form-label {
+  margin-bottom: 6px;
+  color: var(--sd-text-2, #514d5d);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.sales-order-edit-card .form-control,
+.sales-order-edit-card .form-select {
+  min-height: 40px;
+  border: 1px solid var(--sd-modal-border, #dedce6);
+  border-radius: 10px;
+  background: var(--sd-modal-bg, #fff);
+  color: var(--sd-modal-text, #171522);
+  font-size: 13px;
+}
+
+.sales-order-edit-card textarea.form-control {
+  min-height: 88px;
+  resize: vertical;
+}
+
+.sales-order-edit-card .form-control:focus,
+.sales-order-edit-card .form-select:focus {
+  border-color: var(--sd-modal-brand, #6c5ce7);
+  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+}
+
+.sales-order-edit-note,
+.sales-order-status-readonly-note {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 16px;
+  color: var(--sd-text-3, #777486);
+  font-size: 11px;
+}
+
+.sales-order-items-total-row td {
+  border-top: 2px solid #d8d6df !important;
+  background: #f5f4f8 !important;
+  color: #171522 !important;
+  font-size: 12px;
+  padding-top: 11px !important;
+  padding-bottom: 11px !important;
+}
+
+.sales-order-items-total-row td:last-child {
+  font-size: 14px;
+}
+
+.sales-order-modal[data-sales-theme="dark"] .sales-order-edit-card,
+body.dark .sales-order-modal .sales-order-edit-card {
+  border-color: #3b3947;
+  background: #20202a;
+}
+
+.sales-order-modal[data-sales-theme="dark"] .sales-order-edit-card__header h6,
+body.dark .sales-order-modal .sales-order-edit-card__header h6,
+.sales-order-modal[data-sales-theme="dark"] .sales-order-edit-card .form-label,
+body.dark .sales-order-modal .sales-order-edit-card .form-label {
+  color: #f5f4f8;
+}
+
+.sales-order-modal[data-sales-theme="dark"] .sales-order-edit-card__hint,
+body.dark .sales-order-modal .sales-order-edit-card__hint,
+.sales-order-modal[data-sales-theme="dark"] .sales-order-edit-note,
+body.dark .sales-order-modal .sales-order-edit-note,
+.sales-order-modal[data-sales-theme="dark"] .sales-order-status-readonly-note,
+body.dark .sales-order-modal .sales-order-status-readonly-note {
+  color: #aaa7b6;
+}
+
+.sales-order-modal[data-sales-theme="dark"]
+  .sales-order-edit-card
+  .form-control,
+.sales-order-modal[data-sales-theme="dark"] .sales-order-edit-card .form-select,
+body.dark .sales-order-modal .sales-order-edit-card .form-control,
+body.dark .sales-order-modal .sales-order-edit-card .form-select {
+  border-color: #464452;
+  background: #292934;
+  color: #f7f6fb;
+}
+
+.sales-order-modal[data-sales-theme="dark"] .sales-order-items-total-row td,
+body.dark .sales-order-modal .sales-order-items-total-row td {
+  border-top-color: #4a4856 !important;
+  background: #2a2934 !important;
+  color: #f5f4f8 !important;
+}
+
+.sales-all-orders-table .order-edit-btn {
+  width: 38px;
+  min-width: 38px;
+  height: 36px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sales-all-orders-table .order-view-text-btn,
+.sales-all-orders-table .order-pdf-btn {
+  min-height: 36px;
+  white-space: nowrap;
+}
+
+.sales-all-orders-table th:nth-child(10),
+.sales-all-orders-table td:nth-child(10),
+.sales-all-orders-table th:nth-child(11),
+.sales-all-orders-table td:nth-child(11) {
+  white-space: nowrap;
+  text-align: center;
+}
+
+.sales-all-orders-table th:nth-child(10) {
+  min-width: 70px;
+}
+
+.sales-all-orders-table th:nth-child(11) {
+  min-width: 72px;
+}
+
+@media (max-width: 760px) {
+  .sales-order-edit-card {
+    padding: 15px;
+  }
+
+  .sales-order-edit-card__header {
+    flex-direction: column;
+  }
+
+  .sales-order-edit-card__hint {
+    max-width: none;
+    text-align: left;
+  }
+
+  .sales-all-orders-table .order-view-text-btn {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+}
+
+/* Final invoice/order table alignment */
+.sales-order-items-table thead th {
+  text-align: center !important;
+  vertical-align: middle !important;
+  white-space: nowrap;
+}
+
+.sales-order-items-table tbody td:nth-child(1),
+.sales-order-items-table tbody td:nth-child(3),
+.sales-order-items-table tbody td:nth-child(4) {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.sales-order-items-table tbody td:nth-child(5),
+.sales-order-items-table tbody td:nth-child(6) {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.sales-order-items-table tbody td:nth-child(2) {
+  text-align: left;
+  min-width: 180px;
+}
+
+.sales-order-items-total-row td {
+  text-align: right !important;
+  vertical-align: middle !important;
+}
+
+.sales-order-items-total-row td:first-child {
+  text-align: left !important;
+}
+
+/* ========================================================================
+   ORDER MANAGEMENT - FINAL UI
+   ======================================================================== */
+
+.sales-all-orders-table {
+  min-width: 1380px;
+}
+
+.sales-all-orders-table th,
+.sales-all-orders-table td {
+  border-color: #000 !important;
+}
+
+.sales-all-orders-table thead th {
+  text-align: center !important;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.sales-all-orders-table td {
+  vertical-align: top;
+}
+
+.sales-all-orders-table th:first-child,
+.sales-all-orders-table td:first-child {
+  width: 64px;
+  min-width: 64px;
+  text-align: center;
+}
+
+.order-action-cell {
+  text-align: center !important;
+  vertical-align: middle !important;
+  white-space: nowrap;
+}
+
+.order-edit-btn,
+.order-pdf-btn {
+  width: 38px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.order-view-text-btn {
+  min-width: 104px;
+  min-height: 36px;
+  white-space: nowrap;
+}
+
+.party-details-cell {
+  width: 255px;
+  min-width: 255px;
+  max-width: 255px;
+  white-space: normal !important;
+}
+
+.party-details-cell > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  line-height: 1.35;
+}
+
+.party-details-cell strong,
+.party-details-cell span {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.party-details-cell strong {
+  font-size: 12px;
+}
+
+.party-details-cell span {
+  font-size: 11px;
+}
+
+.party-address-line {
+  margin-top: 3px;
+  padding-top: 3px;
+  border-top: 1px dashed #000;
+}
+
+.items-ordered-cell {
+  width: 270px;
+  min-width: 270px;
+  max-width: 270px;
+}
+
+.items-ordered-list {
+  display: block;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.45;
+}
+
+.total-quantity-cell {
+  min-width: 105px;
+  white-space: nowrap;
+}
+
+.sales-order-modal .modal-content {
+  border: 1px solid #000;
+}
+
+.sales-order-modal .sales-order-items-table th,
+.sales-order-modal .sales-order-items-table td {
+  border-color: #000 !important;
+}
+
+.sales-order-modal .sales-order-items-table thead th {
+  text-align: center !important;
+  vertical-align: middle;
+}
+
+.sales-order-modal .sales-order-items-table td:nth-child(4),
+.sales-order-modal .sales-order-items-table td:nth-child(5),
+.sales-order-modal .sales-order-items-table td:nth-child(6) {
+  vertical-align: middle;
+}
+
+.sales-order-picker-mode {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 5px 10px;
+  border: 1px solid #000;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.sales-order-product-picker-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sales-order-product-picker-wrap {
+  position: relative;
+  width: min(100%, 720px);
+  z-index: 20;
+}
+
+.sales-products-loading {
+  font-size: 12px;
+  color: var(--text-3, #777486);
+}
+
+.sales-product-picker {
+  position: relative;
+  width: 100%;
+}
+
+.sales-product-picker__control {
+  width: 100%;
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  border: 1px solid #000;
+  border-radius: 10px;
+  background: #fff;
+  color: #15151a;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sales-product-picker__control.is-open {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.sales-product-picker__menu {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 45px;
+  background: #fff;
+  border: 1px solid #000;
+  border-top: 0;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+  z-index: 100000;
+}
+
+.sales-product-picker__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 14px;
+  border-bottom: 1px solid #000;
+}
+
+.sales-product-picker__top > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.sales-product-picker__top strong {
+  font-size: 13px;
+}
+
+.sales-product-picker__top span {
+  color: #5f5f68;
+  font-size: 11px;
+}
+
+.sales-product-picker__close {
+  width: 30px;
+  height: 30px;
+  border: 1px solid #000;
+  background: #fff;
+  color: #111;
+  border-radius: 7px;
+}
+
+.sales-product-picker__filters {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  gap: 8px;
+  padding: 10px;
+  border-bottom: 1px solid #000;
+}
+
+.sales-product-picker__filters .form-select,
+.sales-product-picker__filters .form-control {
+  min-height: 38px;
+  border: 1px solid #000;
+  border-radius: 7px;
+  font-size: 12px;
+}
+
+.sales-product-picker__list {
+  max-height: 330px;
+  overflow-y: auto;
+}
+
+.sales-product-picker__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 56px;
+  padding: 7px 10px;
+  border-bottom: 1px solid #000;
+}
+
+.sales-product-picker__item.is-selected {
+  background: #f1f1f3;
+}
+
+.sales-product-picker__check {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  padding: 3px;
+  color: #111;
+}
+
+.sales-product-picker__checkbox {
+  width: 21px;
+  height: 21px;
+  flex: 0 0 21px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #000;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.sales-product-picker__item.is-selected .sales-product-picker__checkbox {
+  background: #22222b;
+  color: #fff;
+}
+
+.sales-product-picker__product-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sales-product-picker__product-copy strong {
+  overflow-wrap: anywhere;
+  font-size: 12px;
+}
+
+.sales-product-picker__product-copy small {
+  color: #62616b;
+  overflow-wrap: anywhere;
+  font-size: 10px;
+}
+
+.sales-product-picker__quantity {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  border: 1px solid #000;
+  border-radius: 7px;
+  overflow: hidden;
+}
+
+.sales-product-picker__quantity button {
+  width: 30px;
+  height: 32px;
+  border: 0;
+  background: #f3f3f5;
+  color: #111;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.sales-product-picker__quantity input {
+  width: 54px;
+  height: 32px;
+  border: 0;
+  border-left: 1px solid #000;
+  border-right: 1px solid #000;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.sales-product-picker__empty {
+  padding: 28px 16px;
+  text-align: center;
+  color: #66636f;
+  font-size: 12px;
+}
+
+.sales-product-picker__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px;
+  background: #f4f4f6;
+  border-top: 1px solid #000;
+}
+
+.sales-product-picker__footer span {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.sales-inline-quantity {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid #000;
+  border-radius: 7px;
+  overflow: hidden;
+}
+
+.sales-inline-quantity button {
+  width: 28px;
+  height: 31px;
+  border: 0;
+  background: #f2f2f4;
+  color: #111;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.sales-inline-quantity input {
+  width: 58px;
+  height: 31px;
+  border: 0;
+  border-left: 1px solid #000;
+  border-right: 1px solid #000;
+  text-align: center;
+  font-weight: 700;
+}
+
+.sales-party-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+  border: 1px solid #000;
+}
+
+.sales-party-summary-grid > div {
+  min-width: 0;
+  padding: 10px 12px;
+  border-right: 1px solid #000;
+  border-bottom: 1px solid #000;
+}
+
+.sales-party-summary-grid > div:nth-child(2n) {
+  border-right: 0;
+}
+
+.sales-party-summary-grid > div:nth-last-child(-n + 2) {
+  border-bottom: 0;
+}
+
+.sales-party-summary-grid span,
+.sales-party-summary-grid strong {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.sales-party-summary-grid span {
+  margin-bottom: 3px;
+  color: #66636f;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.sales-party-summary-grid strong {
+  color: #17151d;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.sales-party-summary-grid__address {
+  grid-column: 1 / -1;
+  border-right: 0 !important;
+}
+
+@media (max-width: 768px) {
+  .sales-product-picker__filters {
+    grid-template-columns: 1fr;
+  }
+
+  .sales-order-product-picker-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .sales-order-product-picker-wrap {
+    width: 100%;
+  }
+
+  .sales-party-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sales-party-summary-grid > div,
+  .sales-party-summary-grid > div:nth-child(2n) {
+    border-right: 0;
+  }
+
+  .sales-party-summary-grid > div:nth-last-child(-n + 2) {
+    border-bottom: 1px solid #000;
+  }
+
+  .sales-party-summary-grid > div:last-child {
+    border-bottom: 0;
+  }
+}
+
+body.dark .sales-product-picker__control,
+body.dark .sales-product-picker__menu,
+body.dark .sales-product-picker__close,
+body[data-theme="dark"] .sales-product-picker__control,
+body[data-theme="dark"] .sales-product-picker__menu,
+body[data-theme="dark"] .sales-product-picker__close {
+  background: #20202a;
+  color: #f7f7fa;
+}
+
+body.dark .sales-product-picker__item.is-selected,
+body[data-theme="dark"] .sales-product-picker__item.is-selected {
+  background: #30303b;
+}
+
+body.dark .sales-product-picker__footer,
+body[data-theme="dark"] .sales-product-picker__footer {
+  background: #292933;
+}
+
+body.dark .sales-product-picker__product-copy small,
+body[data-theme="dark"] .sales-product-picker__product-copy small {
+  color: #aaa7b4;
+}
+
+.sales-field-error {
+  margin-top: 5px;
+  color: #dc3545;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+.sales-order-edit-card .form-control.is-invalid,
+.sales-order-edit-card .form-select.is-invalid {
+  border-color: #dc3545 !important;
+  box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.08);
+}
+.sales-order-items-table .sales-order-item-brand-select {
+  min-width: 125px;
+  max-width: 175px;
+  margin: 0 auto;
+  border: 1px solid #000;
+  border-radius: 7px;
+  font-size: 11px;
+}
+.sales-order-items-table .sales-inline-quantity input.is-invalid {
+  border-color: #dc3545 !important;
+}
+.sales-order-items-total-row td {
+  background: #f2f2f5 !important;
+  color: #171720 !important;
+  border-top: 1.5px solid #000 !important;
+  font-weight: 700;
+}
+.sales-order-items-total-row td:nth-last-child(2),
+.sales-order-items-total-row td:last-child {
+  text-align: right !important;
+}
+
+/* Order editor dropdowns */
+.sales-order-modal .sd-select__control {
+  width: 100%;
+  min-height: 44px;
+  height: 44px;
   border: 1px solid var(--sd-modal-border) !important;
-  border-radius: 9px !important;
-  background-color: var(--sd-modal-bg) !important;
+  border-radius: 10px !important;
+  background: var(--sd-modal-bg) !important;
   color: var(--sd-modal-text) !important;
-  opacity: 1 !important;
   box-shadow: none !important;
+  font-size: 13px;
 }
 
-.sales-order-modal .form-select:focus,
-.sales-details-modal .form-select:focus {
+.sales-order-modal .sd-select__control:hover,
+.sales-order-modal .sd-select__control--is-focused {
   border-color: var(--sd-modal-brand) !important;
-  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.12) !important;
+  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.11) !important;
 }
 
-.sales-order-modal .form-select option,
-.sales-details-modal .form-select option {
-  background-color: #ffffff !important;
-  color: #171522 !important;
-  opacity: 1 !important;
+.sales-order-modal .sd-select__single-value,
+.sales-order-modal .sd-select__input-container,
+.sales-order-modal .sd-select__placeholder {
+  color: var(--sd-modal-text) !important;
+  font-size: 13px;
 }
 
-.sales-order-modal[data-sales-theme="dark"] .form-select option,
-body.dark .sales-order-modal .form-select option,
-body[data-theme="dark"] .sales-order-modal .form-select option,
-body[data-bs-theme="dark"] .sales-order-modal .form-select option,
-.dark .sales-order-modal .form-select option,
-.sales-details-modal[data-sales-theme="dark"] .form-select option,
-body.dark .sales-details-modal .form-select option,
-body[data-theme="dark"] .sales-details-modal .form-select option,
-body[data-bs-theme="dark"] .sales-details-modal .form-select option,
-.dark .sales-details-modal .form-select option {
-  background-color: #1b1b24 !important;
-  color: #f7f6fb !important;
-  opacity: 1 !important;
+.sales-order-modal .sd-select__placeholder {
+  color: var(--sd-modal-text-3) !important;
 }
 
-.sales-order-modal .form-select option:checked,
-.sales-details-modal .form-select option:checked {
-  background-color: #287fd7 !important;
-  color: #ffffff !important;
+.sales-order-modal .sd-select__indicator-separator {
+  background: var(--sd-modal-border) !important;
 }
 
-.sales-order-modal[data-sales-theme="dark"] .form-select option:checked,
-body.dark .sales-order-modal .form-select option:checked,
-body[data-theme="dark"] .sales-order-modal .form-select option:checked,
-body[data-bs-theme="dark"] .sales-order-modal .form-select option:checked,
-.dark .sales-order-modal .form-select option:checked,
-.sales-details-modal[data-sales-theme="dark"] .form-select option:checked,
-body.dark .sales-details-modal .form-select option:checked,
-body[data-theme="dark"] .sales-details-modal .form-select option:checked,
-body[data-bs-theme="dark"] .sales-details-modal .form-select option:checked,
-.dark .sales-details-modal .form-select option:checked {
-  background-color: #897cf0 !important;
-  color: #ffffff !important;
+.sales-order-modal .sd-select__menu {
+  min-width: 100%;
+  max-width: min(calc(100vw - 32px), 520px);
+  border: 1px solid var(--sd-modal-border) !important;
+  border-radius: 10px !important;
+  background: var(--sd-modal-bg) !important;
+  color: var(--sd-modal-text) !important;
+  overflow: hidden;
 }
 
-/* Native sales filter selects */
-.sales-dashboard .sales-filter-bar .form-select,
-.sales-orders-page .sales-filter-bar .form-select {
-  background-color: var(--sd-input) !important;
-  color: var(--sd-text) !important;
-  border-color: var(--sd-border) !important;
-  opacity: 1 !important;
+.sales-order-modal .sd-select__menu-list {
+  max-height: 260px;
+  background: var(--sd-modal-bg) !important;
 }
 
-.sales-dashboard .sales-filter-bar .form-select option,
-.sales-orders-page .sales-filter-bar .form-select option {
-  background-color: #ffffff !important;
-  color: #171522 !important;
+.sales-order-modal .sd-select__option {
+  background: var(--sd-modal-bg) !important;
+  color: var(--sd-modal-text) !important;
+  border-radius: 7px;
+  padding: 9px 11px;
 }
 
-body.dark .sales-dashboard .sales-filter-bar .form-select option,
-body[data-theme="dark"] .sales-dashboard .sales-filter-bar .form-select option,
-body[data-bs-theme="dark"] .sales-dashboard .sales-filter-bar .form-select option,
-.dark .sales-dashboard .sales-filter-bar .form-select option,
-body.dark .sales-orders-page .sales-filter-bar .form-select option,
-body[data-theme="dark"] .sales-orders-page .sales-filter-bar .form-select option,
-body[data-bs-theme="dark"] .sales-orders-page .sales-filter-bar .form-select option,
-.dark .sales-orders-page .sales-filter-bar .form-select option {
-  background-color: #1b1b24 !important;
-  color: #f7f6fb !important;
+.sales-order-modal .sd-select__option--is-focused {
+  background: var(--sd-modal-muted) !important;
+  color: var(--sd-modal-text) !important;
 }
 
-.sales-dashboard .sales-filter-bar .form-select option:checked,
-.sales-orders-page .sales-filter-bar .form-select option:checked {
-  background-color: #287fd7 !important;
-  color: #ffffff !important;
+.sales-order-modal .sd-select__option--is-selected {
+  background: var(--sd-modal-brand) !important;
+  color: #fff !important;
 }
 
-body.dark .sales-dashboard .sales-filter-bar .form-select option:checked,
-body[data-theme="dark"] .sales-dashboard .sales-filter-bar .form-select option:checked,
-body[data-bs-theme="dark"] .sales-dashboard .sales-filter-bar .form-select option:checked,
-.dark .sales-dashboard .sales-filter-bar .form-select option:checked,
-body.dark .sales-orders-page .sales-filter-bar .form-select option:checked,
-body[data-theme="dark"] .sales-orders-page .sales-filter-bar .form-select option:checked,
-body[data-bs-theme="dark"] .sales-orders-page .sales-filter-bar .form-select option:checked,
-.dark .sales-orders-page .sales-filter-bar .form-select option:checked {
-  background-color: #897cf0 !important;
-  color: #ffffff !important;
+.sales-order-modal .is-invalid .sd-select__control {
+  border-color: #dc3545 !important;
+  box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.08) !important;
 }
 
-/* Keep native option hover readable where the browser supports it. */
-.sales-order-modal .form-select option:hover,
-.sales-details-modal .form-select option:hover,
-.sales-dashboard .sales-filter-bar .form-select option:hover,
-.sales-orders-page .sales-filter-bar .form-select option:hover {
-  background-color: #f0f1f4 !important;
-  color: #171522 !important;
+.sales-order-brand-cell .sd-select__control {
+  min-width: 130px;
+  max-width: 180px;
+  margin: 0 auto;
 }
 
-body.dark .sales-order-modal .form-select option:hover,
-body[data-theme="dark"] .sales-order-modal .form-select option:hover,
-body[data-bs-theme="dark"] .sales-order-modal .form-select option:hover,
-.dark .sales-order-modal .form-select option:hover,
-body.dark .sales-details-modal .form-select option:hover,
-body[data-theme="dark"] .sales-details-modal .form-select option:hover,
-body[data-bs-theme="dark"] .sales-details-modal .form-select option:hover,
-.dark .sales-details-modal .form-select option:hover,
-body.dark .sales-dashboard .sales-filter-bar .form-select option:hover,
-body[data-theme="dark"] .sales-dashboard .sales-filter-bar .form-select option:hover,
-body[data-bs-theme="dark"] .sales-dashboard .sales-filter-bar .form-select option:hover,
-.dark .sales-dashboard .sales-filter-bar .form-select option:hover,
-body.dark .sales-orders-page .sales-filter-bar .form-select option:hover,
-body[data-theme="dark"] .sales-orders-page .sales-filter-bar .form-select option:hover,
-body[data-bs-theme="dark"] .sales-orders-page .sales-filter-bar .form-select option:hover,
-.dark .sales-orders-page .sales-filter-bar .form-select option:hover {
-  background-color: #303038 !important;
-  color: #ffffff !important;
+.sales-order-brand-cell .sd-select__value-container {
+  padding-left: 9px;
+  padding-right: 4px;
+}
+
+.sales-order-modal .sales-order-product-picker-wrap {
+  width: min(720px, 100%);
+  max-width: 100%;
+}
+
+.sales-order-modal .sales-product-picker__menu {
+  width: min(720px, calc(100vw - 32px));
+  max-width: 100%;
+}
+
+.sales-order-modal .sales-order-items-wrap {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto !important;
+  overflow-y: hidden;
+}
+
+.sales-order-modal .sales-order-items-table {
+  min-width: 720px;
+}
+
+.sales-order-modal .sales-order-items-table th,
+.sales-order-modal .sales-order-items-table td {
+  white-space: normal;
+}
+
+@media (max-width: 767.98px) {
+  .sales-order-modal .modal-dialog {
+    width: calc(100vw - 16px) !important;
+    max-width: calc(100vw - 16px) !important;
+    margin: 8px auto !important;
+  }
+
+  .sales-order-modal .sales-product-picker__menu {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .sales-order-brand-cell .sd-select__control {
+    min-width: 115px;
+    max-width: 150px;
+  }
+}
+
+.sales-order-modal[data-sales-theme="dark"] .sales-product-picker__control,
+.sales-order-modal[data-sales-theme="dark"] .sales-product-picker__menu,
+.sales-order-modal[data-sales-theme="dark"] .sales-product-picker__close,
+.sales-order-modal[data-sales-theme="dark"] .sales-product-picker__item,
+.sales-order-modal[data-sales-theme="dark"] .sales-product-picker__quantity,
+.sales-order-modal[data-sales-theme="dark"] .sales-product-picker__quantity input,
+.sales-order-modal[data-sales-theme="dark"] .sales-product-picker__footer {
+  background: var(--sd-modal-bg) !important;
+  color: var(--sd-modal-text) !important;
+  border-color: var(--sd-modal-border) !important;
+}
+
+.sales-order-modal[data-sales-theme="dark"] .sales-product-picker__item.is-selected {
+  background: var(--sd-modal-muted) !important;
+}
+
+.sales-order-modal[data-sales-theme="dark"] .sales-product-picker__product-copy small,
+.sales-order-modal[data-sales-theme="dark"] .sales-product-picker__top span {
+  color: var(--sd-modal-text-3) !important;
+}
+
+.sales-order-modal[data-sales-theme="dark"] .sales-product-picker__quantity button,
+.sales-order-modal[data-sales-theme="dark"] .sales-product-picker__checkbox {
+  background: var(--sd-modal-muted) !important;
+  color: var(--sd-modal-text) !important;
+}
+
+.sales-order-modal[data-sales-theme="dark"] .sales-product-picker__item.is-selected .sales-product-picker__checkbox {
+  background: var(--sd-modal-brand) !important;
+  color: #fff !important;
 }

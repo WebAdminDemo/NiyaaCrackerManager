@@ -25,10 +25,10 @@ const customerKey = (order) => {
 };
 
 const customerName = (order) =>
-  order.customer?.name || order.customerName || "Walk-in customer";
+  order.customer?.name || order.customerName || "";
 
 const customerPhone = (order) =>
-  order.customer?.phone || order.customerPhone || "—";
+  order.customer?.phone || order.customerPhone || "";
 
 const getOrderUnits = (order) =>
   Number(
@@ -42,7 +42,7 @@ const getOrderUnits = (order) =>
 const buildCustomers = (orders) => {
   const map = new Map();
 
-  // Combine orders that belong to the same customer.
+  
   (Array.isArray(orders) ? orders : []).forEach((order) => {
     const key = customerKey(order);
     const current = map.get(key) || {
@@ -79,7 +79,7 @@ const buildCustomers = (orders) => {
 const buildSoldProducts = (orders) => {
   const map = new Map();
 
-  // Combine products sold across all selected orders.
+  
   (Array.isArray(orders) ? orders : []).forEach((order) => {
     (order.items || []).forEach((item) => {
       const name = item.name || item.productName || item.title || "Item";
@@ -253,7 +253,7 @@ const KpiDetailsModal = ({
                       <td>
                         {customer.lastOrder
                           ? dayjs(customer.lastOrder).format("DD MMM YYYY")
-                          : "—"}
+                          : ""}
                       </td>
                       <td className="text-end sales-money">
                         {money(customer.revenue)}

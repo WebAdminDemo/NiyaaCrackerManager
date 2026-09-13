@@ -5,8 +5,8 @@ import { useTheme } from '../context/ThemeContext';
 const ThemeToggle = memo(() => {
     const { darkMode, toggleTheme } = useTheme();
 
-    // toggleTheme is already stable if the context provider memoizes it,
-    // but we wrap it just in case.
+    
+    
     const handleToggle = useCallback(() => {
         toggleTheme();
     }, [toggleTheme]);

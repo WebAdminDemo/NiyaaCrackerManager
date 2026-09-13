@@ -9,7 +9,7 @@ export const ProductProvider = ({ children }) => {
   const [stats, setStats] = useState({ total: 0, categories: [], outOfStock: 0 });
   const [loading, setLoading] = useState(true);
 
-  // Compute statistics from a product array
+  
   const computeStats = useCallback((productList) => {
     const total = productList.length;
     const categories = [...new Set(productList.map((p) => p.category).filter(Boolean))];
@@ -17,7 +17,7 @@ export const ProductProvider = ({ children }) => {
     return { total, categories, outOfStock };
   }, []);
 
-  // Fetch products from the backend
+  
   const fetchProducts = useCallback(async () => {
     setLoading(true);
     try {
@@ -28,24 +28,24 @@ export const ProductProvider = ({ children }) => {
       setStats(computeStats(data));
     } catch (error) {
       console.error('Error loading products:', error);
-      // Optionally set an error state here
+      
     } finally {
       setLoading(false);
     }
   }, [computeStats]);
 
-  // Update products from an external source (e.g., after CRUD operations)
+  
   const updateProducts = useCallback((productList) => {
     setProducts(productList);
     setStats(computeStats(productList));
   }, [computeStats]);
 
-  // Refresh products (re-fetch from API)
+  
   const refreshProducts = useCallback(() => {
     fetchProducts();
   }, [fetchProducts]);
 
-  // Load products on mount
+  
   useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);

@@ -1,3 +1,4 @@
+import { PRODUCT_STATUS } from '../utils/common.properties';
 import { lazy, Suspense, useState, useMemo, memo, useCallback, useEffect, useRef } from 'react';
 import {
   Container,
@@ -40,7 +41,7 @@ function setStoredView(view) {
 function computeStats(products) {
   const total = products.length;
   const categories = [...new Set(products.map((p) => p.category).filter(Boolean))];
-  const outOfStock = products.filter((p) => p.status === 'no_stock').length;
+  const outOfStock = products.filter((p) => p.status === PRODUCT_STATUS.NO_STOCK).length;
   return { total, categories, outOfStock };
 }
 
@@ -200,7 +201,7 @@ const Dashboard = memo(function Dashboard() {
   }, [navigateToProductsWithFilter, closeCategoryModal]);
 
   const handleViewOutOfStock = useCallback(() => {
-    navigateToProductsWithFilter(null, 'no_stock');
+    navigateToProductsWithFilter(null, PRODUCT_STATUS.NO_STOCK);
     closeOutOfStockModal();
   }, [navigateToProductsWithFilter, closeOutOfStockModal]);
 
@@ -357,7 +358,7 @@ const Dashboard = memo(function Dashboard() {
                 >
                   {cat}
                   <Badge bg="secondary" pill>
-                    {/* count not available here */}
+                    {}
                   </Badge>
                 </li>
               ))}
