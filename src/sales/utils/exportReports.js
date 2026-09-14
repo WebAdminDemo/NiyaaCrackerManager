@@ -21,6 +21,47 @@ const statusText = (value) =>
 
 const getBrand = (item) => String(item?.brand || "").trim();
 
+/**
+ * Gets the discount percentage from the order item/product.
+ * Supports the exported JSON field `discount_percent` and common
+ * camelCase/nested variants. If that field is not present on the
+ * order item, it derives the percentage from the exported values:
+ * price = original price, amount = selling price, discount_amount = saved amount.
+ */
+const getDiscountPercent = (item) => {
+  const directValues = [
+    item?.discount_percent,
+    item?.discountPercent,
+    item?.product?.discount_percent,
+    item?.product?.discountPercent,
+  ];
+
+  for (const value of directValues) {
+    if (value !== null && value !== undefined && String(value).trim() !== "") {
+      const number = Number(value);
+      if (Number.isFinite(number)) return number;
+    }
+  }
+
+  const price = Number(item?.price ?? item?.product?.price);
+  const amount = Number(item?.amount ?? item?.product?.amount);
+  const discountAmount = Number(
+    item?.discount_amount ?? item?.discountAmount ?? item?.product?.discount_amount,
+  );
+
+  // Example exported product JSON:
+  // price=600, amount=60, discount_amount=540 => 90%
+  if (Number.isFinite(price) && price > 0 && Number.isFinite(discountAmount)) {
+    return (discountAmount / price) * 100;
+  }
+
+  if (Number.isFinite(price) && price > 0 && Number.isFinite(amount)) {
+    return ((price - amount) / price) * 100;
+  }
+
+  return 0;
+};
+
 
 const getParty = (order) => ({
   name:
@@ -64,18 +105,21 @@ const orderRows = (orders = []) =>
       "Party District": party.district,
       "Party Locality": party.locality,
       Pincode: party.pincode,
-      Category:
-        [...new Set(items.map((item) => item.category).filter(Boolean))].join(
-          ", ",
-        ) || "Uncategorised",
-      "Items Ordered":
+      "Discount %":
+        [...new Set(items.map((item) => getDiscountPercent(item)))]
+          .map((value) => `${Number(value.toFixed(2))}%`)
+          .join(", ") || "0%",
+      "Products":
         items
-          .map(
-            (item) =>
-              `${getBrand(item)} / ${
-                item.name || item.productName || item.title || "Item"
-              } x${Number(item.quantity || 0)}`,
-          )
+          .map((item) => {
+            const productName =
+              item.name || item.productName || item.title || "Item";
+            const contents = String(item.contents || "").trim();
+
+            return contents
+              ? `${productName} (${contents})`
+              : productName;
+          })
           .join("\n") || "",
       "Total Quantity": quantity,
       Amount: Number(order.totalAmount || 0),
@@ -494,8 +538,13 @@ export function exportSingleOrderPdf(order) {
     return [
       String(index + 1),
       getBrand(item),
-      item.name || item.productName || item.title || "Item",
-      item.category || "Uncategorised",
+      (() => {
+        const productName =
+          item.name || item.productName || item.title || "Item";
+        const contents = String(item.contents || "").trim();
+        return contents ? `${productName} (${contents})` : productName;
+      })(),
+      `${Number(getDiscountPercent(item).toFixed(2))}%`,
       quantity.toLocaleString("en-IN"),
       money(price),
       money(total),
@@ -515,7 +564,7 @@ export function exportSingleOrderPdf(order) {
     },
     tableWidth: printableWidth,
     theme: "grid",
-    head: [["#", "Brand", "Product", "Category", "Qty", "Unit Price", "Total"]],
+    head: [["#", "Brand", "Products", "Discount %", "Qty", "Unit Price", "Total"]],
     body: tableRows,
     styles: {
       font: "helvetica",
@@ -555,6 +604,25 @@ export function exportSingleOrderPdf(order) {
       6: { cellWidth: 82, halign: "right" },
     },
     didParseCell(data) {
+      // Keep autoTable cell.text as plain strings. Rich objects here cause
+      // jsPDF errors such as: "e.charCodeAt is not a function".
+      if (
+        data.section === "body" &&
+        data.column.index === 2 &&
+        data.row.index < tableRows.length - 1
+      ) {
+        const item = items[data.row.index];
+        if (item) {
+          const productName =
+            item.name || item.productName || item.title || "Item";
+          const contents = String(item.contents || "").trim();
+
+          data.cell.text = contents
+            ? `${productName} (${contents})`
+            : productName;
+        }
+      }
+
       if (data.section === "body" && data.row.index === tableRows.length - 1) {
         data.cell.styles.fontStyle = "bold";
         data.cell.styles.fillColor = [238, 238, 242];
@@ -565,6 +633,47 @@ export function exportSingleOrderPdf(order) {
           data.cell.styles.halign = "right";
         }
       }
+    },
+
+    didDrawCell(data) {
+      // Draw only "(Contents)" in bold after autoTable has drawn the normal
+      // product text. This avoids unsupported rich-text objects in cell.text.
+      if (
+        data.section !== "body" ||
+        data.column.index !== 2 ||
+        data.row.index >= tableRows.length - 1
+      ) {
+        return;
+      }
+
+      const item = items[data.row.index];
+      const contents = String(item?.contents || "").trim();
+      if (!contents) return;
+
+      const productName =
+        item.name || item.productName || item.title || "Item";
+      const fullText = `${productName} (${contents})`;
+
+      // Only apply the bold overlay when the product fits on one line.
+      // Wrapped product names remain fully readable in the normal font.
+      const availableWidth = data.cell.width - 10;
+      const fullLines = doc.splitTextToSize(fullText, availableWidth);
+      if (fullLines.length !== 1) return;
+
+      const prefix = `${productName} `;
+      const prefixWidth = doc.getTextWidth(prefix);
+      const x = data.cell.x + data.cell.padding('left') + prefixWidth;
+      const y = data.cell.y + data.cell.height / 2;
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(7.5);
+      doc.setTextColor(15, 15, 18);
+      doc.text(`(${contents})`, x, y, {
+        baseline: "middle",
+      });
+
+      // Restore the normal font for subsequent drawing.
+      doc.setFont("helvetica", "normal");
     },
     didDrawPage(data) {
       drawFooter(data.pageNumber);

@@ -69,6 +69,100 @@ const dateTimeValue = (value) => {
   return parsed.isValid() ? parsed.format("YYYY-MM-DDTHH:mm") : "";
 };
 
+const DISCOUNT_TYPES = [
+  { value: "percent", label: "%", title: "Percentage" },
+  { value: "value", label: "Val", title: "Fixed value" },
+];
+
+const numberValue = (value) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
+const getOriginalPrice = (item, product = null) =>
+  numberValue(
+    item?.originalPrice ??
+      product?.price ??
+      product?.originalPrice ??
+      item?.price ??
+      product?.amount ??
+      0,
+  );
+
+const getProductDiscount = (item, product = null) => {
+  const originalPrice = getOriginalPrice(item, product);
+  const directPercent =
+    item?.discount_percent ??
+    item?.discountPercent ??
+    product?.discount_percent ??
+    product?.discountPercent;
+
+  if (
+    directPercent !== null &&
+    directPercent !== undefined &&
+    directPercent !== ""
+  ) {
+    return {
+      type: "percent",
+      value: Math.max(0, Math.min(100, numberValue(directPercent))),
+    };
+  }
+
+  const discountAmount =
+    item?.discount_amount ??
+    item?.discountAmount ??
+    product?.discount_amount ??
+    product?.discountAmount;
+
+  if (
+    discountAmount !== null &&
+    discountAmount !== undefined &&
+    discountAmount !== ""
+  ) {
+    return {
+      type: "value",
+      value: Math.max(0, Math.min(originalPrice, numberValue(discountAmount))),
+    };
+  }
+
+  const currentPrice =
+    item?.price ??
+    item?.amount ??
+    product?.amount ??
+    product?.sellingPrice ??
+    originalPrice;
+
+  if (originalPrice > 0 && numberValue(currentPrice) < originalPrice) {
+    return {
+      type: "percent",
+      value: Math.max(
+        0,
+        Math.min(
+          100,
+          ((originalPrice - numberValue(currentPrice)) / originalPrice) * 100,
+        ),
+      ),
+    };
+  }
+
+  return { type: "percent", value: 0 };
+};
+
+const calculateDiscountedPrice = (
+  originalPrice,
+  discountType,
+  discountValue,
+) => {
+  const original = Math.max(0, numberValue(originalPrice));
+  const value = Math.max(0, numberValue(discountValue));
+
+  if (discountType === "value") {
+    return Math.max(0, original - Math.min(original, value));
+  }
+
+  return Math.max(0, original * (1 - Math.min(100, value) / 100));
+};
+
 function ProductPicker({
   open,
   onOpen,
@@ -368,13 +462,31 @@ const OrderDetailsModal = ({
   useEffect(() => {
     if (!order) return;
 
-    const orderItems = (order.items || []).map((item) => ({
-      ...item,
-      productId: item.productId || item.product_id,
-      quantity: Number(item.quantity ?? 0),
-      brand: normalizeBrand(item.brand),
-      brands: Array.isArray(item.brands) ? item.brands.filter(Boolean) : [],
-    }));
+    const orderItems = (order.items || []).map((item) => {
+      const discount = getProductDiscount(item);
+      const originalPrice = getOriginalPrice(item);
+
+      return {
+        ...item,
+        productId: item.productId || item.product_id,
+        quantity: Number(item.quantity ?? 0),
+        brand: normalizeBrand(item.brand),
+        brands: Array.isArray(item.brands) ? item.brands.filter(Boolean) : [],
+        originalPrice,
+        discountType: item.discountType || item.discount_type || discount.type,
+        discountValue:
+          item.discountValue ??
+          item.discount_value ??
+          (item.discountType === "value" || item.discount_type === "value"
+            ? discount.value
+            : discount.value),
+        price: calculateDiscountedPrice(
+          originalPrice,
+          item.discountType || item.discount_type || discount.type,
+          item.discountValue ?? item.discount_value ?? discount.value,
+        ),
+      };
+    });
 
     setEditMode(initialEditMode);
     setStatus(normaliseStatus(order.status));
@@ -412,7 +524,44 @@ const OrderDetailsModal = ({
     getProducts()
       .then((response) => {
         if (!active) return;
-        setProducts(Array.isArray(response.data) ? response.data : []);
+
+        const loadedProducts = Array.isArray(response.data)
+          ? response.data
+          : [];
+        setProducts(loadedProducts);
+
+        setDraftItems((current) =>
+          current.map((item) => {
+            const product = loadedProducts.find(
+              (candidate) =>
+                String(productIdOf(candidate)) ===
+                String(item.productId || item.product_id),
+            );
+
+            if (!product) return item;
+
+            const originalPrice = getOriginalPrice(item, product);
+            const discount = getProductDiscount(item, product);
+            const discountType =
+              item.discountType || item.discount_type || discount.type;
+            const discountValue =
+              item.discountValue ?? item.discount_value ?? discount.value;
+
+            return {
+              ...item,
+              originalPrice,
+              contents: item.contents || product.contents || "",
+              category: item.category || product.category || "",
+              discountType,
+              discountValue,
+              price: calculateDiscountedPrice(
+                originalPrice,
+                discountType,
+                discountValue,
+              ),
+            };
+          }),
+        );
       })
       .catch((error) => {
         if (!active) return;
@@ -471,7 +620,12 @@ const OrderDetailsModal = ({
       return (
         !next ||
         Number(item.quantity || 0) !== Number(next.quantity || 0) ||
-        text(item.brand) !== text(next.brand)
+        text(item.brand) !== text(next.brand) ||
+        Number(item.price || 0) !== Number(next.price || 0) ||
+        text(item.discountType || item.discount_type || "percent") !==
+          text(next.discountType || next.discount_type || "percent") ||
+        Number(item.discountValue ?? item.discount_value ?? 0) !==
+          Number(next.discountValue ?? next.discount_value ?? 0)
       );
     });
 
@@ -580,18 +734,34 @@ const OrderDetailsModal = ({
       }
 
       const product = selection.product || {};
+      const originalPrice = getOriginalPrice({}, product);
+      const discount = getProductDiscount({}, product);
+      const price = calculateDiscountedPrice(
+        originalPrice,
+        discount.type,
+        discount.value,
+      );
+
       return {
         id: undefined,
         productId,
         name: product.name || "Product",
         category: product.category || "",
         contents: product.contents || "",
-        originalPrice: product.price ?? product.originalPrice ?? 0,
-        price: product.amount ?? product.price ?? 0,
+        originalPrice,
+        discountType: discount.type,
+        discountValue: discount.value,
+        discount_percent:
+          discount.type === "percent"
+            ? discount.value
+            : originalPrice > 0
+              ? ((originalPrice - price) / originalPrice) * 100
+              : 0,
+        discount_amount: Math.max(0, originalPrice - price),
+        amount: price,
+        price,
         quantity: Number(selection.quantity ?? 0),
-        total:
-          Number(product.amount ?? product.price ?? 0) *
-          Number(selection.quantity ?? 0),
+        total: price * Number(selection.quantity ?? 0),
         brand: normalizeBrand(selection.brand || product.brand),
         stockQuantity:
           product.stockQuantity == null ? null : Number(product.stockQuantity),
@@ -614,6 +784,96 @@ const OrderDetailsModal = ({
       ),
     );
     clearFieldError(`brand-${index}`);
+    setSaved(false);
+  };
+
+  const handleDiscountTypeChange = (index, type) => {
+    setDraftItems((current) =>
+      current.map((item, itemIndex) => {
+        if (itemIndex !== index) return item;
+
+        const originalPrice = getOriginalPrice(item);
+        const currentPrice = numberValue(item.price);
+        const currentType = item.discountType || "percent";
+
+       
+        // switching modes, then recalculate using the selected mode.
+        let nextValue = numberValue(item.discountValue);
+
+        if (currentType === "value" && type === "percent") {
+          nextValue =
+            originalPrice > 0
+              ? ((originalPrice - currentPrice) / originalPrice) * 100
+              : 0;
+        } else if (currentType === "percent" && type === "value") {
+          nextValue = Math.max(0, originalPrice - currentPrice);
+        }
+
+        const price = calculateDiscountedPrice(originalPrice, type, nextValue);
+
+        return {
+          ...item,
+          originalPrice,
+          discountType: type,
+          discountValue: nextValue,
+          discount_percent:
+            type === "percent"
+              ? nextValue
+              : originalPrice > 0
+                ? ((originalPrice - price) / originalPrice) * 100
+                : 0,
+          discount_amount: Math.max(0, originalPrice - price),
+          amount: price,
+          price,
+          total: price * Number(item.quantity || 0),
+        };
+      }),
+    );
+    setSaved(false);
+  };
+
+  const handleDiscountValueChange = (index, value) => {
+    if (value === "") {
+      setDraftItems((current) =>
+        current.map((item, itemIndex) =>
+          itemIndex === index
+            ? { ...item, discountValue: "", price: getOriginalPrice(item) }
+            : item,
+        ),
+      );
+      setSaved(false);
+      return;
+    }
+
+    const numericValue = Number(value);
+    if (!Number.isFinite(numericValue) || numericValue < 0) return;
+
+    setDraftItems((current) =>
+      current.map((item, itemIndex) => {
+        if (itemIndex !== index) return item;
+
+        const originalPrice = getOriginalPrice(item);
+        const type = item.discountType || "percent";
+        const maxValue = type === "percent" ? 100 : originalPrice;
+        const nextValue = Math.min(maxValue, numericValue);
+        const price = calculateDiscountedPrice(originalPrice, type, nextValue);
+
+        return {
+          ...item,
+          originalPrice,
+          discountType: type,
+          discountValue: nextValue,
+          discount_percent:
+            originalPrice > 0
+              ? ((originalPrice - price) / originalPrice) * 100
+              : 0,
+          discount_amount: Math.max(0, originalPrice - price),
+          amount: price,
+          price,
+          total: price * Number(item.quantity || 0),
+        };
+      }),
+    );
     setSaved(false);
   };
 
@@ -727,6 +987,13 @@ const OrderDetailsModal = ({
           productId: item.productId || item.product_id,
           quantity: Number(item.quantity),
           brand: text(item.brand) || null,
+          originalPrice: numberValue(item.originalPrice),
+          price: numberValue(item.price),
+          amount: numberValue(item.price),
+          discountType: item.discountType || "percent",
+          discountValue: numberValue(item.discountValue),
+          discount_percent: numberValue(item.discount_percent),
+          discount_amount: numberValue(item.discount_amount),
         })),
       );
 
@@ -764,13 +1031,37 @@ const OrderDetailsModal = ({
   const resetEdit = () => {
     if (!order || saving) return;
 
-    const orderItems = (order.items || []).map((item) => ({
-      ...item,
-      productId: item.productId || item.product_id,
-      quantity: Number(item.quantity ?? 0),
-      brand: normalizeBrand(item.brand),
-      brands: Array.isArray(item.brands) ? item.brands : [],
-    }));
+    const orderItems = (order.items || []).map((item) => {
+      const discount = getProductDiscount(item);
+      const originalPrice = getOriginalPrice(item);
+      const discountType =
+        item.discountType || item.discount_type || discount.type;
+      const discountValue =
+        item.discountValue ?? item.discount_value ?? discount.value;
+      const price = calculateDiscountedPrice(
+        originalPrice,
+        discountType,
+        discountValue,
+      );
+
+      return {
+        ...item,
+        productId: item.productId || item.product_id,
+        quantity: Number(item.quantity ?? 0),
+        brand: normalizeBrand(item.brand),
+        brands: Array.isArray(item.brands) ? item.brands : [],
+        originalPrice,
+        discountType,
+        discountValue,
+        discount_percent:
+          originalPrice > 0
+            ? ((originalPrice - price) / originalPrice) * 100
+            : 0,
+        discount_amount: Math.max(0, originalPrice - price),
+        amount: price,
+        price,
+      };
+    });
 
     setEditMode(false);
     setStatus(normaliseStatus(order.status));
@@ -1307,7 +1598,7 @@ const OrderDetailsModal = ({
                   <tr>
                     <th className="text-center">Brand</th>
                     <th>Product</th>
-                    <th className="text-center">Category</th>
+                    <th className="text-center">Discount</th>
                     <th className="text-center">Quantity</th>
                     <th className="text-end">Unit Price</th>
                     <th className="text-end">Total</th>
@@ -1317,7 +1608,17 @@ const OrderDetailsModal = ({
                 <tbody>
                   {items.map((item, index) => {
                     const quantity = Number(item.quantity || 0);
-                    const price = Number(item.price || 0);
+                    const originalPrice = getOriginalPrice(item);
+                    const discountType =
+                      item.discountType || item.discount_type || "percent";
+                    const discountValue = numberValue(
+                      item.discountValue ?? item.discount_value ?? 0,
+                    );
+                    const price = calculateDiscountedPrice(
+                      originalPrice,
+                      discountType,
+                      discountValue,
+                    );
                     const total = price * quantity;
                     const brandOptions = getBrandOptions();
 
@@ -1348,9 +1649,72 @@ const OrderDetailsModal = ({
                           )}
                         </td>
                         <td>
-                          <strong>{text(item.name)}</strong>
+                          <div className="sales-product-name">
+                            <strong>{text(item.name)}</strong>
+                            {text(item.contents) && (
+                              <strong className="sales-product-contents">
+                                ({text(item.contents)})
+                              </strong>
+                            )}
+                          </div>
                         </td>
-                        <td className="text-center">{text(item.category)}</td>
+                        <td className="text-center sales-order-discount-cell">
+                          {editMode ? (
+                            <div className="sales-discount-control">
+                              <div
+                                className="sales-discount-toggle"
+                                role="group"
+                                aria-label={`Discount type for ${text(item.name)}`}
+                              >
+                                {DISCOUNT_TYPES.map((option) => (
+                                  <button
+                                    key={option.value}
+                                    type="button"
+                                    className={
+                                      discountType === option.value
+                                        ? "is-active"
+                                        : ""
+                                    }
+                                    onClick={() =>
+                                      handleDiscountTypeChange(
+                                        index,
+                                        option.value,
+                                      )
+                                    }
+                                    title={option.title}
+                                  >
+                                    {option.label}
+                                  </button>
+                                ))}
+                              </div>
+                              <Form.Control
+                                type="number"
+                                min="0"
+                                max={
+                                  discountType === "percent"
+                                    ? 100
+                                    : originalPrice
+                                }
+                                step="0.01"
+                                value={item.discountValue ?? ""}
+                                onChange={(event) =>
+                                  handleDiscountValueChange(
+                                    index,
+                                    event.target.value,
+                                  )
+                                }
+                                className="sales-discount-input"
+                                aria-label={`Discount for ${text(item.name)}`}
+                              />
+                            </div>
+                          ) : (
+                            <span className="sales-discount-readonly">
+                              {discountType === "percent"
+                                ? `${discountValue.toFixed(2)}%`
+                                : money(discountValue)}
+                            </span>
+                          )}
+                        </td>
                         <td className="text-center">
                           {editMode ? (
                             <div className="sales-inline-quantity">
@@ -1570,7 +1934,10 @@ const OrderDetailsModal = ({
             </Button>
           </>
         ) : (
-          <Button className="sales-secondary-action btn btn-secondary" onClick={onHide}>
+          <Button
+            className="sales-secondary-action btn btn-secondary"
+            onClick={onHide}
+          >
             Close
           </Button>
         )}

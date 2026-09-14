@@ -109,9 +109,9 @@ const itemsOrdered = (order) => {
           : "");
 
       const name = item.name || item.productName || item.title || "";
+      const contents = item.contents ;
 
-      return [brand, name].filter(Boolean).join(" / ") +
-        ` ×${Number(item.quantity || 0).toLocaleString("en-IN")}`;
+      return contents ? `${name} (${contents})` : name;
     })
     .join("\n");
 };

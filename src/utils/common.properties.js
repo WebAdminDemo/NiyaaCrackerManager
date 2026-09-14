@@ -27,7 +27,7 @@ export const PRODUCT_BRAND_OPTIONS = Object.freeze([
 ]);
 
 export const PRODUCT_BRAND_FILTER_OPTIONS = Object.freeze([
-  { value: "", label: "All Products" },
+  { value: "", label: "All Brands" },
   { value: BRAND.STANDARD, label: "Standard" },
   { value: BRAND.MULTIBRAND, label: "Multi-brand" },
 ]);
