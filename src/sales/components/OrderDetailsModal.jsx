@@ -1198,9 +1198,9 @@ const OrderDetailsModal = ({
                   <span>PRODUCTS</span>
                   <h6>Add, remove or change quantities</h6>
                 </div>
-                <span className="sales-order-picker-mode">
+                {/* <span className="sales-order-picker-mode">
                   Brand is optional
-                </span>
+                </span> */}
               </div>
 
               <div className="sales-order-product-picker-row">

@@ -1,5 +1,5 @@
 import * as XLSX from 'xlsx';
-import { PRODUCT_STATUS, normalizeBrand, getBrandStatus } from '../../utils/common.properties';
+import { PRODUCT_STATUS, normalizeBrand, getBrandStatus } from '../utils/common.properties';
 
 export const PRODUCT_EXCEL_COLUMNS = [
   'rowid',

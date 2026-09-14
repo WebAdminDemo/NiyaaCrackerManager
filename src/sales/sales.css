@@ -1,4 +1,3 @@
-
 /* Sales dashboard styles. */
 
 .sales-dashboard,
@@ -5705,29 +5704,641 @@ body[data-theme="dark"] .sales-product-picker__product-copy small {
 .sales-order-modal[data-sales-theme="dark"] .sales-product-picker__close,
 .sales-order-modal[data-sales-theme="dark"] .sales-product-picker__item,
 .sales-order-modal[data-sales-theme="dark"] .sales-product-picker__quantity,
-.sales-order-modal[data-sales-theme="dark"] .sales-product-picker__quantity input,
+.sales-order-modal[data-sales-theme="dark"]
+  .sales-product-picker__quantity
+  input,
 .sales-order-modal[data-sales-theme="dark"] .sales-product-picker__footer {
   background: var(--sd-modal-bg) !important;
   color: var(--sd-modal-text) !important;
   border-color: var(--sd-modal-border) !important;
 }
 
-.sales-order-modal[data-sales-theme="dark"] .sales-product-picker__item.is-selected {
+.sales-order-modal[data-sales-theme="dark"]
+  .sales-product-picker__item.is-selected {
   background: var(--sd-modal-muted) !important;
 }
 
-.sales-order-modal[data-sales-theme="dark"] .sales-product-picker__product-copy small,
+.sales-order-modal[data-sales-theme="dark"]
+  .sales-product-picker__product-copy
+  small,
 .sales-order-modal[data-sales-theme="dark"] .sales-product-picker__top span {
   color: var(--sd-modal-text-3) !important;
 }
 
-.sales-order-modal[data-sales-theme="dark"] .sales-product-picker__quantity button,
+.sales-order-modal[data-sales-theme="dark"]
+  .sales-product-picker__quantity
+  button,
 .sales-order-modal[data-sales-theme="dark"] .sales-product-picker__checkbox {
   background: var(--sd-modal-muted) !important;
   color: var(--sd-modal-text) !important;
 }
 
-.sales-order-modal[data-sales-theme="dark"] .sales-product-picker__item.is-selected .sales-product-picker__checkbox {
+.sales-order-modal[data-sales-theme="dark"]
+  .sales-product-picker__item.is-selected
+  .sales-product-picker__checkbox {
   background: var(--sd-modal-brand) !important;
   color: #fff !important;
+}
+
+/* ========================================================================
+   FINAL ORDER EDIT THEME FIX
+   ------------------------------------------------------------------------
+   Keeps the edit page readable in both light and dark mode.
+   This section intentionally comes last so it overrides older hard-coded
+   edit-page colours without changing index.css.
+   ======================================================================== */
+
+.sales-order-modal,
+.sales-details-modal {
+  --sd-edit-bg: var(--sd-modal-bg, #ffffff);
+  --sd-edit-surface: var(--sd-modal-muted, #f5f4f8);
+  --sd-edit-text: var(--sd-modal-text, #171522);
+  --sd-edit-text-2: var(--sd-modal-text-2, #514d61);
+  --sd-edit-text-3: var(--sd-modal-text-3, #767184);
+  --sd-edit-border: var(--sd-modal-border, #dedee8);
+  --sd-edit-brand: var(--sd-modal-brand, #6c5ce7);
+}
+
+/* Light mode */
+.sales-order-edit-card {
+  background: var(--sd-edit-bg, #ffffff) !important;
+  border-color: var(--sd-edit-border, #dedee8) !important;
+  color: var(--sd-edit-text, #171522) !important;
+}
+
+.sales-order-edit-card__header h6,
+.sales-order-edit-card .form-label,
+.sales-order-edit-card .form-text,
+.sales-order-edit-card strong {
+  color: var(--sd-edit-text, #171522) !important;
+}
+
+.sales-order-edit-card__header > div:first-child > span,
+.sales-order-edit-card__hint,
+.sales-order-edit-note,
+.sales-order-status-readonly-note {
+  color: var(--sd-edit-text-3, #767184) !important;
+}
+
+.sales-order-edit-card .form-control,
+.sales-order-edit-card .form-select,
+.sales-order-modal .sales-order-qty-input,
+.sales-order-modal .sales-inline-quantity input,
+.sales-order-modal .sales-order-item-brand-select {
+  border-color: var(--sd-edit-border, #dedee8) !important;
+  background-color: var(--sd-edit-bg, #ffffff) !important;
+  color: var(--sd-edit-text, #171522) !important;
+}
+
+.sales-order-edit-card .form-control::placeholder,
+.sales-order-edit-card .form-select::placeholder,
+.sales-order-modal .sales-order-qty-input::placeholder {
+  color: var(--sd-edit-text-3, #767184) !important;
+  opacity: 1;
+}
+
+.sales-order-edit-card .form-control:focus,
+.sales-order-edit-card .form-select:focus,
+.sales-order-modal .sales-order-qty-input:focus,
+.sales-order-modal .sales-inline-quantity input:focus,
+.sales-order-modal .sales-order-item-brand-select:focus {
+  border-color: var(--sd-edit-brand, #6c5ce7) !important;
+  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.12) !important;
+  outline: none;
+}
+
+.sales-order-edit-card .form-control:disabled,
+.sales-order-edit-card .form-select:disabled,
+.sales-order-modal .sales-order-qty-input:disabled,
+.sales-order-modal .sales-inline-quantity input:disabled,
+.sales-order-modal .sales-order-item-brand-select:disabled {
+  background-color: var(--sd-edit-surface, #f5f4f8) !important;
+  color: var(--sd-edit-text-3, #767184) !important;
+  opacity: 0.8;
+}
+
+/* Native select arrow stays visible in dark mode and light mode. */
+.sales-order-edit-card .form-select {
+  color-scheme: light;
+}
+
+.sales-order-items-total-row td {
+  border-top-color: var(--sd-edit-border, #d8d6df) !important;
+  background: var(--sd-edit-surface, #f5f4f8) !important;
+  color: var(--sd-edit-text, #171522) !important;
+}
+
+.sales-order-items-table .sales-order-item-brand-select {
+  border: 1px solid var(--sd-edit-border, #dedee8) !important;
+}
+
+.sales-order-items-table .sales-inline-quantity button {
+  border-color: var(--sd-edit-border, #dedee8) !important;
+  background: var(--sd-edit-surface, #f2f2f4) !important;
+  color: var(--sd-edit-text, #171522) !important;
+}
+
+.sales-order-items-table .sales-inline-quantity input {
+  border-left-color: var(--sd-edit-border, #dedee8) !important;
+  border-right-color: var(--sd-edit-border, #dedee8) !important;
+}
+
+.sales-party-summary-grid {
+  border-color: var(--sd-edit-border, #dedee8) !important;
+  background: var(--sd-edit-bg, #ffffff) !important;
+}
+
+.sales-party-summary-grid > div {
+  border-right-color: var(--sd-edit-border, #dedee8) !important;
+  border-bottom-color: var(--sd-edit-border, #dedee8) !important;
+  background: var(--sd-edit-bg, #ffffff) !important;
+}
+
+.sales-party-summary-grid span {
+  color: var(--sd-edit-text-3, #767184) !important;
+}
+
+.sales-party-summary-grid strong {
+  color: var(--sd-edit-text, #171522) !important;
+}
+
+.sales-party-summary-grid__address {
+  border-right-color: transparent !important;
+}
+
+/* Dark mode - support every theme mechanism used by the application. */
+.sales-order-modal[data-sales-theme="dark"],
+.sales-details-modal[data-sales-theme="dark"],
+body.dark .sales-order-modal,
+body.dark .sales-details-modal,
+body[data-theme="dark"] .sales-order-modal,
+body[data-theme="dark"] .sales-details-modal,
+body[data-bs-theme="dark"] .sales-order-modal,
+body[data-bs-theme="dark"] .sales-details-modal,
+.dark .sales-order-modal,
+.dark .sales-details-modal {
+  --sd-edit-bg: #20202a;
+  --sd-edit-surface: #292934;
+  --sd-edit-text: #f7f6fb;
+  --sd-edit-text-2: #cbc8d5;
+  --sd-edit-text-3: #aaa7b6;
+  --sd-edit-border: #464452;
+  --sd-edit-brand: #897cf0;
+}
+
+.sales-order-modal[data-sales-theme="dark"] .sales-order-edit-card,
+.sales-details-modal[data-sales-theme="dark"] .sales-order-edit-card,
+body.dark .sales-order-modal .sales-order-edit-card,
+body.dark .sales-details-modal .sales-order-edit-card,
+body[data-theme="dark"] .sales-order-modal .sales-order-edit-card,
+body[data-theme="dark"] .sales-details-modal .sales-order-edit-card,
+body[data-bs-theme="dark"] .sales-order-modal .sales-order-edit-card,
+body[data-bs-theme="dark"] .sales-details-modal .sales-order-edit-card,
+.dark .sales-order-modal .sales-order-edit-card,
+.dark .sales-details-modal .sales-order-edit-card {
+  background: #20202a !important;
+  border-color: #464452 !important;
+  color: #f7f6fb !important;
+}
+
+.sales-order-modal[data-sales-theme="dark"] .sales-order-edit-card__header h6,
+.sales-order-modal[data-sales-theme="dark"] .sales-order-edit-card .form-label,
+body.dark .sales-order-modal .sales-order-edit-card__header h6,
+body.dark .sales-order-modal .sales-order-edit-card .form-label,
+body[data-theme="dark"] .sales-order-modal .sales-order-edit-card__header h6,
+body[data-theme="dark"] .sales-order-modal .sales-order-edit-card .form-label,
+body[data-bs-theme="dark"] .sales-order-modal .sales-order-edit-card__header h6,
+body[data-bs-theme="dark"]
+  .sales-order-modal
+  .sales-order-edit-card
+  .form-label,
+.dark .sales-order-modal .sales-order-edit-card__header h6,
+.dark .sales-order-modal .sales-order-edit-card .form-label {
+  color: #f7f6fb !important;
+}
+
+.sales-order-modal[data-sales-theme="dark"]
+  .sales-order-edit-card__header
+  > div:first-child
+  > span,
+.sales-order-modal[data-sales-theme="dark"] .sales-order-edit-card__hint,
+.sales-order-modal[data-sales-theme="dark"] .sales-order-edit-note,
+.sales-order-modal[data-sales-theme="dark"] .sales-order-status-readonly-note,
+body.dark
+  .sales-order-modal
+  .sales-order-edit-card__header
+  > div:first-child
+  > span,
+body.dark .sales-order-modal .sales-order-edit-card__hint,
+body.dark .sales-order-modal .sales-order-edit-note,
+body.dark .sales-order-modal .sales-order-status-readonly-note,
+body[data-theme="dark"]
+  .sales-order-modal
+  .sales-order-edit-card__header
+  > div:first-child
+  > span,
+body[data-theme="dark"] .sales-order-modal .sales-order-edit-card__hint,
+body[data-theme="dark"] .sales-order-modal .sales-order-edit-note,
+body[data-theme="dark"] .sales-order-modal .sales-order-status-readonly-note,
+body[data-bs-theme="dark"]
+  .sales-order-modal
+  .sales-order-edit-card__header
+  > div:first-child
+  > span,
+body[data-bs-theme="dark"] .sales-order-modal .sales-order-edit-card__hint,
+body[data-bs-theme="dark"] .sales-order-modal .sales-order-edit-note,
+body[data-bs-theme="dark"] .sales-order-modal .sales-order-status-readonly-note,
+.dark
+  .sales-order-modal
+  .sales-order-edit-card__header
+  > div:first-child
+  > span,
+.dark .sales-order-modal .sales-order-edit-card__hint,
+.dark .sales-order-modal .sales-order-edit-note,
+.dark .sales-order-modal .sales-order-status-readonly-note {
+  color: #aaa7b6 !important;
+}
+
+.sales-order-modal[data-sales-theme="dark"]
+  .sales-order-edit-card
+  .form-control,
+.sales-order-modal[data-sales-theme="dark"] .sales-order-edit-card .form-select,
+.sales-order-modal[data-sales-theme="dark"] .sales-order-qty-input,
+.sales-order-modal[data-sales-theme="dark"] .sales-inline-quantity input,
+.sales-order-modal[data-sales-theme="dark"] .sales-order-item-brand-select,
+body.dark .sales-order-modal .sales-order-edit-card .form-control,
+body.dark .sales-order-modal .sales-order-edit-card .form-select,
+body.dark .sales-order-modal .sales-order-qty-input,
+body.dark .sales-order-modal .sales-inline-quantity input,
+body.dark .sales-order-modal .sales-order-item-brand-select,
+body[data-theme="dark"] .sales-order-modal .sales-order-edit-card .form-control,
+body[data-theme="dark"] .sales-order-modal .sales-order-edit-card .form-select,
+body[data-theme="dark"] .sales-order-modal .sales-order-qty-input,
+body[data-theme="dark"] .sales-order-modal .sales-inline-quantity input,
+body[data-theme="dark"] .sales-order-modal .sales-order-item-brand-select,
+body[data-bs-theme="dark"]
+  .sales-order-modal
+  .sales-order-edit-card
+  .form-control,
+body[data-bs-theme="dark"]
+  .sales-order-modal
+  .sales-order-edit-card
+  .form-select,
+body[data-bs-theme="dark"] .sales-order-modal .sales-order-qty-input,
+body[data-bs-theme="dark"] .sales-order-modal .sales-inline-quantity input,
+body[data-bs-theme="dark"] .sales-order-modal .sales-order-item-brand-select,
+.dark .sales-order-modal .sales-order-edit-card .form-control,
+.dark .sales-order-modal .sales-order-edit-card .form-select,
+.dark .sales-order-modal .sales-order-qty-input,
+.dark .sales-order-modal .sales-inline-quantity input,
+.dark .sales-order-modal .sales-order-item-brand-select {
+  background-color: #292934 !important;
+  border-color: #464452 !important;
+  color: #f7f6fb !important;
+  color-scheme: dark;
+}
+
+.sales-order-modal[data-sales-theme="dark"] .sales-order-items-total-row td,
+body.dark .sales-order-modal .sales-order-items-total-row td,
+body[data-theme="dark"] .sales-order-modal .sales-order-items-total-row td,
+body[data-bs-theme="dark"] .sales-order-modal .sales-order-items-total-row td,
+.dark .sales-order-modal .sales-order-items-total-row td {
+  border-top-color: #464452 !important;
+  background: #292934 !important;
+  color: #f7f6fb !important;
+}
+
+.sales-order-modal[data-sales-theme="dark"]
+  .sales-order-items-table
+  .sales-inline-quantity
+  button,
+body.dark .sales-order-modal .sales-inline-quantity button,
+body[data-theme="dark"] .sales-order-modal .sales-inline-quantity button,
+body[data-bs-theme="dark"] .sales-order-modal .sales-inline-quantity button,
+.dark .sales-order-modal .sales-inline-quantity button {
+  border-color: #464452 !important;
+  background: #292934 !important;
+  color: #f7f6fb !important;
+}
+
+.sales-order-modal[data-sales-theme="dark"] .sales-party-summary-grid,
+body.dark .sales-order-modal .sales-party-summary-grid,
+body[data-theme="dark"] .sales-order-modal .sales-party-summary-grid,
+body[data-bs-theme="dark"] .sales-order-modal .sales-party-summary-grid,
+.dark .sales-order-modal .sales-party-summary-grid {
+  border-color: #464452 !important;
+  background: #20202a !important;
+}
+
+.sales-order-modal[data-sales-theme="dark"] .sales-party-summary-grid > div,
+body.dark .sales-order-modal .sales-party-summary-grid > div,
+body[data-theme="dark"] .sales-order-modal .sales-party-summary-grid > div,
+body[data-bs-theme="dark"] .sales-order-modal .sales-party-summary-grid > div,
+.dark .sales-order-modal .sales-party-summary-grid > div {
+  border-right-color: #464452 !important;
+  border-bottom-color: #464452 !important;
+  background: #20202a !important;
+}
+
+.sales-order-modal[data-sales-theme="dark"] .sales-party-summary-grid span,
+body.dark .sales-order-modal .sales-party-summary-grid span,
+body[data-theme="dark"] .sales-order-modal .sales-party-summary-grid span,
+body[data-bs-theme="dark"] .sales-order-modal .sales-party-summary-grid span,
+.dark .sales-order-modal .sales-party-summary-grid span {
+  color: #aaa7b6 !important;
+}
+
+.sales-order-modal[data-sales-theme="dark"] .sales-party-summary-grid strong,
+body.dark .sales-order-modal .sales-party-summary-grid strong,
+body[data-theme="dark"] .sales-order-modal .sales-party-summary-grid strong,
+body[data-bs-theme="dark"] .sales-order-modal .sales-party-summary-grid strong,
+.dark .sales-order-modal .sales-party-summary-grid strong {
+  color: #f7f6fb !important;
+}
+
+/* Dark mode native select arrow. */
+.sales-order-modal[data-sales-theme="dark"] .sales-order-edit-card .form-select,
+body.dark .sales-order-modal .sales-order-edit-card .form-select,
+body[data-theme="dark"] .sales-order-modal .sales-order-edit-card .form-select,
+body[data-bs-theme="dark"]
+  .sales-order-modal
+  .sales-order-edit-card
+  .form-select,
+.dark .sales-order-modal .sales-order-edit-card .form-select {
+  color-scheme: dark;
+}
+
+/* Keep validation clearly visible in both themes. */
+.sales-order-edit-card .form-control.is-invalid,
+.sales-order-edit-card .form-select.is-invalid,
+.sales-order-modal .sales-order-item-brand-select.is-invalid {
+  border-color: #dc3545 !important;
+  box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.12) !important;
+}
+
+/* Disabled save button remains visibly disabled in both themes. */
+.sales-primary-action:disabled,
+.sales-order-modal .btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ========================================================================
+   PRODUCT PICKER - FINAL DARK MODE OVERRIDE
+   ------------------------------------------------------------------------
+   The picker can be rendered inside a portal, so do not rely only on
+   .sales-order-modal[data-sales-theme="dark"]. Support the application
+   theme classes/attributes at document level as well.
+   ======================================================================== */
+
+/* Light mode defaults */
+.sales-product-picker__menu,
+.sales-product-picker__top,
+.sales-product-picker__filters,
+.sales-product-picker__list,
+.sales-product-picker__item,
+.sales-product-picker__empty,
+.sales-product-picker__footer {
+  background: #ffffff;
+  color: #171522;
+}
+
+.sales-product-picker__top,
+.sales-product-picker__filters,
+.sales-product-picker__item,
+.sales-product-picker__footer {
+  border-color: #dedee8;
+}
+
+.sales-product-picker__top strong,
+.sales-product-picker__product-copy,
+.sales-product-picker__product-copy strong,
+.sales-product-picker__check {
+  color: #171522;
+}
+
+.sales-product-picker__top span,
+.sales-product-picker__product-copy small,
+.sales-product-picker__empty,
+.sales-product-picker__footer span {
+  color: #767184;
+}
+
+.sales-product-picker__close,
+.sales-product-picker__filters .form-select,
+.sales-product-picker__filters .form-control,
+.sales-product-picker__quantity,
+.sales-product-picker__quantity input,
+.sales-product-picker__checkbox {
+  background-color: #ffffff;
+  color: #171522;
+  border-color: #dedee8;
+}
+
+/* ========================================================================
+   DARK MODE
+   ======================================================================== */
+
+html.dark .sales-product-picker__menu,
+html.dark .sales-product-picker__top,
+html.dark .sales-product-picker__filters,
+html.dark .sales-product-picker__list,
+html.dark .sales-product-picker__item,
+html.dark .sales-product-picker__empty,
+html.dark .sales-product-picker__footer,
+body.dark .sales-product-picker__menu,
+body.dark .sales-product-picker__top,
+body.dark .sales-product-picker__filters,
+body.dark .sales-product-picker__list,
+body.dark .sales-product-picker__item,
+body.dark .sales-product-picker__empty,
+body.dark .sales-product-picker__footer,
+.dark .sales-product-picker__menu,
+.dark .sales-product-picker__top,
+.dark .sales-product-picker__filters,
+.dark .sales-product-picker__list,
+.dark .sales-product-picker__item,
+.dark .sales-product-picker__empty,
+.dark .sales-product-picker__footer,
+[data-theme="dark"] .sales-product-picker__menu,
+[data-theme="dark"] .sales-product-picker__top,
+[data-theme="dark"] .sales-product-picker__filters,
+[data-theme="dark"] .sales-product-picker__list,
+[data-theme="dark"] .sales-product-picker__item,
+[data-theme="dark"] .sales-product-picker__empty,
+[data-theme="dark"] .sales-product-picker__footer,
+[data-bs-theme="dark"] .sales-product-picker__menu,
+[data-bs-theme="dark"] .sales-product-picker__top,
+[data-bs-theme="dark"] .sales-product-picker__filters,
+[data-bs-theme="dark"] .sales-product-picker__list,
+[data-bs-theme="dark"] .sales-product-picker__item,
+[data-bs-theme="dark"] .sales-product-picker__empty,
+[data-bs-theme="dark"] .sales-product-picker__footer,
+.sales-order-modal[data-sales-theme="dark"] .sales-product-picker__menu,
+.sales-order-modal[data-sales-theme="dark"] .sales-product-picker__top,
+.sales-order-modal[data-sales-theme="dark"] .sales-product-picker__filters,
+.sales-order-modal[data-sales-theme="dark"] .sales-product-picker__list,
+.sales-order-modal[data-sales-theme="dark"] .sales-product-picker__item,
+.sales-order-modal[data-sales-theme="dark"] .sales-product-picker__empty,
+.sales-order-modal[data-sales-theme="dark"] .sales-product-picker__footer {
+  background: #1b1b24 !important;
+  color: #f7f6fb !important;
+  border-color: #3b3947 !important;
+}
+
+html.dark .sales-product-picker__top strong,
+html.dark .sales-product-picker__product-copy,
+html.dark .sales-product-picker__product-copy strong,
+html.dark .sales-product-picker__check,
+body.dark .sales-product-picker__top strong,
+body.dark .sales-product-picker__product-copy,
+body.dark .sales-product-picker__product-copy strong,
+body.dark .sales-product-picker__check,
+.dark .sales-product-picker__top strong,
+.dark .sales-product-picker__product-copy,
+.dark .sales-product-picker__product-copy strong,
+.dark .sales-product-picker__check,
+[data-theme="dark"] .sales-product-picker__top strong,
+[data-theme="dark"] .sales-product-picker__product-copy,
+[data-theme="dark"] .sales-product-picker__product-copy strong,
+[data-theme="dark"] .sales-product-picker__check,
+[data-bs-theme="dark"] .sales-product-picker__top strong,
+[data-bs-theme="dark"] .sales-product-picker__product-copy,
+[data-bs-theme="dark"] .sales-product-picker__product-copy strong,
+[data-bs-theme="dark"] .sales-product-picker__check,
+.sales-order-modal[data-sales-theme="dark"] .sales-product-picker__top strong,
+.sales-order-modal[data-sales-theme="dark"] .sales-product-picker__product-copy,
+.sales-order-modal[data-sales-theme="dark"]
+  .sales-product-picker__product-copy
+  strong,
+.sales-order-modal[data-sales-theme="dark"] .sales-product-picker__check {
+  color: #f7f6fb !important;
+}
+
+html.dark .sales-product-picker__top span,
+html.dark .sales-product-picker__product-copy small,
+html.dark .sales-product-picker__empty,
+html.dark .sales-product-picker__footer span,
+body.dark .sales-product-picker__top span,
+body.dark .sales-product-picker__product-copy small,
+body.dark .sales-product-picker__empty,
+body.dark .sales-product-picker__footer span,
+.dark .sales-product-picker__top span,
+.dark .sales-product-picker__product-copy small,
+.dark .sales-product-picker__empty,
+.dark .sales-product-picker__footer span,
+[data-theme="dark"] .sales-product-picker__top span,
+[data-theme="dark"] .sales-product-picker__product-copy small,
+[data-theme="dark"] .sales-product-picker__empty,
+[data-theme="dark"] .sales-product-picker__footer span,
+[data-bs-theme="dark"] .sales-product-picker__top span,
+[data-bs-theme="dark"] .sales-product-picker__product-copy small,
+[data-bs-theme="dark"] .sales-product-picker__empty,
+[data-bs-theme="dark"] .sales-product-picker__footer span,
+.sales-order-modal[data-sales-theme="dark"] .sales-product-picker__top span,
+.sales-order-modal[data-sales-theme="dark"]
+  .sales-product-picker__product-copy
+  small,
+.sales-order-modal[data-sales-theme="dark"] .sales-product-picker__empty,
+.sales-order-modal[data-sales-theme="dark"] .sales-product-picker__footer span {
+  color: #aaa7b6 !important;
+}
+
+html.dark .sales-product-picker__filters .form-select,
+html.dark .sales-product-picker__filters .form-control,
+html.dark .sales-product-picker__close,
+html.dark .sales-product-picker__quantity,
+html.dark .sales-product-picker__quantity input,
+html.dark .sales-product-picker__checkbox,
+body.dark .sales-product-picker__filters .form-select,
+body.dark .sales-product-picker__filters .form-control,
+body.dark .sales-product-picker__close,
+body.dark .sales-product-picker__quantity,
+body.dark .sales-product-picker__quantity input,
+body.dark .sales-product-picker__checkbox,
+.dark .sales-product-picker__filters .form-select,
+.dark .sales-product-picker__filters .form-control,
+.dark .sales-product-picker__close,
+.dark .sales-product-picker__quantity,
+.dark .sales-product-picker__quantity input,
+.dark .sales-product-picker__checkbox,
+[data-theme="dark"] .sales-product-picker__filters .form-select,
+[data-theme="dark"] .sales-product-picker__filters .form-control,
+[data-theme="dark"] .sales-product-picker__close,
+[data-theme="dark"] .sales-product-picker__quantity,
+[data-theme="dark"] .sales-product-picker__quantity input,
+[data-theme="dark"] .sales-product-picker__checkbox,
+[data-bs-theme="dark"] .sales-product-picker__filters .form-select,
+[data-bs-theme="dark"] .sales-product-picker__filters .form-control,
+[data-bs-theme="dark"] .sales-product-picker__close,
+[data-bs-theme="dark"] .sales-product-picker__quantity,
+[data-bs-theme="dark"] .sales-product-picker__quantity input,
+[data-bs-theme="dark"] .sales-product-picker__checkbox,
+.sales-order-modal[data-sales-theme="dark"]
+  .sales-product-picker__filters
+  .form-select,
+.sales-order-modal[data-sales-theme="dark"]
+  .sales-product-picker__filters
+  .form-control,
+.sales-order-modal[data-sales-theme="dark"] .sales-product-picker__close,
+.sales-order-modal[data-sales-theme="dark"] .sales-product-picker__quantity,
+.sales-order-modal[data-sales-theme="dark"]
+  .sales-product-picker__quantity
+  input,
+.sales-order-modal[data-sales-theme="dark"] .sales-product-picker__checkbox {
+  background-color: #252530 !important;
+  color: #f7f6fb !important;
+  border-color: #464452 !important;
+}
+
+html.dark .sales-product-picker__item:hover,
+body.dark .sales-product-picker__item:hover,
+.dark .sales-product-picker__item:hover,
+[data-theme="dark"] .sales-product-picker__item:hover,
+[data-bs-theme="dark"] .sales-product-picker__item:hover,
+.sales-order-modal[data-sales-theme="dark"] .sales-product-picker__item:hover {
+  background: #292934 !important;
+}
+
+html.dark .sales-product-picker__item.is-selected,
+body.dark .sales-product-picker__item.is-selected,
+.dark .sales-product-picker__item.is-selected,
+[data-theme="dark"] .sales-product-picker__item.is-selected,
+[data-bs-theme="dark"] .sales-product-picker__item.is-selected,
+.sales-order-modal[data-sales-theme="dark"]
+  .sales-product-picker__item.is-selected {
+  background: #30303b !important;
+}
+
+html.dark .sales-product-picker__quantity button,
+body.dark .sales-product-picker__quantity button,
+.dark .sales-product-picker__quantity button,
+[data-theme="dark"] .sales-product-picker__quantity button,
+[data-bs-theme="dark"] .sales-product-picker__quantity button,
+.sales-order-modal[data-sales-theme="dark"]
+  .sales-product-picker__quantity
+  button {
+  background: #292934 !important;
+  color: #f7f6fb !important;
+}
+
+html.dark .sales-product-picker__close:hover,
+body.dark .sales-product-picker__close:hover,
+.dark .sales-product-picker__close:hover,
+[data-theme="dark"] .sales-product-picker__close:hover,
+[data-bs-theme="dark"] .sales-product-picker__close:hover,
+.sales-order-modal[data-sales-theme="dark"] .sales-product-picker__close:hover {
+  background: #30303b !important;
+  color: #ffffff !important;
+}
+
+html.dark .sales-product-picker__filters .form-select,
+body.dark .sales-product-picker__filters .form-select,
+.dark .sales-product-picker__filters .form-select,
+[data-theme="dark"] .sales-product-picker__filters .form-select,
+[data-bs-theme="dark"] .sales-product-picker__filters .form-select,
+.sales-order-modal[data-sales-theme="dark"]
+  .sales-product-picker__filters
+  .form-select {
+  color-scheme: dark;
 }
