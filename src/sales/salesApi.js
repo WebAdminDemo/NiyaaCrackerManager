@@ -1,6 +1,4 @@
-
 import api from '../../api/api';
-import { normalizeBrand, getBrandStatus } from '../utils/common.properties';
 
 const buildQuery = (filters = {}) => {
   const params = new URLSearchParams();
@@ -26,25 +24,25 @@ const normalizeOrder = (order = {}) => ({
     name:
       order.partyName ||
       order.customerName ||
-      '',
+      'Walk-in customer',
     phone:
       order.partyNumber ||
       order.customerPhone ||
-      '',
+      '—',
     address:
       order.partyAddress ||
       order.customerAddress ||
       order.customer?.address ||
-      '',
+      '—',
   },
   partyName:
     order.partyName ||
     order.customerName ||
-    '',
+    'Walk-in customer',
   partyNumber:
     order.partyNumber ||
     order.customerPhone ||
-    '',
+    '—',
   partyAddress:
     order.partyAddress ||
     order.customerAddress ||
@@ -53,19 +51,23 @@ const normalizeOrder = (order = {}) => ({
   partySector: order.partySector || '',
   partyCountry:
     order.partyCountry ||
-    '',
+    'India',
   partyState: order.partyState || '',
   partyDistrict: order.partyDistrict || '',
   partyLocality: order.partyLocality || '',
   partyPincode: order.partyPincode || '',
+  brandMode:
+    order.brandMode === 'standard'
+      ? 'standard'
+      : 'multiBrand',
   customerName:
     order.partyName ||
     order.customerName ||
-    '',
+    'Walk-in customer',
   customerPhone:
     order.partyNumber ||
     order.customerPhone ||
-    '',
+    '—',
   customerAddress:
     order.partyAddress ||
     order.customerAddress ||
@@ -97,12 +99,44 @@ const normalizeOrder = (order = {}) => ({
       productId:
         item.productId ||
         item.product_id,
+      originalPrice: Number(
+        item.originalPrice ??
+          item.original_price ??
+          item.price ??
+          0,
+      ),
       price: Number(item.price || 0),
-      quantity: Number(item.quantity ?? 0),
+      quantity: Number(item.quantity || 1),
       total: Number(
         item.total ??
           Number(item.price || 0) *
             Number(item.quantity || 0),
+      ),
+      discountType:
+        item.discountType ||
+        item.discount_type ||
+        "percent",
+      discountValue: Number(
+        item.discountValue ??
+          item.discount_value ??
+          (
+            item.discountType === "value" ||
+            item.discount_type === "value"
+              ? item.discount_amount ?? 0
+              : item.discount_percent ??
+                item.discountPercent ??
+                0
+          ),
+      ),
+      discountPercent: Number(
+        item.discountPercent ??
+          item.discount_percent ??
+          0,
+      ),
+      discountAmount: Number(
+        item.discountAmount ??
+          item.discount_amount ??
+          0,
       ),
       category:
         item.category ||
@@ -112,8 +146,16 @@ const normalizeOrder = (order = {}) => ({
         item.stockQuantity === undefined
           ? null
           : Number(item.stockQuantity),
-      brand: normalizeBrand(item.brand),
-      brandStatus: getBrandStatus(item.brand),
+      brands:
+        Array.isArray(item.brands)
+          ? item.brands
+          : item.brand
+            ? [item.brand]
+            : ['Standard Fireworks'],
+      catalogMode:
+        item.catalogMode === 'multibrand'
+          ? 'multibrand'
+          : 'standard',
     }),
   ),
 });
@@ -197,7 +239,7 @@ export const salesApi = {
     details,
     items,
   ) {
-    const response = await api.put(
+    const response = await api.patch(
       `/sales/orders/${encodeURIComponent(orderId)}`,
       {
         details,
@@ -218,3 +260,4 @@ export const salesApi = {
       : [];
   },
 };
+

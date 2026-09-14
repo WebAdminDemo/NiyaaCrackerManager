@@ -22,45 +22,82 @@ const statusText = (value) =>
 const getBrand = (item) => String(item?.brand || "").trim();
 
 /**
- * Gets the discount percentage from the order item/product.
- * Supports the exported JSON field `discount_percent` and common
- * camelCase/nested variants. If that field is not present on the
- * order item, it derives the percentage from the exported values:
- * price = original price, amount = selling price, discount_amount = saved amount.
+ * Returns the discount exactly as it was saved on the ORDER ITEM.
+ * The product/catalog discount is never used when an order-item discount
+ * has been saved. This is important because editing an order must not
+ * change the catalog product discount.
  */
-const getDiscountPercent = (item) => {
-  const directValues = [
-    item?.discount_percent,
-    item?.discountPercent,
-    item?.product?.discount_percent,
-    item?.product?.discountPercent,
-  ];
+const getDiscountType = (item) => {
+  const value =
+    item?.discountType ??
+    item?.discount_type;
 
-  for (const value of directValues) {
-    if (value !== null && value !== undefined && String(value).trim() !== "") {
-      const number = Number(value);
-      if (Number.isFinite(number)) return number;
-    }
+  if (value === "value" || value === "percent") {
+    return value;
   }
 
-  const price = Number(item?.price ?? item?.product?.price);
-  const amount = Number(item?.amount ?? item?.product?.amount);
-  const discountAmount = Number(
-    item?.discount_amount ?? item?.discountAmount ?? item?.product?.discount_amount,
-  );
-
-  // Example exported product JSON:
-  // price=600, amount=60, discount_amount=540 => 90%
-  if (Number.isFinite(price) && price > 0 && Number.isFinite(discountAmount)) {
-    return (discountAmount / price) * 100;
-  }
-
-  if (Number.isFinite(price) && price > 0 && Number.isFinite(amount)) {
-    return ((price - amount) / price) * 100;
-  }
-
-  return 0;
+  // Backward compatibility for older order rows that only stored
+  // discount_percent.
+  return "percent";
 };
+
+const getDiscountValue = (item) => {
+  const type = getDiscountType(item);
+
+  if (type === "value") {
+    const savedValue =
+      item?.discountValue ??
+      item?.discount_value;
+
+    if (
+      savedValue !== null &&
+      savedValue !== undefined &&
+      String(savedValue).trim() !== ""
+    ) {
+      return Math.max(0, Number(savedValue) || 0);
+    }
+
+    const amount =
+      item?.discount_amount ??
+      item?.discountAmount;
+
+    return Math.max(0, Number(amount) || 0);
+  }
+
+  const savedValue =
+    item?.discountValue ??
+    item?.discount_value;
+
+  if (
+    savedValue !== null &&
+    savedValue !== undefined &&
+    String(savedValue).trim() !== ""
+  ) {
+    return Math.max(0, Math.min(100, Number(savedValue) || 0));
+  }
+
+  return Math.max(
+    0,
+    Math.min(
+      100,
+      Number(
+        item?.discount_percent ??
+        item?.discountPercent ??
+        0,
+      ) || 0,
+    ),
+  );
+};
+
+const discountDisplay = (item) => {
+  const type = getDiscountType(item);
+  const value = getDiscountValue(item);
+
+  return type === "value"
+    ? money(value)
+    : `${value.toFixed(2)}%`;
+};
+
 
 
 const getParty = (order) => ({
@@ -105,21 +142,16 @@ const orderRows = (orders = []) =>
       "Party District": party.district,
       "Party Locality": party.locality,
       Pincode: party.pincode,
-      "Discount %":
-        [...new Set(items.map((item) => getDiscountPercent(item)))]
-          .map((value) => `${Number(value.toFixed(2))}%`)
-          .join(", ") || "0%",
-      "Products":
+      "Discount / Value":
+        items.map((item) => discountDisplay(item)).join(", ") || "0%",
+      "Items Ordered":
         items
-          .map((item) => {
-            const productName =
-              item.name || item.productName || item.title || "Item";
-            const contents = String(item.contents || "").trim();
-
-            return contents
-              ? `${productName} (${contents})`
-              : productName;
-          })
+          .map(
+            (item) =>
+              `${getBrand(item)} / ${
+                item.name || item.productName || item.title || "Item"
+              } x${Number(item.quantity || 0)}`,
+          )
           .join("\n") || "",
       "Total Quantity": quantity,
       Amount: Number(order.totalAmount || 0),
@@ -334,6 +366,7 @@ export function exportSalesPdf(
         "Location",
         "State / District",
         "Items Ordered",
+        "Discount / Value",
         "Total Quantity",
         "Amount",
         "Status",
@@ -347,6 +380,7 @@ export function exportSalesPdf(
       `${row["Party Sector"]}\n${row["Party Locality"]}\n${row.Pincode}`,
       `${row["Party State"]}\n${row["Party District"]}`,
       row["Items Ordered"],
+      row["Discount / Value"],
       String(row["Total Quantity"]),
       money(row.Amount),
       row.Status,
@@ -374,15 +408,16 @@ export function exportSalesPdf(
     },
     columnStyles: {
       0: { cellWidth: 60, halign: "center" },
-      1: { cellWidth: 70, halign: "left" },
-      2: { cellWidth: 68, halign: "center" },
-      3: { cellWidth: 82, halign: "left" },
-      4: { cellWidth: 86, halign: "left" },
-      5: { cellWidth: 170, halign: "left" },
-      6: { cellWidth: 55, halign: "center" },
-      7: { cellWidth: 68, halign: "right" },
-      8: { cellWidth: 58, halign: "center" },
-      9: { cellWidth: 80, halign: "center" },
+      1: { cellWidth: 65, halign: "left" },
+      2: { cellWidth: 60, halign: "center" },
+      3: { cellWidth: 75, halign: "left" },
+      4: { cellWidth: 80, halign: "left" },
+      5: { cellWidth: 130, halign: "left" },
+      6: { cellWidth: 65, halign: "center" },
+      7: { cellWidth: 45, halign: "center" },
+      8: { cellWidth: 65, halign: "right" },
+      9: { cellWidth: 55, halign: "center" },
+      10: { cellWidth: 60, halign: "center" },
     },
     alternateRowStyles: {
       fillColor: [248, 248, 250],
@@ -538,13 +573,8 @@ export function exportSingleOrderPdf(order) {
     return [
       String(index + 1),
       getBrand(item),
-      (() => {
-        const productName =
-          item.name || item.productName || item.title || "Item";
-        const contents = String(item.contents || "").trim();
-        return contents ? `${productName} (${contents})` : productName;
-      })(),
-      `${Number(getDiscountPercent(item).toFixed(2))}%`,
+      item.name || item.productName || item.title || "Item",
+      discountDisplay(item),
       quantity.toLocaleString("en-IN"),
       money(price),
       money(total),
@@ -564,7 +594,7 @@ export function exportSingleOrderPdf(order) {
     },
     tableWidth: printableWidth,
     theme: "grid",
-    head: [["#", "Brand", "Products", "Discount %", "Qty", "Unit Price", "Total"]],
+    head: [["#", "Brand", "Product", "Discount / Value", "Qty", "Unit Price", "Total"]],
     body: tableRows,
     styles: {
       font: "helvetica",
@@ -604,25 +634,6 @@ export function exportSingleOrderPdf(order) {
       6: { cellWidth: 82, halign: "right" },
     },
     didParseCell(data) {
-      // Keep autoTable cell.text as plain strings. Rich objects here cause
-      // jsPDF errors such as: "e.charCodeAt is not a function".
-      if (
-        data.section === "body" &&
-        data.column.index === 2 &&
-        data.row.index < tableRows.length - 1
-      ) {
-        const item = items[data.row.index];
-        if (item) {
-          const productName =
-            item.name || item.productName || item.title || "Item";
-          const contents = String(item.contents || "").trim();
-
-          data.cell.text = contents
-            ? `${productName} (${contents})`
-            : productName;
-        }
-      }
-
       if (data.section === "body" && data.row.index === tableRows.length - 1) {
         data.cell.styles.fontStyle = "bold";
         data.cell.styles.fillColor = [238, 238, 242];
@@ -633,47 +644,6 @@ export function exportSingleOrderPdf(order) {
           data.cell.styles.halign = "right";
         }
       }
-    },
-
-    didDrawCell(data) {
-      // Draw only "(Contents)" in bold after autoTable has drawn the normal
-      // product text. This avoids unsupported rich-text objects in cell.text.
-      if (
-        data.section !== "body" ||
-        data.column.index !== 2 ||
-        data.row.index >= tableRows.length - 1
-      ) {
-        return;
-      }
-
-      const item = items[data.row.index];
-      const contents = String(item?.contents || "").trim();
-      if (!contents) return;
-
-      const productName =
-        item.name || item.productName || item.title || "Item";
-      const fullText = `${productName} (${contents})`;
-
-      // Only apply the bold overlay when the product fits on one line.
-      // Wrapped product names remain fully readable in the normal font.
-      const availableWidth = data.cell.width - 10;
-      const fullLines = doc.splitTextToSize(fullText, availableWidth);
-      if (fullLines.length !== 1) return;
-
-      const prefix = `${productName} `;
-      const prefixWidth = doc.getTextWidth(prefix);
-      const x = data.cell.x + data.cell.padding('left') + prefixWidth;
-      const y = data.cell.y + data.cell.height / 2;
-
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(7.5);
-      doc.setTextColor(15, 15, 18);
-      doc.text(`(${contents})`, x, y, {
-        baseline: "middle",
-      });
-
-      // Restore the normal font for subsequent drawing.
-      doc.setFont("helvetica", "normal");
     },
     didDrawPage(data) {
       drawFooter(data.pageNumber);

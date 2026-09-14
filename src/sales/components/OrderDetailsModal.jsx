@@ -298,14 +298,25 @@ function ProductPicker({
                 Choose a category, select products and set each quantity.
               </span>
             </div>
-            <button
-              type="button"
-              className="sales-product-picker__close"
-              onClick={onCancel}
-              aria-label="Close product selector"
-            >
-              <i className="bi bi-x-lg" />
-            </button>
+            <div className="sales-product-picker__top-actions">
+              <Button
+                type="button"
+                className="sales-primary-action sales-product-picker__ok"
+                onClick={onClose}
+                disabled={disabled}
+              >
+                OK
+              </Button>
+              <button
+                type="button"
+                className="sales-product-picker__close"
+                onClick={onCancel}
+                aria-label="Close product selector"
+                disabled={disabled}
+              >
+                <i className="bi bi-x-lg" />
+              </button>
+            </div>
           </div>
 
           <div className="sales-product-picker__filters">
@@ -406,13 +417,6 @@ function ProductPicker({
 
           <div className="sales-product-picker__footer">
             <span>{selected.length} selected</span>
-            <Button
-              type="button"
-              className="sales-primary-action"
-              onClick={onClose}
-            >
-              OK
-            </Button>
           </div>
         </div>
       )}

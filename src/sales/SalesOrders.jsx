@@ -1,4 +1,3 @@
-
 import { useCallback, useMemo, useState } from "react";
 import {
   Container,
@@ -109,9 +108,11 @@ const itemsOrdered = (order) => {
           : "");
 
       const name = item.name || item.productName || item.title || "";
-      const contents = item.contents ;
 
-      return contents ? `${name} (${contents})` : name;
+      return (
+        [brand, name].filter(Boolean).join(" / ") +
+        ` ×${Number(item.quantity || 0).toLocaleString("en-IN")}`
+      );
     })
     .join("\n");
 };
@@ -469,7 +470,7 @@ const SalesOrders = () => {
                         )}
                       </div>
                     </td>
-                      <td>
+                    <td>
                       <span className="text-center table-category-text">
                         {[
                           ...new Set(
