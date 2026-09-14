@@ -7,6 +7,7 @@ import {
   Badge,
   Button,
   Spinner,
+  Alert,
 } from "react-bootstrap";
 import dayjs from "dayjs";
 import { useTheme } from "../context/ThemeContext";
@@ -73,8 +74,8 @@ const getPeriodDates = (period, customYear, customMonth) => {
   }
 
   return {
-    startDate: start ? start.toISOString() : undefined,
-    endDate: end ? end.toISOString() : undefined,
+    from: start ? start.toISOString() : undefined,
+    to: end ? end.toISOString() : undefined,
   };
 };
 
@@ -141,6 +142,7 @@ const SalesOrders = () => {
     search: "",
     status: "",
     category: "",
+    brand: "",
   });
 
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -169,6 +171,19 @@ const SalesOrders = () => {
     orders.forEach((order) =>
       order.items?.forEach((item) => {
         if (item.category) values.add(item.category);
+      }),
+    );
+
+    return Array.from(values).sort();
+  }, [orders]);
+
+  const brands = useMemo(() => {
+    const values = new Set();
+
+    orders.forEach((order) =>
+      order.items?.forEach((item) => {
+        const brand = item.brand || item.brands?.[0];
+        if (brand) values.add(brand);
       }),
     );
 
@@ -247,6 +262,7 @@ const SalesOrders = () => {
       search: "",
       status: "",
       category: "",
+      brand: "",
     });
     setPeriod("month");
     setCustomYear(dayjs().year());
@@ -316,6 +332,7 @@ const SalesOrders = () => {
         customMonth={customMonth}
         filters={filters}
         categories={categories}
+        brandsStatus={brands}
         onPeriodChange={handlePeriodChange}
         onCustomDateChange={handleCustomDateChange}
         onFilterChange={handleFilterChange}
@@ -360,6 +377,7 @@ const SalesOrders = () => {
             {(filters.search ||
               filters.status ||
               filters.category ||
+              filters.brand ||
               period !== "month") && (
               <button
                 type="button"
@@ -452,11 +470,17 @@ const SalesOrders = () => {
                       </div>
                     </td>
                       <td>
-                      <span className=" text-center table-category-text">
+                      <span className="text-center table-category-text">
                         {[
                           ...new Set(
                             (order.items || [])
-                              .map((item) => item.brands || item.brand)
+                              .map(
+                                (item) =>
+                                  item.brand ||
+                                  (Array.isArray(item.brands)
+                                    ? item.brands[0]
+                                    : ""),
+                              )
                               .filter(Boolean),
                           ),
                         ].join(", ")}

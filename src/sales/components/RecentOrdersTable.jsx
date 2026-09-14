@@ -1,7 +1,8 @@
-import { Badge, Button, Card, Pagination, Table } from "react-bootstrap";
+import { Badge, Button, Card, Table } from "react-bootstrap";
 import dayjs from "dayjs";
 
 const statusColor = {
+  order_received: "warning",
   pending: "warning",
   processing: "info",
   packaging: "secondary",
@@ -10,10 +11,62 @@ const statusColor = {
   cancelled: "danger",
 };
 
+/*
+ * Normalize brand values so old/new records are displayed consistently.
+ *
+ * Standard / standard / Standard Fireworks -> Standard
+ * Multibrand / multiBrand / Multi-brand -> Multibrand
+ */
+const normalizeBrand = (value) => {
+  const brand = String(value ?? "")
+    .trim()
+    .toLowerCase();
+
+  if (
+    brand === "standard" ||
+    brand === "standard fireworks"
+  ) {
+    return "Standard";
+  }
+
+  if (
+    brand === "multibrand" ||
+    brand === "multi-brand" ||
+    brand === "multi brand" ||
+    brand === "multibrand fireworks"
+  ) {
+    return "Multibrand";
+  }
+
+  return String(value ?? "").trim();
+};
+
+
+const itemBrand = (item) => {
+  const value =
+    item?.brand ??
+    item?.productBrand ??
+    item?.product_brand ??
+    "";
+
+  return normalizeBrand(value);
+};
+
 const categoryText = (order) =>
   [
     ...new Set(
-      (order.items || []).map((item) => item.category).filter(Boolean),
+      (order.items || [])
+        .map((item) => item.category)
+        .filter(Boolean),
+    ),
+  ].join(", ") || "";
+
+const brandText = (order) =>
+  [
+    ...new Set(
+      (order.items || [])
+        .map(itemBrand)
+        .filter(Boolean),
     ),
   ].join(", ") || "";
 
@@ -21,16 +74,11 @@ const itemsOrdered = (order) =>
   (order.items || [])
     .map(
       (item) =>
-        `${item.name || item.productName || item.title || "Item"} ×${item.quantity || 1}`,
+        `${item.name || item.productName || item.title || "Item"} ×${
+          item.quantity || 1
+        }`,
     )
     .join("\n") || "";
-
-    const BrandText = (order) =>
-  [
-    ...new Set(
-      (order.items || []).map((item) => item.brand).filter(Boolean),
-    ),
-  ].join(", ") || "";
 
 const customerName = (order) =>
   order.customer?.name || order.customerName || "";
@@ -45,25 +93,35 @@ const RecentOrdersTable = ({
   page = 1,
   onPageChange,
 }) => {
-  // const sortedOrders = [...orders].sort(
-  //   (a, b) =>
-  //     dayjs(b.createdAt || b.orderDate).valueOf() -
-  //     dayjs(a.createdAt || a.orderDate).valueOf(),
-  // );
-
+  /*
+   * Recent Orders must NOT show delivered orders.
+   *
+   * The brand filter itself is already applied before this component
+   * receives `orders`. Therefore this table only displays the result.
+   */
   const sortedOrders = [...orders]
-  .filter(
-    (order) =>
-      String(order.status || "pending").toLowerCase() !== "delivered",
-  )
-  .sort(
-    (a, b) =>
-      dayjs(b.createdAt || b.orderDate).valueOf() -
-      dayjs(a.createdAt || a.orderDate).valueOf(),
+    .filter(
+      (order) =>
+        String(order.status || "pending")
+          .trim()
+          .toLowerCase() !== "delivered",
+    )
+    .sort(
+      (a, b) =>
+        dayjs(b.createdAt || b.orderDate).valueOf() -
+        dayjs(a.createdAt || a.orderDate).valueOf(),
+    );
+
+  const pageCount = Math.max(
+    1,
+    Math.ceil(sortedOrders.length / limit),
   );
 
-  const pageCount = Math.max(1, Math.ceil(sortedOrders.length / limit));
-  const currentPage = Math.min(page, pageCount);
+  const currentPage = Math.min(
+    Math.max(page, 1),
+    pageCount,
+  );
+
   const visibleOrders = sortedOrders.slice(
     (currentPage - 1) * limit,
     currentPage * limit,
@@ -74,19 +132,28 @@ const RecentOrdersTable = ({
       <div className="sales-empty-state">
         <i className="bi bi-inbox" />
         <p>No orders match these filters.</p>
-        <span>Try a different date range or clear a filter.</span>
+        <span>
+          Try a different date range or clear a filter.
+        </span>
       </div>
     );
   }
 
   const first = (currentPage - 1) * limit + 1;
-  const last = Math.min(currentPage * limit, sortedOrders.length);
+
+  const last = Math.min(
+    currentPage * limit,
+    sortedOrders.length,
+  );
 
   return (
     <Card className="orders-table-card recent-orders-table">
       <div className="orders-table-toolbar recent-orders-toolbar">
         <div>
-          <strong>{sortedOrders.length.toLocaleString("en-IN")}</strong>
+          <strong>
+            {sortedOrders.length.toLocaleString("en-IN")}
+          </strong>
+
           <span> recent orders</span>
         </div>
 
@@ -98,7 +165,10 @@ const RecentOrdersTable = ({
       </div>
 
       <div className="table-responsive recent-orders-table-responsive">
-        <Table hover className="align-middle mb-0 sales-all-orders-table">
+        <Table
+          hover
+          className="align-middle mb-0 sales-all-orders-table"
+        >
           <thead>
             <tr>
               <th>Order ID</th>
@@ -114,47 +184,66 @@ const RecentOrdersTable = ({
               <th>Action</th>
             </tr>
           </thead>
+
           <tbody>
             {visibleOrders.map((order) => {
-              const status = String(order.status || "pending").toLowerCase();
+              const status = String(
+                order.status || "pending",
+              )
+                .trim()
+                .toLowerCase();
+
               const quantity =
                 order.totalQuantity ??
                 (order.items || []).reduce(
-                  (sum, item) => sum + Number(item.quantity || 0),
+                  (sum, item) =>
+                    sum + Number(item.quantity || 0),
                   0,
                 );
 
               return (
                 <tr key={order.id}>
+                  {/* Order ID */}
                   <td>
                     <code className="order-ref">
-                      {order.ref || String(order.id).slice(-8)}
+                      {order.ref ||
+                        String(order.id).slice(-8)}
                     </code>
                   </td>
 
+                  {/* Customer */}
                   <td>
-                    <strong>{customerName(order)}</strong>
+                    <strong>
+                      {customerName(order)}
+                    </strong>
+
                     <small className="d-block text-muted order-phone">
                       {customerPhone(order)}
                     </small>
                   </td>
+
+                  {/* Brand */}
                   <td>
                     <span className="table-category-text">
-                      {BrandText(order)}
+                      {brandText(order)}
                     </span>
                   </td>
+
+                  {/* Category */}
                   <td>
                     <span className="table-category-text">
                       {categoryText(order)}
                     </span>
                   </td>
 
+                  {/* Items Ordered */}
                   <td className="items-ordered-cell">
                     <span className="items-ordered-list">
                       {itemsOrdered(order)}
                     </span>
                   </td>
 
+                  {/* Channel */}
                   <td>
                     <span className="channel-pill">
                       <i className="bi bi-broadcast" />
@@ -162,35 +251,56 @@ const RecentOrdersTable = ({
                     </span>
                   </td>
 
+                  {/* Amount */}
                   <td className="amount">
-                    ₹{Number(order.totalAmount || 0).toLocaleString("en-IN")}
+                    ₹
+                    {Number(
+                      order.totalAmount || 0,
+                    ).toLocaleString("en-IN")}
                   </td>
 
-                  <td>{Number(quantity || 0).toLocaleString("en-IN")}</td>
-
+                  {/* Total Items */}
                   <td>
-                    {order.createdAt || order.orderDate
-                      ? dayjs(order.createdAt || order.orderDate).format(
-                          "DD MMM YYYY",
-                        )
-                      : ""}
+                    {Number(
+                      quantity || 0,
+                    ).toLocaleString("en-IN")}
                   </td>
 
+                  {/* Date */}
+                  <td>
+                    {order.createdAt ||
+                    order.orderDate ? (
+                      dayjs(
+                        order.createdAt ||
+                          order.orderDate,
+                      ).format("DD MMM YYYY")
+                    ) : (
+                      ""
+                    )}
+                  </td>
+
+                  {/* Status */}
                   <td>
                     <Badge
-                      bg={statusColor[status] || "secondary"}
+                      bg={
+                        statusColor[status] ||
+                        "secondary"
+                      }
                       className={`status-badge status-badge--${status}`}
                     >
                       {order.status || "pending"}
                     </Badge>
                   </td>
 
+                  {/* Action */}
                   <td>
                     <Button
                       variant="outline-primary"
                       className="order-view-text-btn"
                       size="sm"
-                      onClick={() => onViewOrder?.(order)}
+                      onClick={() =>
+                        onViewOrder?.(order)
+                      }
                     >
                       View order
                     </Button>
@@ -205,29 +315,56 @@ const RecentOrdersTable = ({
       {pageCount > 1 && (
         <div className="orders-pagination recent-orders-pagination">
           <span>
-            Showing {first}–{last} of {sortedOrders.length} entries
+            Showing {first}–{last} of{" "}
+            {sortedOrders.length} entries
           </span>
 
           <div className="orders-pagination__controls">
             <Button
               variant="light"
               disabled={currentPage === 1}
-              onClick={() => onPageChange?.(Math.max(1, currentPage - 1))}
+              onClick={() =>
+                onPageChange?.(
+                  Math.max(
+                    1,
+                    currentPage - 1,
+                  ),
+                )
+              }
             >
               Previous
             </Button>
 
-            {Array.from({ length: pageCount }, (_, index) => index + 1)
+            {Array.from(
+              { length: pageCount },
+              (_, index) => index + 1,
+            )
               .slice(
-                Math.max(0, currentPage - 3),
-                Math.min(pageCount, currentPage + 2),
+                Math.max(
+                  0,
+                  currentPage - 3,
+                ),
+                Math.min(
+                  pageCount,
+                  currentPage + 2,
+                ),
               )
               .map((pageNumber) => (
                 <Button
                   key={pageNumber}
-                  variant={pageNumber === currentPage ? "primary" : "light"}
-                  className={pageNumber === currentPage ? "is-active" : ""}
-                  onClick={() => onPageChange?.(pageNumber)}
+                  variant={
+                    pageNumber === currentPage
+                      ? "primary"
+                      : "light"
+                  }
+                  className={
+                    pageNumber === currentPage
+                      ? "is-active"
+                      : ""
+                  }
+                  onClick={() =>
+                    onPageChange?.(pageNumber)
+                  }
                 >
                   {pageNumber}
                 </Button>
@@ -235,9 +372,16 @@ const RecentOrdersTable = ({
 
             <Button
               variant="light"
-              disabled={currentPage === pageCount}
+              disabled={
+                currentPage === pageCount
+              }
               onClick={() =>
-                onPageChange?.(Math.min(pageCount, currentPage + 1))
+                onPageChange?.(
+                  Math.min(
+                    pageCount,
+                    currentPage + 1,
+                  ),
+                )
               }
             >
               Next
