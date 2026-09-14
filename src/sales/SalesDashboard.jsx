@@ -153,15 +153,7 @@ const SalesDashboard = ({ onNavigateToOrders, onViewSoldProducts }) => {
     [orders],
   );
 
-  /*
-   * Get the available brands from the currently loaded orders.
-   *
-   * The actual filter value is stored in filters.brand.
-   *
-   * IMPORTANT:
-   * SalesFilters expects this prop as `brandsStatus`,
-   * so the component below passes `brandsStatus={brands}`.
-   */
+ 
 
   const brands = useMemo(
     () =>
