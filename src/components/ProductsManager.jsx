@@ -13,8 +13,13 @@ import {
 } from './products/productsApi';
 import { formatINR } from '../utils/utils';
 import { reactSelectStyles, portalSelectProps } from '../utils/selectStyles';
+/*
+ * Excel Export / Import feature - disabled for now.
+ * Keep this code commented so it can be enabled in the future.
+ *
 import ExportImport from './ExportImport';
 import { exportProductsToExcel, parseProductsExcel } from './products/productExcel';
+*/
 import {
   PRODUCT_STATUS_OPTIONS,
   PRODUCT_BRAND_FILTER_OPTIONS,
@@ -44,6 +49,7 @@ function normalizeProducts(products) {
   }));
 }
 
+/*
 function buildImportPayload(product) {
   return {
     ...product,
@@ -61,6 +67,7 @@ function buildImportPayload(product) {
     uiFlags: product.uiFlags || { featured: false, hidden: false },
   };
 }
+*/
 
 
 function normalizeText(value) {
@@ -322,6 +329,7 @@ export default function ProductManager({
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   // Excel export/import
+  /*
   const handleExportExcel = useCallback(() => {
     try {
       exportProductsToExcel(products);
@@ -385,6 +393,7 @@ export default function ProductManager({
       showLocalAlert('Invalid Excel file', err.message || 'Please use the exported Products Excel format.', 'danger');
     }
   }, [performImport, showLocalAlert]);
+  */
 
   // Render
   if (loading && products.length === 0) {
@@ -420,7 +429,9 @@ export default function ProductManager({
           )}
         </div>
         <div className="d-flex gap-2 flex-wrap">
+          {/*
           <ExportImport onExport={handleExportExcel} onImport={handleImportExcel} />
+          */}
           <Button variant="primary" size="sm" onClick={openAddModal} disabled={isSaving}>
             <i className="bi bi-plus-lg me-1" aria-hidden="true"></i> Add Product
           </Button>
