@@ -1277,7 +1277,7 @@ export default function ProductManager({
           )}
         </div>
         <div className="d-flex gap-2 flex-wrap">
-         {IS_DEVELOPMENT && (
+          {IS_DEVELOPMENT && (
             <ExportImport
               onExport={handleExportExcel}
               onImport={handleImportExcel}
