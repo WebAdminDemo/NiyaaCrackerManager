@@ -568,12 +568,12 @@ export default function ProductManager({
           {/*
             // EXCEL IMPORT / EXPORT - DISABLED FOR NOW.
             // Re-enable this block in the future when Excel functionality is needed.
-            IS_DEVELOPMENT && (
+            
               <ExportImport
                 onExport={handleExportExcel}
                 onImport={handleImportExcel}
               />
-            )
+            
           */}
 
           <Button
