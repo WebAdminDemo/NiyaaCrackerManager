@@ -13,13 +13,14 @@ import {
 } from './products/productsApi';
 import { formatINR } from '../utils/utils';
 import { reactSelectStyles, portalSelectProps } from '../utils/selectStyles';
+import './product-manager-features.css';
 /*
  * Excel Export / Import feature - disabled for now.
  * Keep this code commented so it can be enabled in the future.
- *
+ */
 import ExportImport from './ExportImport';
 import { exportProductsToExcel, parseProductsExcel } from './products/productExcel';
-*/
+
 import {
   PRODUCT_STATUS_OPTIONS,
   PRODUCT_BRAND_FILTER_OPTIONS,
@@ -43,13 +44,20 @@ function normalizeProducts(products) {
     image: p.image ?? '',
     contents: p.contents ?? '',
     discount_percent: Number(p.discountPercent ?? p.discount_percent) || 0,
+    discountAmount: Number(p.discountAmount ?? p.discount_amount) || 0,
+    discountMode: p.discountMode === 'value' || p.discount_mode === 'value'
+      ? 'value'
+      : (Number(p.discountPercent ?? p.discount_percent ?? 0) === 0 && Number(p.discountAmount ?? p.discount_amount ?? 0) > 0 ? 'value' : 'percent'),
+    discountValue: p.discountMode === 'value' || p.discount_mode === 'value'
+      ? Number(p.discountValue ?? p.discountAmount ?? p.discount_amount ?? 0)
+      : Number(p.discountValue ?? p.discountPercent ?? p.discount_percent ?? 0),
     status: p.status === PRODUCT_STATUS.NO_STOCK ? PRODUCT_STATUS.NO_STOCK : PRODUCT_STATUS.IN_STOCK,
     brand: normalizeBrand(p.brand),
     brandStatus: getBrandStatus(p.brand),
   }));
 }
 
-/*
+
 function buildImportPayload(product) {
   return {
     ...product,
@@ -67,7 +75,7 @@ function buildImportPayload(product) {
     uiFlags: product.uiFlags || { featured: false, hidden: false },
   };
 }
-*/
+
 
 
 function normalizeText(value) {
@@ -173,7 +181,7 @@ export default function ProductManager({
       try {
         const response = await createProduct(payload);
         const newProduct = response.data;
-        setProducts((prev) => [...prev, newProduct]);
+        setProducts((prev) => [...prev, normalizeProducts([newProduct])[0]]);
         setCategories((prev) => [...new Set([...prev, newProduct.category].filter(Boolean))]);
         showLocalAlert('Success', 'Product added successfully', 'success');
       } catch (err) {
@@ -196,7 +204,7 @@ export default function ProductManager({
       try {
         const response = await updateProduct(rowid, updates);
         const updatedProduct = response.data;
-        setProducts((prev) => prev.map((p) => (p.rowid === rowid ? updatedProduct : p)));
+        setProducts((prev) => prev.map((p) => (p.rowid === rowid ? normalizeProducts([updatedProduct])[0] : p)));
         setCategories((prev) => [...new Set(prev.concat(updatedProduct.category).filter(Boolean))]);
         showLocalAlert('Success', 'Product updated successfully', 'success');
       } catch (err) {
@@ -260,7 +268,7 @@ export default function ProductManager({
       try {
         const response = await updateProductStatus(rowid, newStatus);
         const updatedProduct = response.data;
-        setProducts((prev) => prev.map((p) => (p.rowid === rowid ? updatedProduct : p)));
+        setProducts((prev) => prev.map((p) => (p.rowid === rowid ? normalizeProducts([updatedProduct])[0] : p)));
         showLocalAlert('Success', 'Status updated', 'success');
       } catch (err) {
         console.error('Status toggle error:', err);
@@ -329,7 +337,7 @@ export default function ProductManager({
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   // Excel export/import
-  /*
+
   const handleExportExcel = useCallback(() => {
     try {
       exportProductsToExcel(products);
@@ -393,7 +401,7 @@ export default function ProductManager({
       showLocalAlert('Invalid Excel file', err.message || 'Please use the exported Products Excel format.', 'danger');
     }
   }, [performImport, showLocalAlert]);
-  */
+  
 
   // Render
   if (loading && products.length === 0) {
@@ -429,9 +437,9 @@ export default function ProductManager({
           )}
         </div>
         <div className="d-flex gap-2 flex-wrap">
-          {/*
+          
           <ExportImport onExport={handleExportExcel} onImport={handleImportExcel} />
-          */}
+          
           <Button variant="primary" size="sm" onClick={openAddModal} disabled={isSaving}>
             <i className="bi bi-plus-lg me-1" aria-hidden="true"></i> Add Product
           </Button>
@@ -553,17 +561,9 @@ export default function ProductManager({
                               }}
                               loading="eager"
                             />
-                            {product.discount_percent > 0 && (
-                              <Badge
-                                className="discount-badge"
-                                style={{
-                                  position: 'absolute',
-                                  top: '6px',
-                                  right: '6px',
-                                  fontSize: '0.65rem',
-                                }}
-                              >
-                                {product.discount_percent}% OFF
+                            {((product.discountMode === 'value' && product.discountAmount > 0) || product.discount_percent > 0) && (
+                              <Badge className="discount-badge" style={{ position: 'absolute', top: '6px', right: '6px', fontSize: '0.65rem' }}>
+                                {product.discountMode === 'value' ? `₹${formatINR(product.discountAmount)} OFF` : `${product.discount_percent}% OFF`}
                               </Badge>
                             )}
                           </div>

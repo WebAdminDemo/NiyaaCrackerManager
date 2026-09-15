@@ -6581,3 +6581,609 @@ body.dark .sales-product-picker__filters .form-select,
     padding: 9px !important;
   }
 }
+
+/* ========================================================================
+   NIYAA ORDER-LEVEL DISCOUNT + UNLIMITED QUANTITY FINAL OVERRIDES
+   ======================================================================== */
+.sales-order-modal .sales-order-items-table {
+  min-width: 760px !important;
+  table-layout: fixed;
+}
+.sales-order-modal .sales-order-items-table th,
+.sales-order-modal .sales-order-items-table td {
+  vertical-align: middle;
+}
+.sales-order-modal .sales-order-items-table th:nth-child(1),
+.sales-order-modal .sales-order-items-table td:nth-child(1) {
+  width: 18%;
+}
+.sales-order-modal .sales-order-items-table th:nth-child(2),
+.sales-order-modal .sales-order-items-table td:nth-child(2) {
+  width: 36%;
+}
+.sales-order-modal .sales-order-items-table th:nth-child(3),
+.sales-order-modal .sales-order-items-table td:nth-child(3) {
+  width: 15%;
+}
+.sales-order-modal .sales-order-items-table th:nth-child(4),
+.sales-order-modal .sales-order-items-table td:nth-child(4) {
+  width: 12%;
+}
+.sales-order-modal .sales-order-items-table th:nth-child(5),
+.sales-order-modal .sales-order-items-table td:nth-child(5) {
+  width: 13%;
+}
+.sales-order-modal .sales-order-items-table th:nth-child(6),
+.sales-order-modal .sales-order-items-table td:nth-child(6) {
+  width: 14%;
+}
+.sales-order-modal .sales-inline-quantity {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 5px;
+  max-width: 100%;
+}
+.sales-order-modal .sales-inline-quantity input {
+  width: 108px !important;
+  min-width: 82px !important;
+  max-width: 120px !important;
+  text-align: center !important;
+  font-variant-numeric: tabular-nums;
+}
+.sales-order-modal .sales-inline-quantity button {
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+}
+.sales-order-pricing-card {
+  width: min(680px, 100%);
+  margin-left: auto;
+  border: 1px solid var(--sd-edit-border, #dedee8);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--sd-edit-bg, #fff);
+}
+.sales-order-pricing-row {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 9px 14px;
+  border-bottom: 1px dashed var(--sd-edit-border, #dedee8);
+}
+.sales-order-pricing-row > span:first-child {
+  font-weight: 700;
+  color: var(--sd-edit-text-3, #767184);
+}
+.sales-order-pricing-row > strong {
+  color: var(--sd-edit-text, #171522);
+  font-weight: 800;
+  text-align: right;
+  white-space: nowrap;
+}
+.sales-order-discount-editor {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+  min-width: 0;
+}
+.sales-order-discount-editor .sales-discount-toggle {
+  padding: 2px;
+  border: 1px solid var(--sd-modal-border, #dedee8);
+  border-radius: 9px;
+  background: var(--sd-modal-muted, #f0edff);
+}
+.sales-order-discount-editor .sales-discount-toggle button {
+  min-width: 38px;
+  height: 31px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--sd-modal-text-2, #514d61);
+  font-weight: 800;
+}
+.sales-order-discount-editor .sales-discount-toggle button.is-active {
+  background: var(--sd-modal-brand, #6c5ce7);
+  color: #fff;
+}
+.sales-order-discount-input {
+  width: 105px !important;
+  min-height: 36px !important;
+  text-align: right !important;
+}
+.sales-order-final-row > span,
+.sales-order-final-row > strong {
+  color: #16824d !important;
+  font-weight: 900 !important;
+}
+.sales-order-final-price-row {
+  min-height: 54px;
+  border-bottom: 0;
+  background: var(--sd-modal-muted, #f0edff);
+}
+.sales-order-final-price-row > span,
+.sales-order-final-price-row > strong {
+  color: var(--sd-modal-brand, #6c5ce7) !important;
+  font-size: 15px;
+  font-weight: 900 !important;
+}
+.sales-order-pricing-warning {
+  margin: 0 14px 10px;
+  padding: 9px 11px;
+  border-radius: 8px;
+  background: rgba(220, 53, 69, 0.08);
+  color: #b42332;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+.sales-order-modal[data-sales-theme="dark"] .sales-order-pricing-card,
+body.dark .sales-order-modal .sales-order-pricing-card {
+  background: #1f1d2b;
+  border-color: #403c50;
+}
+.sales-order-modal[data-sales-theme="dark"] .sales-order-final-price-row,
+body.dark .sales-order-modal .sales-order-final-price-row {
+  background: #2a2440;
+}
+@media (max-width: 767.98px) {
+  .sales-order-modal .modal-dialog {
+    margin: 8px !important;
+    max-width: calc(100% - 16px) !important;
+  }
+  .sales-order-modal .modal-content {
+    max-height: calc(100vh - 16px) !important;
+  }
+  .sales-order-modal .modal-body {
+    overflow-x: hidden !important;
+  }
+  .sales-order-items-wrap {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  .sales-order-modal .sales-order-items-table {
+    min-width: 760px !important;
+  }
+  .sales-order-pricing-card {
+    width: 100%;
+  }
+  .sales-order-pricing-row {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .sales-order-pricing-row > strong {
+    margin-left: auto;
+  }
+  .sales-order-discount-editor {
+    width: 100%;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+  .sales-order-discount-editor .sales-discount-input {
+    width: 105px !important;
+  }
+}
+@media (max-width: 430px) {
+  .sales-order-modal .sales-order-items-table {
+    min-width: 700px !important;
+  }
+  .sales-order-modal .sales-inline-quantity input {
+    width: 94px !important;
+    min-width: 70px !important;
+  }
+  .sales-order-modal .sales-inline-quantity button {
+    flex-basis: 29px;
+    width: 29px;
+    height: 30px;
+  }
+  .sales-order-pricing-row {
+    gap: 8px;
+    padding: 9px 10px;
+  }
+  .sales-order-pricing-row > strong {
+    font-size: 13px;
+  }
+}
+
+/* ==========================================================================
+   FINAL KPI LARGE-NUMBER + RESPONSIVE FIX
+   --------------------------------------------------------------------------
+   Purpose:
+   - Never clip Revenue / Units Sold values.
+   - Keep the complete formatted value visible.
+   - Scale ONLY long KPI values instead of hiding them.
+   - Keep the existing Sales light/dark theme.
+   - Keep KPI modal responsive.
+   ========================================================================== */
+
+/* KPI columns must be allowed to shrink without creating viewport overflow. */
+.sales-dashboard .kpi-cards,
+.sales-dashboard .kpi-cards > [class*="col-"],
+.sales-dashboard .metric-card,
+.sales-dashboard .metric-card .card-body,
+.sales-dashboard .metric-card__content {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* The card keeps its normal shape; the value itself is sized to fit. */
+.sales-dashboard .metric-card {
+  overflow: hidden !important;
+}
+
+.sales-dashboard .metric-card .card-body {
+  position: relative !important;
+  width: 100% !important;
+  min-height: 136px !important;
+  padding: 20px 18px 18px 22px !important;
+  display: block !important;
+}
+
+/* Give the text the full usable card width. The icon is independent. */
+.sales-dashboard .metric-card__content {
+  display: block !important;
+  width: 100% !important;
+  padding-right: 0 !important;
+}
+
+.sales-dashboard .metric-label {
+  max-width: calc(100% - 54px) !important;
+  margin-bottom: 8px !important;
+  color: var(--sd-text-2) !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/*
+ * IMPORTANT:
+ * The value is never ellipsized and never hidden.
+ * Its font size is selected by KpiCards.jsx according to the formatted
+ * string length.
+ */
+.sales-dashboard .metric-value {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  color: var(--sd-text) !important;
+  line-height: 1.08 !important;
+  font-weight: 850 !important;
+  letter-spacing: -0.035em !important;
+  font-variant-numeric: tabular-nums !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+/* Normal values */
+.sales-dashboard .metric-value--normal {
+  font-size: clamp(25px, 2.5vw, 31px) !important;
+}
+
+/* 9–11 character values */
+.sales-dashboard .metric-value--medium {
+  font-size: clamp(22px, 2.2vw, 27px) !important;
+}
+
+/* 12–14 character values */
+.sales-dashboard .metric-value--compact {
+  font-size: clamp(19px, 1.9vw, 23px) !important;
+  letter-spacing: -0.04em !important;
+}
+
+/* 15–17 character values */
+.sales-dashboard .metric-value--extra {
+  font-size: clamp(17px, 1.7vw, 20px) !important;
+  letter-spacing: -0.045em !important;
+}
+
+/* 18+ character values */
+.sales-dashboard .metric-value--ultra {
+  font-size: clamp(15px, 1.55vw, 18px) !important;
+  letter-spacing: -0.045em !important;
+}
+
+/* KPI icon remains in the same visual area without stealing text width. */
+.sales-dashboard .metric-icon {
+  position: absolute !important;
+  top: 20px !important;
+  right: 18px !important;
+  width: 45px !important;
+  height: 45px !important;
+  min-width: 45px !important;
+  flex: 0 0 45px !important;
+}
+
+/* Hints stay inside the card. */
+.sales-dashboard .metric-card__hint {
+  max-width: 100% !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+}
+
+/* --------------------------------------------------------------------------
+   Tablet
+   -------------------------------------------------------------------------- */
+@media (max-width: 1100px) {
+  .sales-dashboard .metric-card .card-body {
+    min-height: 128px !important;
+    padding: 17px 15px 15px 19px !important;
+  }
+
+  .sales-dashboard .metric-icon {
+    top: 16px !important;
+    right: 14px !important;
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+  }
+
+  .sales-dashboard .metric-label {
+    max-width: calc(100% - 48px) !important;
+    font-size: 12px !important;
+  }
+
+  .sales-dashboard .metric-value--normal {
+    font-size: 25px !important;
+  }
+
+  .sales-dashboard .metric-value--medium {
+    font-size: 22px !important;
+  }
+
+  .sales-dashboard .metric-value--compact {
+    font-size: 19px !important;
+  }
+
+  .sales-dashboard .metric-value--extra {
+    font-size: 17px !important;
+  }
+
+  .sales-dashboard .metric-value--ultra {
+    font-size: 15px !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Mobile
+   -------------------------------------------------------------------------- */
+@media (max-width: 767.98px) {
+  .sales-dashboard .kpi-cards {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .sales-dashboard .kpi-cards > [class*="col-"] {
+    min-width: 0 !important;
+  }
+
+  .sales-dashboard .metric-card .card-body {
+    min-height: 118px !important;
+    padding: 12px 10px 11px 13px !important;
+  }
+
+  .sales-dashboard .metric-icon {
+    top: 9px !important;
+    right: 8px !important;
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    border-radius: 9px !important;
+  }
+
+  .sales-dashboard .metric-label {
+    width: calc(100% - 38px) !important;
+    max-width: calc(100% - 38px) !important;
+    margin-bottom: 7px !important;
+    font-size: 11px !important;
+    line-height: 1.2 !important;
+  }
+
+  .sales-dashboard .metric-value {
+    width: 100% !important;
+    max-width: 100% !important;
+    line-height: 1.05 !important;
+  }
+
+  .sales-dashboard .metric-value--normal {
+    font-size: 22px !important;
+  }
+
+  .sales-dashboard .metric-value--medium {
+    font-size: 20px !important;
+  }
+
+  .sales-dashboard .metric-value--compact {
+    font-size: 18px !important;
+  }
+
+  .sales-dashboard .metric-value--extra {
+    font-size: 16px !important;
+  }
+
+  .sales-dashboard .metric-value--ultra {
+    font-size: 14px !important;
+  }
+
+  .sales-dashboard .metric-card__hint {
+    margin-top: 8px !important;
+    font-size: 9px !important;
+    line-height: 1.2 !important;
+  }
+
+  /* Status cards remain 3 per row and cannot create horizontal overflow. */
+  .sales-dashboard .status-cards,
+  .sales-dashboard .status-cards > [class*="col-"],
+  .sales-dashboard .status-pill {
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .sales-dashboard .status-pill {
+    min-height: 78px !important;
+  }
+
+  .sales-dashboard .status-pill .card-body {
+    min-width: 0 !important;
+    min-height: 78px !important;
+    padding: 8px 5px !important;
+    gap: 4px !important;
+  }
+
+  .sales-dashboard .status-label {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    font-size: 8.5px !important;
+    line-height: 1.15 !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .sales-dashboard .status-count {
+    min-width: 0 !important;
+    font-size: 17px !important;
+    white-space: nowrap !important;
+  }
+
+  /* KPI details modal */
+  .sales-dashboard .sales-details-modal .modal-dialog {
+    width: calc(100vw - 16px) !important;
+    max-width: calc(100vw - 16px) !important;
+    margin: 8px auto !important;
+  }
+
+  .sales-dashboard .sales-details-modal .modal-content {
+    max-height: calc(100dvh - 16px) !important;
+    border-radius: 16px !important;
+  }
+
+  .sales-dashboard .sales-details-modal__body {
+    padding: 14px 12px 16px !important;
+  }
+
+  .sales-dashboard .sales-details-toolbar {
+    width: 100% !important;
+  }
+
+  .sales-dashboard .sales-details-search {
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  .sales-dashboard .sales-details-summary {
+    align-self: flex-start !important;
+    max-width: 100% !important;
+    white-space: normal !important;
+  }
+
+  .sales-dashboard .sales-details-table-wrap {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Small phones
+   -------------------------------------------------------------------------- */
+@media (max-width: 480px) {
+  .sales-dashboard .metric-card .card-body {
+    min-height: 112px !important;
+    padding: 11px 9px 10px 12px !important;
+  }
+
+  .sales-dashboard .metric-icon {
+    top: 8px !important;
+    right: 7px !important;
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+  }
+
+  .sales-dashboard .metric-label {
+    width: calc(100% - 35px) !important;
+    max-width: calc(100% - 35px) !important;
+    font-size: 10px !important;
+  }
+
+  .sales-dashboard .metric-value--normal {
+    font-size: 19px !important;
+  }
+
+  .sales-dashboard .metric-value--medium {
+    font-size: 18px !important;
+  }
+
+  .sales-dashboard .metric-value--compact {
+    font-size: 16px !important;
+  }
+
+  .sales-dashboard .metric-value--extra {
+    font-size: 14px !important;
+  }
+
+  .sales-dashboard .metric-value--ultra {
+    font-size: 13px !important;
+  }
+
+  .sales-dashboard .metric-card__hint {
+    font-size: 8.5px !important;
+  }
+
+  .sales-dashboard .sales-details-modal .modal-title {
+    font-size: 18px !important;
+  }
+
+  .sales-dashboard .sales-details-modal__footer {
+    padding: 10px 12px !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Very small phones
+   -------------------------------------------------------------------------- */
+@media (max-width: 360px) {
+  .sales-dashboard .metric-card .card-body {
+    min-height: 106px !important;
+    padding: 10px 8px 9px 10px !important;
+  }
+
+  .sales-dashboard .metric-icon {
+    width: 28px !important;
+    height: 28px !important;
+    min-width: 28px !important;
+    right: 6px !important;
+  }
+
+  .sales-dashboard .metric-label {
+    width: calc(100% - 32px) !important;
+    max-width: calc(100% - 32px) !important;
+    font-size: 9.5px !important;
+  }
+
+  .sales-dashboard .metric-value--normal {
+    font-size: 17px !important;
+  }
+
+  .sales-dashboard .metric-value--medium {
+    font-size: 16px !important;
+  }
+
+  .sales-dashboard .metric-value--compact {
+    font-size: 14px !important;
+  }
+
+  .sales-dashboard .metric-value--extra {
+    font-size: 13px !important;
+  }
+
+  .sales-dashboard .metric-value--ultra {
+    font-size: 12px !important;
+  }
+}

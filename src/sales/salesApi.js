@@ -82,6 +82,11 @@ const normalizeOrder = (order = {}) => ({
   totalAmount: Number(
     order.totalAmount || 0,
   ),
+  discountMode: order.discountMode === "value" ? "value" : "percent",
+  discountValue: Number(order.discountValue ?? (order.discountMode === "value" ? order.discountAmount : order.discountPercent) ?? 0),
+  discountPercent: Number(order.discountPercent ?? 0),
+  discountAmount: Number(order.discountAmount ?? 0),
+  finalAmount: Number(order.finalAmount ?? (Number(order.totalAmount || 0) - Number(order.discountAmount || 0))),
   totalItems: Number(
     order.totalItems || 0,
   ),
@@ -151,7 +156,7 @@ const normalizeOrder = (order = {}) => ({
           ? item.brands
           : item.brand
             ? [item.brand]
-            : ['Standard Fireworks'],
+            : ['Standard'],
       catalogMode:
         item.catalogMode === 'multibrand'
           ? 'multibrand'

@@ -1,21 +1,36 @@
-import React, { useState, useEffect, useCallback, memo, useRef, useMemo } from 'react';
-import { Modal, Button } from 'react-bootstrap';
-import CreatableSelect from 'react-select/creatable';
-import Select from 'react-select';
-import { buildSelectStyles, portalSelectProps } from '../utils/selectStyles';
-import { PRODUCT_STATUS, PRODUCT_STATUS_OPTIONS, PRODUCT_BRAND_OPTIONS, normalizeBrand, getBrandStatus } from '../utils/common.properties';
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  memo,
+  useRef,
+  useMemo,
+} from "react";
+import { Modal, Button } from "react-bootstrap";
+import CreatableSelect from "react-select/creatable";
+import Select from "react-select";
+import { buildSelectStyles, portalSelectProps } from "../utils/selectStyles";
+import {
+  PRODUCT_STATUS,
+  PRODUCT_STATUS_OPTIONS,
+  PRODUCT_BRAND_OPTIONS,
+  normalizeBrand,
+  getBrandStatus,
+} from "../utils/common.properties";
 
 const EMPTY_FORM = {
-  rowid: '',
-  name: '',
-  category: '',
-  amount: '',
-  price: '',
-  image: '',
-  contents: '',
-  discount_percent: '',
+  rowid: "",
+  name: "",
+  category: "",
+  amount: "",
+  price: "",
+  image: "",
+  contents: "",
+  discountMode: "percent",
+  discountValue: "",
+  discount_percent: "",
   status: PRODUCT_STATUS.IN_STOCK,
-  brand: '',
+  brand: "",
   brandStatus: null,
 };
 
@@ -26,17 +41,38 @@ const TARGET_IMAGE_SIZE = 200 * 1024;
 const MAX_IMAGE_DIMENSION = 1200;
 
 function buildFormFromProduct(product) {
-  if (!product || typeof product !== 'object') return { ...EMPTY_FORM };
+  if (!product || typeof product !== "object") return { ...EMPTY_FORM };
   return {
-    rowid: product.rowid || product.id || '',
-    name: product.name ?? '',
-    category: product.category ?? '',
-    amount: product.amount ?? '',
-    price: product.price ?? '',
-    image: product.image ?? '',
-    contents: product.contents ?? '',
-    discount_percent: product.discount_percent ?? '',
-    status: product.status === PRODUCT_STATUS.NO_STOCK ? PRODUCT_STATUS.NO_STOCK : PRODUCT_STATUS.IN_STOCK,
+    rowid: product.rowid || product.id || "",
+    name: product.name ?? "",
+    category: product.category ?? "",
+    amount: product.amount ?? "",
+    price: product.price ?? "",
+    image: product.image ?? "",
+    contents: product.contents ?? "",
+    discountMode:
+      product.discountMode === "value" || product.discount_mode === "value"
+        ? "value"
+        : Number(product.discountPercent ?? product.discount_percent ?? 0) ===
+              0 &&
+            Number(product.discountAmount ?? product.discount_amount ?? 0) > 0
+          ? "value"
+          : "percent",
+    discountValue:
+      product.discountMode === "value" || product.discount_mode === "value"
+        ? (product.discountValue ??
+          product.discountAmount ??
+          product.discount_amount ??
+          "")
+        : (product.discountValue ??
+          product.discountPercent ??
+          product.discount_percent ??
+          ""),
+    discount_percent: product.discount_percent ?? product.discountPercent ?? "",
+    status:
+      product.status === PRODUCT_STATUS.NO_STOCK
+        ? PRODUCT_STATUS.NO_STOCK
+        : PRODUCT_STATUS.IN_STOCK,
     brand: normalizeBrand(product.brand),
     brandStatus: getBrandStatus(product.brand),
   };
@@ -48,10 +84,15 @@ function toNumber(value) {
 }
 
 function sanitizeQuantity(value) {
-  return String(value).replace(/[^a-zA-Z0-9 ]/g, '');
+  return String(value).replace(/[^a-zA-Z0-9 ]/g, "");
 }
 
-function compressImage(file, maxWidth = MAX_IMAGE_DIMENSION, maxHeight = MAX_IMAGE_DIMENSION, quality = 0.85) {
+function compressImage(
+  file,
+  maxWidth = MAX_IMAGE_DIMENSION,
+  maxHeight = MAX_IMAGE_DIMENSION,
+  quality = 0.85,
+) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -59,7 +100,7 @@ function compressImage(file, maxWidth = MAX_IMAGE_DIMENSION, maxHeight = MAX_IMA
       const img = new Image();
       img.src = event.target.result;
       img.onload = () => {
-        const canvas = document.createElement('canvas');
+        const canvas = document.createElement("canvas");
         let width = img.width;
         let height = img.height;
 
@@ -77,22 +118,22 @@ function compressImage(file, maxWidth = MAX_IMAGE_DIMENSION, maxHeight = MAX_IMA
 
         canvas.width = width;
         canvas.height = height;
-        const ctx = canvas.getContext('2d');
+        const ctx = canvas.getContext("2d");
         ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
+        ctx.imageSmoothingQuality = "high";
         ctx.drawImage(img, 0, 0, width, height);
 
         let currentQuality = quality;
-        let compressedDataUrl = canvas.toDataURL('image/jpeg', currentQuality);
+        let compressedDataUrl = canvas.toDataURL("image/jpeg", currentQuality);
         const getSizeInKB = (dataUrl) => {
-          const base64 = dataUrl.split(',')[1];
+          const base64 = dataUrl.split(",")[1];
           return (base64.length * 3) / 4 / 1024;
         };
 
         let sizeInKB = getSizeInKB(compressedDataUrl);
         while (sizeInKB > TARGET_IMAGE_SIZE && currentQuality > 0.1) {
           currentQuality -= 0.05;
-          compressedDataUrl = canvas.toDataURL('image/jpeg', currentQuality);
+          compressedDataUrl = canvas.toDataURL("image/jpeg", currentQuality);
           sizeInKB = getSizeInKB(compressedDataUrl);
         }
 
@@ -103,7 +144,7 @@ function compressImage(file, maxWidth = MAX_IMAGE_DIMENSION, maxHeight = MAX_IMA
           canvas.width = newWidth;
           canvas.height = newHeight;
           ctx.drawImage(img, 0, 0, newWidth, newHeight);
-          compressedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+          compressedDataUrl = canvas.toDataURL("image/jpeg", 0.85);
           sizeInKB = getSizeInKB(compressedDataUrl);
         }
 
@@ -131,13 +172,13 @@ const ProductModal = memo(function ProductModal({
   isSaving = false,
 }) {
   const [form, setForm] = useState(EMPTY_FORM);
-  const [imagePreview, setImagePreview] = useState('');
+  const [imagePreview, setImagePreview] = useState("");
   const [errors, setErrors] = useState({});
   const [isCompressing, setIsCompressing] = useState(false);
   const [compressionInfo, setCompressionInfo] = useState(null);
   const fileInputRef = useRef(null);
 
-  const [alertMessage, setAlertMessage] = useState('');
+  const [alertMessage, setAlertMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
 
   const showAlertModal = useCallback((message) => {
@@ -148,23 +189,33 @@ const ProductModal = memo(function ProductModal({
   useEffect(() => {
     const nextForm = buildFormFromProduct(product);
     setForm(nextForm);
-    setImagePreview(nextForm.image || '');
+    setImagePreview(nextForm.image || "");
     setErrors({});
     setCompressionInfo(null);
-    if (fileInputRef.current) fileInputRef.current.value = '';
+    if (fileInputRef.current) fileInputRef.current.value = "";
   }, [product, show]);
 
-  const recalcAmount = useCallback((price, discount) => {
+  const recalcAmount = useCallback((price, discount, mode = "percent") => {
     const p = toNumber(price);
+    if (!(p >= 0)) return "";
+    if (String(discount ?? "").trim() === "") return p > 0 ? p.toFixed(2) : "";
     const d = toNumber(discount);
-    if (p > 0 && d >= 0 && d <= 100) {
-      return (p * (1 - d / 100)).toFixed(2);
+    if (d < 0) return "";
+    if (mode === "value") {
+      // Fixed-value discounts are NOT percentages.
+      // They may be greater than 100 (for example ₹250), but
+      // they can never reduce the price below zero.
+      return Math.max(0, p - d).toFixed(2);
     }
-    return '';
+    // Only percentage discounts have the 0-100 limit.
+    if (d > 100) return "";
+    return (p * (1 - d / 100)).toFixed(2);
   }, []);
 
   const categoryOptions = useMemo(() => {
-    const unique = Array.isArray(categories) ? [...new Set(categories.filter(Boolean))] : [];
+    const unique = Array.isArray(categories)
+      ? [...new Set(categories.filter(Boolean))]
+      : [];
     return unique.map((cat) => ({ label: cat, value: cat }));
   }, [categories]);
 
@@ -175,42 +226,48 @@ const ProductModal = memo(function ProductModal({
     return { label: form.category, value: form.category };
   }, [categoryOptions, form.category]);
 
-  const selectedStatus = STATUS_OPTIONS.find((opt) => opt.value === form.status) || STATUS_OPTIONS[0];
+  const selectedStatus =
+    STATUS_OPTIONS.find((opt) => opt.value === form.status) ||
+    STATUS_OPTIONS[0];
 
   const handleChange = useCallback(
     (e) => {
       const { name, value } = e.target;
-      if (name === 'contents') {
+      if (name === "contents") {
         const sanitized = sanitizeQuantity(value);
         setForm((prev) => ({ ...prev, [name]: sanitized }));
-        setErrors((prev) => ({ ...prev, [name]: '' }));
+        setErrors((prev) => ({ ...prev, [name]: "" }));
         return;
       }
 
       setForm((prev) => {
         const updated = { ...prev, [name]: value };
-        if (name === 'price' || name === 'discount_percent') {
-          const newAmount = recalcAmount(
-            name === 'price' ? value : prev.price,
-            name === 'discount_percent' ? value : prev.discount_percent
+        if (name === "price" || name === "discountValue") {
+          updated.amount = recalcAmount(
+            name === "price" ? value : prev.price,
+            name === "discountValue" ? value : prev.discountValue,
+            prev.discountMode,
           );
-          updated.amount = newAmount;
+          if (name === "discountValue") {
+            updated.discount_percent =
+              prev.discountMode === "percent" ? value : 0;
+          }
         }
         return updated;
       });
-      setErrors((prev) => ({ ...prev, [name]: '' }));
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     },
-    [recalcAmount]
+    [recalcAmount],
   );
 
   const handleCategoryChange = useCallback((selected) => {
-    setForm((prev) => ({ ...prev, category: selected?.value || '' }));
-    setErrors((prev) => ({ ...prev, category: '' }));
+    setForm((prev) => ({ ...prev, category: selected?.value || "" }));
+    setErrors((prev) => ({ ...prev, category: "" }));
   }, []);
 
   const handleCategoryCreate = useCallback((inputValue) => {
     setForm((prev) => ({ ...prev, category: inputValue }));
-    setErrors((prev) => ({ ...prev, category: '' }));
+    setErrors((prev) => ({ ...prev, category: "" }));
   }, []);
 
   const handleStatusChange = useCallback((selected) => {
@@ -218,32 +275,52 @@ const ProductModal = memo(function ProductModal({
     setForm((prev) => ({
       ...prev,
       status: newStatus,
-      contents: newStatus === PRODUCT_STATUS.NO_STOCK ? '' : prev.contents,
+      contents: newStatus === PRODUCT_STATUS.NO_STOCK ? "" : prev.contents,
     }));
   }, []);
 
   const handleBrandChange = useCallback((selected) => {
-    const brand = normalizeBrand(selected?.value || '');
+    const brand = normalizeBrand(selected?.value || "");
     setForm((prev) => ({
       ...prev,
       brand,
       brandStatus: getBrandStatus(brand),
     }));
-    setErrors((prev) => ({ ...prev, brand: '' }));
+    setErrors((prev) => ({ ...prev, brand: "" }));
   }, []);
+
+  const handleDiscountModeChange = useCallback(
+    (mode) => {
+      setForm((prev) => {
+        const nextMode = mode === "value" ? "value" : "percent";
+        const nextValue = prev.discountValue ?? "";
+        return {
+          ...prev,
+          discountMode: nextMode,
+          discountValue: nextValue,
+          discount_percent: nextMode === "percent" ? nextValue : 0,
+          amount: recalcAmount(prev.price, nextValue, nextMode),
+        };
+      });
+      setErrors((prev) => ({ ...prev, discount: "" }));
+    },
+    [recalcAmount],
+  );
 
   const handleFileChange = useCallback(
     async (e) => {
       const file = e.target.files?.[0];
       if (!file) return;
-      if (!file.type.startsWith('image/')) {
-        showAlertModal('Please select an image file.');
-        e.target.value = '';
+      if (!file.type.startsWith("image/")) {
+        showAlertModal("Please select an image file.");
+        e.target.value = "";
         return;
       }
       if (file.size > MAX_IMAGE_SIZE) {
-        showAlertModal(`Image must be less than ${MAX_IMAGE_SIZE / (1024 * 1024)}MB.`);
-        e.target.value = '';
+        showAlertModal(
+          `Image must be less than ${MAX_IMAGE_SIZE / (1024 * 1024)}MB.`,
+        );
+        e.target.value = "";
         return;
       }
 
@@ -259,14 +336,14 @@ const ProductModal = memo(function ProductModal({
           quality: Math.round(result.quality * 100),
         });
       } catch (err) {
-        console.error('Image compression failed:', err);
-        showAlertModal('Failed to process image. Please try again.');
+        console.error("Image compression failed:", err);
+        showAlertModal("Failed to process image. Please try again.");
       } finally {
         setIsCompressing(false);
-        e.target.value = '';
+        e.target.value = "";
       }
     },
-    [showAlertModal]
+    [showAlertModal],
   );
 
   const handleChooseImage = useCallback(() => {
@@ -274,22 +351,32 @@ const ProductModal = memo(function ProductModal({
   }, []);
 
   const handleRemoveImage = useCallback(() => {
-    setImagePreview('');
-    setForm((prev) => ({ ...prev, image: '' }));
+    setImagePreview("");
+    setForm((prev) => ({ ...prev, image: "" }));
     setCompressionInfo(null);
-    if (fileInputRef.current) fileInputRef.current.value = '';
+    if (fileInputRef.current) fileInputRef.current.value = "";
   }, []);
 
   const validateForm = useCallback(() => {
     const newErrors = {};
-    if (!form.name.trim()) newErrors.name = 'Product name is required.';
-    if (!form.category.trim()) newErrors.category = 'Category is required.';
+    if (!form.name.trim()) newErrors.name = "Product name is required.";
+    if (!form.category.trim()) newErrors.category = "Category is required.";
     const price = toNumber(form.price);
-    if (price < 0) newErrors.price = 'Original price must be a positive number.';
-    const discount = toNumber(form.discount_percent);
-    if (discount < 0 || discount > 100) newErrors.discount = 'Discount must be between 0 and 100.';
-    if (form.status === PRODUCT_STATUS.IN_STOCK && (!form.contents || form.contents.trim() === '')) {
-      newErrors.contents = 'Quantity is required when product is in stock.';
+    if (price < 0)
+      newErrors.price = "Original price must be a positive number.";
+    const discount = toNumber(form.discountValue);
+    if (form.discountMode === "percent") {
+      if (discount < 0 || discount > 100)
+        newErrors.discount = "Discount percentage must be between 0 and 100.";
+    } else if (discount < 0 || discount > price) {
+      newErrors.discount =
+        "Discount value cannot be greater than the original price.";
+    }
+    if (
+      form.status === PRODUCT_STATUS.IN_STOCK &&
+      (!form.contents || form.contents.trim() === "")
+    ) {
+      newErrors.contents = "Quantity is required when product is in stock.";
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -302,16 +389,32 @@ const ProductModal = memo(function ProductModal({
       if (!validateForm()) return;
 
       const finalAmount = form.amount || form.price;
+      const discountValue = toNumber(form.discountValue);
+      const discountPercent =
+        form.discountMode === "percent"
+          ? Math.max(0, Math.min(100, discountValue))
+          : 0;
+      const discountAmount =
+        form.discountMode === "value"
+          ? Math.max(0, Math.min(toNumber(form.price), discountValue))
+          : Math.max(0, toNumber(form.price) - toNumber(finalAmount));
       const payload = {
         ...(form.rowid ? { rowid: form.rowid } : {}),
         name: form.name.trim(),
         category: form.category.trim(),
         amount: toNumber(finalAmount),
         price: toNumber(form.price),
-        discount_percent: Math.max(0, Math.min(100, toNumber(form.discount_percent))),
-        contents: form.status === PRODUCT_STATUS.NO_STOCK ? '' : form.contents.trim(),
-        image: form.image || '',
-        status: form.status === PRODUCT_STATUS.NO_STOCK ? PRODUCT_STATUS.NO_STOCK : PRODUCT_STATUS.IN_STOCK,
+        discountMode: form.discountMode,
+        discountValue,
+        discount_percent: discountPercent,
+        discountAmount,
+        contents:
+          form.status === PRODUCT_STATUS.NO_STOCK ? "" : form.contents.trim(),
+        image: form.image || "",
+        status:
+          form.status === PRODUCT_STATUS.NO_STOCK
+            ? PRODUCT_STATUS.NO_STOCK
+            : PRODUCT_STATUS.IN_STOCK,
         brand: normalizeBrand(form.brand),
         brandStatus: getBrandStatus(form.brand),
         last_updated: new Date().toISOString(),
@@ -320,11 +423,11 @@ const ProductModal = memo(function ProductModal({
       try {
         await onSave(payload);
       } catch (err) {
-        console.error('Save error:', err);
-        showAlertModal('Failed to save product. Please try again.');
+        console.error("Save error:", err);
+        showAlertModal("Failed to save product. Please try again.");
       }
     },
-    [form, onSave, isSaving, isCompressing, validateForm, showAlertModal]
+    [form, onSave, isSaving, isCompressing, validateForm, showAlertModal],
   );
 
   return (
@@ -341,19 +444,24 @@ const ProductModal = memo(function ProductModal({
         <Modal.Header closeButton={!isSaving} className="border-0 pb-0">
           <Modal.Title className="d-flex align-items-center gap-2">
             <i className="bi bi-box text-lavender" aria-hidden="true"></i>
-            {product ? 'Edit Product' : 'Add New Product'}
+            {product ? "Edit Product" : "Add New Product"}
           </Modal.Title>
         </Modal.Header>
 
         <Modal.Body
           className="pt-2"
-          style={{ background: 'linear-gradient(135deg, #f5f0ff 0%, #e8e0f5 100%)' }}
+          style={{
+            background: "linear-gradient(135deg, #f5f0ff 0%, #e8e0f5 100%)",
+          }}
         >
           <form onSubmit={handleSubmit} noValidate>
             <div className="row g-3">
               <div className="col-12 col-md-7">
                 <div className="mb-3">
-                  <label htmlFor="productName" className="form-label fw-semibold">
+                  <label
+                    htmlFor="productName"
+                    className="form-label fw-semibold"
+                  >
                     Name <span className="text-danger">*</span>
                   </label>
                   <input
@@ -363,14 +471,21 @@ const ProductModal = memo(function ProductModal({
                     value={form.name}
                     onChange={handleChange}
                     disabled={isSaving}
-                    className={`form-control form-control-lg rounded-3 shadow-sm ${errors.name ? 'is-invalid' : ''}`}
+                    className={`form-control form-control-lg rounded-3 shadow-sm ${errors.name ? "is-invalid" : ""}`}
                     placeholder="Product name"
                   />
-                  {errors.name && <div className="invalid-feedback d-block">{errors.name}</div>}
+                  {errors.name && (
+                    <div className="invalid-feedback d-block">
+                      {errors.name}
+                    </div>
+                  )}
                 </div>
 
                 <div className="mb-3">
-                  <label htmlFor="productCategory" className="form-label fw-semibold">
+                  <label
+                    htmlFor="productCategory"
+                    className="form-label fw-semibold"
+                  >
                     Category <span className="text-danger">*</span>
                   </label>
                   <CreatableSelect
@@ -385,17 +500,27 @@ const ProductModal = memo(function ProductModal({
                     {...portalSelectProps}
                     styles={buildSelectStyles(!!errors.category)}
                   />
-                  {errors.category && <div className="text-danger small mt-1">{errors.category}</div>}
+                  {errors.category && (
+                    <div className="text-danger small mt-1">
+                      {errors.category}
+                    </div>
+                  )}
                 </div>
 
                 <div className="mb-3">
-                  <label htmlFor="productBrand" className="form-label fw-semibold">Brand</label>
+                  <label
+                    htmlFor="productBrand"
+                    className="form-label fw-semibold"
+                  >
+                    Brand
+                  </label>
                   <Select
                     inputId="productBrand"
                     options={PRODUCT_BRAND_OPTIONS}
                     value={
-                      PRODUCT_BRAND_OPTIONS.find((option) => option.value === normalizeBrand(form.brand)) ||
-                      PRODUCT_BRAND_OPTIONS[0]
+                      PRODUCT_BRAND_OPTIONS.find(
+                        (option) => option.value === normalizeBrand(form.brand),
+                      ) || PRODUCT_BRAND_OPTIONS[0]
                     }
                     onChange={handleBrandChange}
                     placeholder="Select brand (optional)"
@@ -405,12 +530,17 @@ const ProductModal = memo(function ProductModal({
                     {...portalSelectProps}
                     styles={buildSelectStyles(!!errors.brand)}
                   />
-                  {errors.brand && <div className="text-danger small mt-1">{errors.brand}</div>}
+                  {errors.brand && (
+                    <div className="text-danger small mt-1">{errors.brand}</div>
+                  )}
                 </div>
 
-                <div className="row g-2">
+                <div className="row g-2 product-pricing-grid">
                   <div className="col-6">
-                    <label htmlFor="productPrice" className="form-label fw-semibold">
+                    <label
+                      htmlFor="productPrice"
+                      className="form-label fw-semibold"
+                    >
                       Original Price (₹)
                     </label>
                     <input
@@ -422,32 +552,82 @@ const ProductModal = memo(function ProductModal({
                       step="0.01"
                       min="0"
                       disabled={isSaving}
-                      className={`form-control form-control-lg rounded-3 shadow-sm ${errors.price ? 'is-invalid' : ''}`}
+                      className={`form-control form-control-lg rounded-3 shadow-sm ${errors.price ? "is-invalid" : ""}`}
                       placeholder="e.g. 100"
                     />
-                    {errors.price && <div className="invalid-feedback d-block">{errors.price}</div>}
+                    {errors.price && (
+                      <div className="invalid-feedback d-block">
+                        {errors.price}
+                      </div>
+                    )}
                   </div>
                   <div className="col-6">
-                    <label htmlFor="productDiscount" className="form-label fw-semibold">
-                      Discount %
-                    </label>
-                    <input
-                      id="productDiscount"
-                      type="number"
-                      name="discount_percent"
-                      value={form.discount_percent}
-                      onChange={handleChange}
-                      min="0"
-                      max="100"
-                      disabled={isSaving}
-                      className={`form-control form-control-lg rounded-3 shadow-sm ${errors.discount ? 'is-invalid' : ''}`}
-                      placeholder="e.g. 20"
-                    />
-                    {errors.discount && <div className="invalid-feedback d-block">{errors.discount}</div>}
+                    <label className="form-label fw-semibold">Discount</label>
+                    <div className="product-discount-control">
+                      <div
+                        className="product-discount-toggle"
+                        role="group"
+                        aria-label="Discount type"
+                      >
+                        <button
+                          type="button"
+                          className={
+                            form.discountMode === "percent" ? "active" : ""
+                          }
+                          onClick={() => handleDiscountModeChange("percent")}
+                          disabled={isSaving}
+                        >
+                          %
+                        </button>
+                        <button
+                          type="button"
+                          className={
+                            form.discountMode === "value" ? "active" : ""
+                          }
+                          onClick={() => handleDiscountModeChange("value")}
+                          disabled={isSaving}
+                        >
+                          Val
+                        </button>
+                      </div>
+                      <div className="product-discount-input-wrap">
+                        <input
+                          id="productDiscount"
+                          type="number"
+                          name="discountValue"
+                          value={form.discountValue}
+                          onChange={handleChange}
+                          min="0"
+                          max={
+                            form.discountMode === "percent" ? 100 : undefined
+                          }
+                          step="0.01"
+                          disabled={isSaving}
+                          className={`form-control form-control-lg rounded-3 shadow-sm ${errors.discount ? "is-invalid" : ""}`}
+                          placeholder={
+                            form.discountMode === "percent"
+                              ? "e.g. 20"
+                              : "e.g. 250"
+                          }
+                        />
+                        <span>
+                          {form.discountMode === "percent" ? "%" : "₹"}
+                        </span>
+                      </div>
+                    </div>
+                    {errors.discount && (
+                      <div className="invalid-feedback d-block">
+                        {errors.discount}
+                      </div>
+                    )}
                   </div>
                   <div className="col-12">
-                    <label htmlFor="productAmount" className="form-label fw-semibold">
-                      Final Price (₹) <small className="text-muted">(after discount)</small>
+                    <label
+                      htmlFor="productAmount"
+                      className="form-label fw-semibold"
+                    >
+                      Final Price (₹){" "}
+                      <small className="text-muted">(after discount)</small>
                     </label>
                     <input
                       id="productAmount"
@@ -457,13 +637,16 @@ const ProductModal = memo(function ProductModal({
                       readOnly
                       className="form-control form-control-lg shadow-sm bg-light"
                       placeholder="Auto-calculated"
-                      style={{ cursor: 'not-allowed' }}
+                      style={{ cursor: "not-allowed" }}
                     />
                   </div>
                 </div>
 
                 <div className="mb-3 mt-3">
-                  <label htmlFor="productQuantity" className="form-label fw-semibold">
+                  <label
+                    htmlFor="productQuantity"
+                    className="form-label fw-semibold"
+                  >
                     Quantity <span className="text-danger">*</span>
                   </label>
                   <input
@@ -472,9 +655,15 @@ const ProductModal = memo(function ProductModal({
                     name="contents"
                     value={form.contents}
                     onChange={handleChange}
-                    disabled={isSaving || form.status === PRODUCT_STATUS.NO_STOCK}
-                    className={`form-control form-control-lg rounded-3 shadow-sm ${errors.contents ? 'is-invalid' : ''}`}
-                    placeholder={form.status === PRODUCT_STATUS.NO_STOCK ? 'Quantity disabled (No Stock)' : 'e.g. 50 Pcs, 100 Box, 25 Units'}
+                    disabled={
+                      isSaving || form.status === PRODUCT_STATUS.NO_STOCK
+                    }
+                    className={`form-control form-control-lg rounded-3 shadow-sm ${errors.contents ? "is-invalid" : ""}`}
+                    placeholder={
+                      form.status === PRODUCT_STATUS.NO_STOCK
+                        ? "Quantity disabled (No Stock)"
+                        : "e.g. 50 Pcs, 100 Box, 25 Units"
+                    }
                     inputMode="text"
                   />
                   <div className="text-muted small mt-1">
@@ -487,13 +676,22 @@ const ProductModal = memo(function ProductModal({
                       Quantity is disabled when product is out of stock
                     </div>
                   )}
-                  {errors.contents && <div className="invalid-feedback d-block">{errors.contents}</div>}
+                  {errors.contents && (
+                    <div className="invalid-feedback d-block">
+                      {errors.contents}
+                    </div>
+                  )}
                 </div>
               </div>
 
               <div className="col-12 col-md-5">
                 <div className="mb-3">
-                  <label htmlFor="productStatus" className="form-label fw-semibold">Status</label>
+                  <label
+                    htmlFor="productStatus"
+                    className="form-label fw-semibold"
+                  >
+                    Status
+                  </label>
                   <Select
                     inputId="productStatus"
                     options={STATUS_OPTIONS}
@@ -507,7 +705,12 @@ const ProductModal = memo(function ProductModal({
                 </div>
 
                 <div>
-                  <label htmlFor="productImage" className="form-label fw-semibold">Product Image</label>
+                  <label
+                    htmlFor="productImage"
+                    className="form-label fw-semibold"
+                  >
+                    Product Image
+                  </label>
                   <input
                     id="productImage"
                     ref={fileInputRef}
@@ -525,13 +728,18 @@ const ProductModal = memo(function ProductModal({
                     disabled={isSaving || isCompressing}
                   >
                     <i className="bi bi-image me-2"></i>
-                    {imagePreview ? 'Change Image' : 'Choose Image'}
+                    {imagePreview ? "Change Image" : "Choose Image"}
                   </Button>
 
                   {isCompressing && (
                     <div className="mt-2 text-center">
-                      <div className="spinner-border text-primary" role="status">
-                        <span className="visually-hidden">Compressing image...</span>
+                      <div
+                        className="spinner-border text-primary"
+                        role="status"
+                      >
+                        <span className="visually-hidden">
+                          Compressing image...
+                        </span>
                       </div>
                       <p className="text-muted small mt-1">
                         <i className="bi bi-arrow-repeat me-1"></i>
@@ -542,11 +750,15 @@ const ProductModal = memo(function ProductModal({
 
                   {compressionInfo && !isCompressing && (
                     <div className="mt-2">
-                      <div className="alert alert-success py-1 px-2 mb-2" style={{ fontSize: '0.75rem' }}>
+                      <div
+                        className="alert alert-success py-1 px-2 mb-2"
+                        style={{ fontSize: "0.75rem" }}
+                      >
                         <i className="bi bi-check-circle-fill me-1"></i>
                         <strong>Optimized!</strong>
                         <span className="ms-2 d-block d-sm-inline">
-                          {compressionInfo.originalSize}KB → {compressionInfo.compressedSize}KB
+                          {compressionInfo.originalSize}KB →{" "}
+                          {compressionInfo.compressedSize}KB
                         </span>
                         <span className="ms-2 d-block d-sm-inline">
                           ({compressionInfo.dimensions})
@@ -561,7 +773,7 @@ const ProductModal = memo(function ProductModal({
                         src={imagePreview}
                         alt="Preview"
                         className="img-fluid rounded-3 border shadow-sm edit-image"
-                        style={{ maxHeight: '200px', objectFit: 'contain' }}
+                        style={{ maxHeight: "200px", objectFit: "contain" }}
                       />
                       <Button
                         type="button"
@@ -581,21 +793,46 @@ const ProductModal = memo(function ProductModal({
             </div>
 
             <div className="d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
-              <Button type="button" variant="secondary" size="lg" onClick={onHide} disabled={isSaving} className="rounded-3 px-4">
+              <Button
+                type="button"
+                variant="secondary"
+                size="lg"
+                onClick={onHide}
+                disabled={isSaving}
+                className="rounded-3 px-4"
+              >
                 Cancel
               </Button>
-              <Button variant="primary" size="lg" type="submit" disabled={isSaving || isCompressing} className="rounded-3 px-4">
+              <Button
+                variant="primary"
+                size="lg"
+                type="submit"
+                disabled={isSaving || isCompressing}
+                className="rounded-3 px-4"
+              >
                 {isSaving ? (
                   <>
-                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />
+                    <span
+                      className="spinner-border spinner-border-sm me-2"
+                      role="status"
+                      aria-hidden="true"
+                    />
                     Saving...
                   </>
                 ) : isCompressing ? (
                   <>
-                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />
+                    <span
+                      className="spinner-border spinner-border-sm me-2"
+                      role="status"
+                      aria-hidden="true"
+                    />
                     Compressing...
                   </>
-                ) : product ? 'Update Product' : 'Add Product'}
+                ) : product ? (
+                  "Update Product"
+                ) : (
+                  "Add Product"
+                )}
               </Button>
             </div>
           </form>
@@ -612,14 +849,23 @@ const ProductModal = memo(function ProductModal({
       >
         <Modal.Header closeButton className="border-0 pb-0">
           <Modal.Title className="d-flex align-items-center gap-2">
-            <i className="bi bi-exclamation-circle text-warning" aria-hidden="true"></i>
+            <i
+              className="bi bi-exclamation-circle text-warning"
+              aria-hidden="true"
+            ></i>
             Notice
           </Modal.Title>
         </Modal.Header>
         <Modal.Body className="pt-2">
-          <p className="mb-3" style={{ fontSize: '1.05rem' }}>{alertMessage}</p>
+          <p className="mb-3" style={{ fontSize: "1.05rem" }}>
+            {alertMessage}
+          </p>
           <div className="d-flex justify-content-end">
-            <Button variant="primary" onClick={() => setShowAlert(false)} className="rounded-3 px-4">
+            <Button
+              variant="primary"
+              onClick={() => setShowAlert(false)}
+              className="rounded-3 px-4"
+            >
               OK
             </Button>
           </div>

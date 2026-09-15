@@ -9,33 +9,28 @@ import { useTheme } from "../context/ThemeContext";
 import { useSalesAnalytics } from "./hooks/useSalesAnalytics";
 
 import SalesFilters from "./components/SalesFilters";
-
 import KpiCards from "./components/KpiCards";
-
 import RevenueAreaChart from "./components/RevenueAreaChart";
-
 import CategoryDonutChart from "./components/CategoryDonutChart";
-
 import TopProductsBarChart from "./components/TopProductsBarChart";
-
 import CustomerAnalytics from "./components/CustomerAnalytics";
-
 import RecentOrdersTable from "./components/RecentOrdersTable";
-
 import OrderDetailsModal from "./components/OrderDetailsModal";
 
 import { exportSalesExcel, exportSalesPdf } from "./utils/exportReports";
 
+import { salesApi } from "./salesApi";
+
 import "./sales.css";
 
 const rangeFor = (period, year, month) => {
-  if (period === "all") return {};
+  if (period === "all") {
+    return {};
+  }
 
   const now = dayjs();
 
-  const selectedMonth = dayjs(
-    `${year}-${String(month).padStart(2, "0")}-01`,
-  );
+  const selectedMonth = dayjs(`${year}-${String(month).padStart(2, "0")}-01`);
 
   const base = period === "custom" ? selectedMonth : now;
 
@@ -126,15 +121,38 @@ const SalesDashboard = ({ onNavigateToOrders, onViewSoldProducts }) => {
     includeAnalytics: true,
   });
 
+  /*
+   * Save edited order details/items from OrderDetailsModal.
+   *
+   * OrderDetailsModal calls this when Submit/Save is clicked.
+   */
+  const handleOrderSave = useCallback(
+    async (orderId, details, items) => {
+      const updated = await salesApi.updateOrder(orderId, details, items);
+
+      /*
+       * Immediately replace the selected order so the modal
+       * displays the latest saved values.
+       */
+      setSelectedOrder(updated);
+
+      /*
+       * Refresh dashboard KPIs, charts, recent orders, etc.
+       */
+      await refresh(true);
+
+      return updated;
+    },
+    [refresh],
+  );
+
   const categories = useMemo(
     () =>
       [
         ...new Set(
           orders.flatMap(
             (order) =>
-              order.items
-                ?.map((item) => item.category)
-                .filter(Boolean) || [],
+              order.items?.map((item) => item.category).filter(Boolean) || [],
           ),
         ),
       ].sort(),
@@ -143,17 +161,9 @@ const SalesDashboard = ({ onNavigateToOrders, onViewSoldProducts }) => {
 
   const channels = useMemo(
     () =>
-      [
-        ...new Set(
-          orders
-            .map((order) => order.channel)
-            .filter(Boolean),
-        ),
-      ].sort(),
+      [...new Set(orders.map((order) => order.channel).filter(Boolean))].sort(),
     [orders],
   );
-
- 
 
   const brands = useMemo(
     () =>
@@ -161,9 +171,7 @@ const SalesDashboard = ({ onNavigateToOrders, onViewSoldProducts }) => {
         ...new Set(
           orders.flatMap(
             (order) =>
-              order.items
-                ?.map((item) => item.brand)
-                .filter(Boolean) || [],
+              order.items?.map((item) => item.brand).filter(Boolean) || [],
           ),
         ),
       ].sort(),
@@ -172,10 +180,10 @@ const SalesDashboard = ({ onNavigateToOrders, onViewSoldProducts }) => {
 
   const hasActiveFilters = Boolean(
     filters.search ||
-      filters.status ||
-      filters.category ||
-      filters.channel ||
-      filters.brand,
+    filters.status ||
+    filters.category ||
+    filters.channel ||
+    filters.brand,
   );
 
   const updateFilter = useCallback((key, value) => {
@@ -189,7 +197,6 @@ const SalesDashboard = ({ onNavigateToOrders, onViewSoldProducts }) => {
 
   const handlePeriodChange = useCallback((value) => {
     setPeriod(value);
-
     setPage(1);
 
     if (value === "custom") {
@@ -263,7 +270,6 @@ const SalesDashboard = ({ onNavigateToOrders, onViewSoldProducts }) => {
     return (
       <div className="sales-loading">
         <Spinner animation="border" />
-
         <span>Loading sales intelligence...</span>
       </div>
     );
@@ -289,15 +295,11 @@ const SalesDashboard = ({ onNavigateToOrders, onViewSoldProducts }) => {
     >
       <header className="sales-hero">
         <div>
-          <p className="eyebrow">
-            NIYAA · SALES INTELLIGENCE
-          </p>
+          <p className="eyebrow">NIYAA · SALES INTELLIGENCE</p>
 
           <h1>Sales at a glance</h1>
 
-          <p>
-            Live revenue, customer demand and fulfilment performance.
-          </p>
+          <p>Live revenue, customer demand and fulfilment performance.</p>
         </div>
 
         <div className="sales-hero__actions">
@@ -312,9 +314,7 @@ const SalesDashboard = ({ onNavigateToOrders, onViewSoldProducts }) => {
 
           <Button
             variant="outline-light"
-            onClick={() =>
-              exportSalesPdf(orders, analytics, dateLabel)
-            }
+            onClick={() => exportSalesPdf(orders, analytics, dateLabel)}
             disabled={!orders.length}
           >
             <i className="bi bi-file-earmark-pdf me-2" />
@@ -338,8 +338,8 @@ const SalesDashboard = ({ onNavigateToOrders, onViewSoldProducts }) => {
 
       <div className="sales-results-bar">
         <span>
-          <i className="bi bi-funnel" /> {dateLabel} ·{" "}
-          {orders.length} visible orders
+          <i className="bi bi-funnel" /> {dateLabel} · {orders.length} visible
+          orders
         </span>
 
         <div className="sales-results-actions">
@@ -363,12 +363,8 @@ const SalesDashboard = ({ onNavigateToOrders, onViewSoldProducts }) => {
       </div>
 
       {error && (
-        <Alert
-          variant="warning"
-          className="sales-inline-alert"
-        >
-          Some data could not be refreshed. Showing the last
-          successful result.
+        <Alert variant="warning" className="sales-inline-alert">
+          Some data could not be refreshed. Showing the last successful result.
         </Alert>
       )}
 
@@ -385,17 +381,13 @@ const SalesDashboard = ({ onNavigateToOrders, onViewSoldProducts }) => {
         </Col>
 
         <Col xl={4}>
-          <CategoryDonutChart
-            data={analytics?.categoryRevenue || []}
-          />
+          <CategoryDonutChart data={analytics?.categoryRevenue || []} />
         </Col>
       </Row>
 
       <Row className="g-3 mt-2">
         <Col lg={12}>
-          <TopProductsBarChart
-            products={analytics?.topProducts || []}
-          />
+          <TopProductsBarChart products={analytics?.topProducts || []} />
         </Col>
       </Row>
 
@@ -417,6 +409,7 @@ const SalesDashboard = ({ onNavigateToOrders, onViewSoldProducts }) => {
         show={showOrderModal}
         onHide={closeOrderModal}
         order={selectedOrder}
+        onOrderSave={handleOrderSave}
         onStatusChange={updateStatus}
       />
     </Container>

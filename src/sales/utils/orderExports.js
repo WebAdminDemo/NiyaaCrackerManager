@@ -14,6 +14,24 @@ const addressOf = (o) =>
   o?.customer?.address || o?.customerAddress || o?.address || "";
 const qtyOf = (o) =>
   Number(o?.totalQuantity ?? itemsOf(o).reduce((s, i) => s + n(i.quantity), 0));
+const discountTypeOf = (o) => o?.discountMode === "value" || o?.discount_mode === "value" ? "value" : "percent";
+const discountValueOf = (o) => {
+  const type = discountTypeOf(o);
+  const raw = o?.discountValue ?? o?.discount_value ?? (type === "value" ? o?.discountAmount ?? o?.discount_amount : o?.discountPercent ?? o?.discount_percent);
+  const v = Number(raw ?? 0);
+  return Number.isFinite(v) && v > 0 ? v : 0;
+};
+const discountAmountOf = (o) => {
+  const saved = Number(o?.discountAmount ?? o?.discount_amount);
+  if (Number.isFinite(saved) && saved !== 0) return saved;
+  const v = discountValueOf(o);
+  return discountTypeOf(o) === "value" ? v : n(o?.totalAmount) * Math.min(100, v) / 100;
+};
+const finalOf = (o) => {
+  const saved = Number(o?.finalAmount ?? o?.final_amount);
+  return Number.isFinite(saved) && (saved !== 0 || discountAmountOf(o) !== 0) ? saved : n(o?.totalAmount) - discountAmountOf(o);
+};
+const discountTextOf = (o) => discountTypeOf(o) === "value" ? `Val / ${money(discountAmountOf(o))}` : `${discountValueOf(o).toFixed(2)}% / ${money(discountAmountOf(o))}`;
 const rows = (orders) =>
   orders.map((o) => ({
     "Order ID": o.ref || o.id || "",
@@ -37,6 +55,9 @@ const rows = (orders) =>
     Channel: o.channel || "Direct",
     Status: o.status || "pending",
     "Grand Total Pricing": n(o.totalAmount),
+    "Discount": discountTextOf(o),
+    "After Discount": finalOf(o),
+    "Final Price": finalOf(o),
     Date:
       o.orderDate || o.createdAt
         ? dayjs(o.orderDate || o.createdAt).format("DD MMM YYYY, hh:mm A")
@@ -68,6 +89,9 @@ export function exportOrdersToExcel(orders = []) {
     { wch: 14 },
     { wch: 22 },
     { wch: 24 },
+    { wch: 22 },
+    { wch: 22 },
+    { wch: 22 },
   ];
   XLSX.utils.book_append_sheet(wb, summary, "Summary");
   XLSX.utils.book_append_sheet(wb, sheet, "Orders");

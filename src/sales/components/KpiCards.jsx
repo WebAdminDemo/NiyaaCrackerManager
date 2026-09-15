@@ -1,3 +1,4 @@
+// src/sales/components/KpiCards.jsx
 import React, { useMemo, useState } from "react";
 import { Row, Col, Card } from "react-bootstrap";
 import {
@@ -68,6 +69,86 @@ const STATUS_CONFIG = {
   cancelled: { label: "Cancelled", icon: XCircle, className: "cancelled" },
 };
 
+const getValueDensityClass = (value) => {
+  const length = String(value ?? "").length;
+
+  if (length >= 18) return "metric-value--ultra";
+  if (length >= 15) return "metric-value--extra";
+  if (length >= 12) return "metric-value--compact";
+  if (length >= 9) return "metric-value--medium";
+  return "metric-value--normal";
+};
+
+const MetricCard = ({
+  label,
+  value,
+  icon: Icon,
+  className,
+  clickable,
+  hint,
+  onClick,
+}) => {
+  const valueClass = getValueDensityClass(value);
+
+  return (
+    <Card
+      className={`border-0 shadow-sm rounded-4 metric-card metric-card--${className} ${
+        clickable ? "metric-card--clickable" : ""
+      }`}
+      role={clickable ? "button" : undefined}
+      tabIndex={clickable ? 0 : undefined}
+      onClick={clickable ? onClick : undefined}
+      onKeyDown={
+        clickable
+          ? (event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                onClick?.();
+              }
+            }
+          : undefined
+      }
+    >
+      <Card.Body>
+        <div className="metric-card__content">
+          <div className="metric-label">{label}</div>
+          <div className={`metric-value ${valueClass}`}>{value}</div>
+
+          {clickable && (
+            <span className="metric-card__hint">
+              {hint}
+              <ArrowUpRight size={13} />
+            </span>
+          )}
+        </div>
+
+        <div className={`metric-icon metric-icon--${className}`}>
+          <Icon size={19} strokeWidth={2.25} />
+        </div>
+      </Card.Body>
+    </Card>
+  );
+};
+
+const StatusPill = ({ status, count }) => {
+  const cfg = STATUS_CONFIG[status];
+  const Icon = cfg.icon;
+
+  return (
+    <Col xs={4} md={2}>
+      <Card className={`status-pill status-pill--${cfg.className} h-100`}>
+        <Card.Body>
+          <Icon size={17} />
+          <div className="status-label">{cfg.label}</div>
+          <div className="status-count">
+            {Number(count || 0).toLocaleString("en-IN")}
+          </div>
+        </Card.Body>
+      </Card>
+    </Col>
+  );
+};
+
 const KpiCards = ({
   analytics,
   orders = [],
@@ -92,8 +173,7 @@ const KpiCards = ({
               Number(
                 order.totalQuantity ??
                   (order.items || []).reduce(
-                    (itemSum, item) =>
-                      itemSum + Number(item.quantity || 0),
+                    (itemSum, item) => itemSum + Number(item.quantity || 0),
                     0,
                   ),
               ),
@@ -125,61 +205,31 @@ const KpiCards = ({
   return (
     <>
       <Row className="g-3 mb-3 kpi-cards">
-        {METRICS.map(({ key, label, icon: Icon, className, clickable, hint, format }) => (
-          <Col xs={6} md={3} key={key}>
-            <Card
-              className={`metric-card metric-card--${className} h-100 ${clickable ? "metric-card--clickable" : ""}`}
-              role={clickable ? "button" : undefined}
-              tabIndex={clickable ? 0 : undefined}
-              onClick={clickable ? () => openMetric(key) : undefined}
-              onKeyDown={
-                clickable
-                  ? (event) => {
-                      if (event.key === "Enter" || event.key === " ") {
-                        event.preventDefault();
-                        openMetric(key);
-                      }
-                    }
-                  : undefined
-              }
-            >
-              <Card.Body>
-                <div className="metric-card__content">
-                  <div className="metric-label">{label}</div>
-                  <div className="metric-value">{format(totals[key])}</div>
-                  {clickable && (
-                    <span className="metric-card__hint">
-                      {hint}
-                      <ArrowUpRight size={13} />
-                    </span>
-                  )}
-                </div>
-                <div className={`metric-icon metric-icon--${className}`}>
-                  <Icon size={19} strokeWidth={2.25} />
-                </div>
-              </Card.Body>
-            </Card>
-          </Col>
-        ))}
+        {METRICS.map(
+          ({ key, label, icon, className, clickable, hint, format }) => (
+            <Col xs={6} md={3} key={key}>
+              <MetricCard
+                label={label}
+                value={format(totals[key])}
+                icon={icon}
+                className={className}
+                clickable={clickable}
+                hint={hint}
+                onClick={() => openMetric(key)}
+              />
+            </Col>
+          ),
+        )}
       </Row>
 
       <Row className="g-2 mb-3 status-cards">
-        {Object.entries(STATUS_CONFIG).map(([status, config]) => {
-          const Icon = config.icon;
-          return (
-            <Col xs={4} md={2} key={status}>
-              <Card className={`status-pill status-pill--${config.className}`}>
-                <Card.Body>
-                  <Icon size={17} />
-                  <div className="status-label">{config.label}</div>
-                  <div className="status-count">
-                    {analytics.statusCounts?.[status] || 0}
-                  </div>
-                </Card.Body>
-              </Card>
-            </Col>
-          );
-        })}
+        {Object.entries(STATUS_CONFIG).map(([status]) => (
+          <StatusPill
+            key={status}
+            status={status}
+            count={analytics.statusCounts?.[status] || 0}
+          />
+        ))}
       </Row>
 
       <KpiDetailsModal
@@ -187,6 +237,8 @@ const KpiCards = ({
         show={Boolean(modalType)}
         onHide={() => setModalType(null)}
         orders={orders}
+        customers={customers}
+        soldProducts={soldProducts}
         onViewSoldProducts={onViewSoldProducts}
       />
     </>

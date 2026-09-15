@@ -82,3 +82,16 @@ body[data-theme="dark"] .product-mode-option:hover {
     padding: 8px 8px;
   }
 }
+
+
+/* Product add/edit discount selector */
+.product-discount-control{display:flex;gap:8px;align-items:stretch;width:100%;}
+.product-discount-toggle{display:inline-flex;flex:0 0 auto;border:1px solid #d9cdfb;border-radius:10px;overflow:hidden;background:#f4f0ff;min-height:48px;}
+.product-discount-toggle button{border:0;background:transparent;color:#5d4bb7;font-weight:700;min-width:48px;padding:0 12px;cursor:pointer;}
+.product-discount-toggle button+button{border-left:1px solid #d9cdfb;}
+.product-discount-toggle button.active{background:#6c5ce7;color:#fff;}
+.product-discount-toggle button:disabled{opacity:.55;cursor:not-allowed;}
+.product-discount-input-wrap{position:relative;flex:1 1 auto;min-width:0;}
+.product-discount-input-wrap input{padding-right:36px;}
+.product-discount-input-wrap>span{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-weight:700;color:#6c5ce7;pointer-events:none;}
+@media(max-width:576px){.product-discount-control{flex-direction:column}.product-discount-toggle{width:max-content}}
