@@ -109,10 +109,12 @@ const itemsOrdered = (order) => {
 
       const name = item.name || item.productName || item.title || "";
 
-      return (
-        [brand, name].filter(Boolean).join(" / ") +
-        ` ×${Number(item.quantity || 0).toLocaleString("en-IN")}`
-      );
+      // return (
+      //   [brand, name].filter(Boolean).join(" / ") +
+      //   ` ×${Number(item.quantity || 0).toLocaleString("en-IN")}`
+      // );
+
+      return ([name]);
     })
     .join("\n");
 };

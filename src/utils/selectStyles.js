@@ -1,6 +1,3 @@
-// Shared react-select styling used across Product Manager, Product Modal,
-// Sales filters and Sales Order editing. The dimensions and dropdown shape
-// intentionally match the Sales filter controls.
 
 const COLORS = {
   text: 'var(--text-1, #1C1B29)',

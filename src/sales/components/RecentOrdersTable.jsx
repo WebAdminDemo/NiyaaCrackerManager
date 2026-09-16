@@ -12,8 +12,7 @@ const statusColor = {
 };
 
 /*
- * Normalize brand values so old/new records are displayed consistently.
- *
+ 
  * Standard / standard / Standard Fireworks -> Standard
  * Multibrand / multiBrand / Multi-brand -> Multibrand
  */
@@ -73,10 +72,11 @@ const brandText = (order) =>
 const itemsOrdered = (order) =>
   (order.items || [])
     .map(
-      (item) =>
-        `${item.name || item.productName || item.title || "Item"} ×${
-          item.quantity || 1
-        }`,
+      (item) =>`${item.name || item.productName || item.title || "Item"}`,
+        // `${item.name || item.productName || item.title || "Item"} ×${
+        //   item.quantity || 1
+        // }`,
+         
     )
     .join("\n") || "";
 
@@ -93,12 +93,7 @@ const RecentOrdersTable = ({
   page = 1,
   onPageChange,
 }) => {
-  /*
-   * Recent Orders must NOT show delivered orders.
-   *
-   * The brand filter itself is already applied before this component
-   * receives `orders`. Therefore this table only displays the result.
-   */
+ 
   const sortedOrders = [...orders]
     .filter(
       (order) =>

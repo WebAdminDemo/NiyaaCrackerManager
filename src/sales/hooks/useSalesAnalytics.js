@@ -2,15 +2,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { salesApi } from "../salesApi";
 
 
-
-
-
-
-
-
-
-
-
 export const useSalesAnalytics = (filters = {}, options = {}) => {
   const { includeAnalytics = true } = options;
 

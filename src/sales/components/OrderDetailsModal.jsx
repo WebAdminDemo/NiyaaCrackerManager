@@ -5,6 +5,7 @@ import CreatableSelect from "react-select/creatable";
 import dayjs from "dayjs";
 import { getProducts } from "../../components/products/productsApi";
 import AlertModal from "../../components/AlertModal";
+import ContactInfoModal from "../components/ContactInfoModal";
 import { useTheme } from "../../context/ThemeContext";
 import { exportSingleOrderPdf } from "../utils/exportReports";
 import {
@@ -462,6 +463,7 @@ const OrderDetailsModal = ({
     variant: "danger",
   });
   const [saved, setSaved] = useState(false);
+  const [showContactInfo, setShowContactInfo] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({});
   const fieldRefs = useRef({});
 
@@ -507,14 +509,16 @@ const OrderDetailsModal = ({
     setPartyPincode(text(order.partyPincode));
     setOrderDate(dateTimeValue(order.orderDate || order.createdAt));
     setOrderDiscountType(
-      order.discountMode === "value" || order.discount_mode === "value" ? "value" : "percent",
+      order.discountMode === "value" || order.discount_mode === "value"
+        ? "value"
+        : "percent",
     );
     setOrderDiscountValue(
       order.discountValue ??
         order.discount_value ??
         (order.discountMode === "value" || order.discount_mode === "value"
-          ? order.discountAmount ?? order.discount_amount ?? ""
-          : order.discountPercent ?? order.discount_percent ?? ""),
+          ? (order.discountAmount ?? order.discount_amount ?? "")
+          : (order.discountPercent ?? order.discount_percent ?? "")),
     );
     setDraftItems(orderItems);
     setPickerSelection(
@@ -628,7 +632,10 @@ const OrderDetailsModal = ({
   const orderDiscountAmount =
     orderDiscountType === "value"
       ? Math.max(0, orderDiscountNumber)
-      : Math.max(0, totalAmount * Math.min(100, Math.max(0, orderDiscountNumber)) / 100);
+      : Math.max(
+          0,
+          (totalAmount * Math.min(100, Math.max(0, orderDiscountNumber))) / 100,
+        );
   const orderFinalAmount = totalAmount - orderDiscountAmount;
 
   const originalItems = order?.items || [];
@@ -667,8 +674,16 @@ const OrderDetailsModal = ({
     partyPincode !== text(order?.partyPincode) ||
     nextStatus !== originalStatus ||
     orderDate !== dateTimeValue(order?.orderDate || order?.createdAt) ||
-    orderDiscountType !== (order?.discountMode || order?.discount_mode || "percent") ||
-    Number(orderDiscountValue || 0) !== Number(order?.discountValue ?? order?.discount_value ?? (order?.discountPercent ?? order?.discount_percent ?? 0));
+    orderDiscountType !==
+      (order?.discountMode || order?.discount_mode || "percent") ||
+    Number(orderDiscountValue || 0) !==
+      Number(
+        order?.discountValue ??
+          order?.discount_value ??
+          order?.discountPercent ??
+          order?.discount_percent ??
+          0,
+      );
 
   const hasChanges = itemsChanged || detailsChanged;
 
@@ -687,11 +702,6 @@ const OrderDetailsModal = ({
     if (!partyDistrict) errors.partyDistrict = "Party district is required.";
     if (!partyLocality) {
       errors.partyLocality = "Town / City / Village is required.";
-    }
-    if (!partyPincode) {
-      errors.partyPincode = "Pincode is required.";
-    } else if (!/^\d{6}$/.test(partyPincode)) {
-      errors.partyPincode = "Pincode must contain exactly 6 digits.";
     }
     if (!items.length) errors.products = "At least one product is required.";
 
@@ -821,7 +831,6 @@ const OrderDetailsModal = ({
         const currentPrice = numberValue(item.price);
         const currentType = item.discountType || "percent";
 
-       
         // switching modes, then recalculate using the selected mode.
         let nextValue = numberValue(item.discountValue);
 
@@ -1009,7 +1018,8 @@ const OrderDetailsModal = ({
           orderDate: orderDate ? new Date(orderDate).toISOString() : null,
           discountMode: orderDiscountType,
           discountValue: orderDiscountNumber,
-          discountPercent: orderDiscountType === "percent" ? orderDiscountNumber : 0,
+          discountPercent:
+            orderDiscountType === "percent" ? orderDiscountNumber : 0,
           discountAmount: orderDiscountAmount,
           finalAmount: orderFinalAmount,
         },
@@ -1184,6 +1194,14 @@ const OrderDetailsModal = ({
             </Button>
           )}
           <Button
+            variant="outline-secondary"
+            size="sm"
+            onClick={() => setShowContactInfo(true)}
+          >
+            <i className="bi bi-telephone me-1" />
+            Contact Info
+          </Button>
+          <Button
             variant="outline-danger"
             size="sm"
             onClick={() =>
@@ -1286,7 +1304,7 @@ const OrderDetailsModal = ({
                         setPartySector(event.target.value);
                         clearFieldError("partySector");
                       }}
-                      placeholder="Area / sector / location"
+                      placeholder="Area / sector "
                       className={errorClass("partySector")}
                     />
                     {fieldError("partySector") && (
@@ -1402,7 +1420,7 @@ const OrderDetailsModal = ({
 
                 <Col md={4}>
                   <Form.Group>
-                    <Form.Label>Town / City / Village *</Form.Label>
+                    <Form.Label>Town / City *</Form.Label>
                     <CreatableSelect
                       {...SELECT_PROPS}
                       ref={(element) => {
@@ -1421,7 +1439,7 @@ const OrderDetailsModal = ({
                       isDisabled={!partyDistrict}
                       isClearable
                       isSearchable
-                      placeholder="Select or type town / city / village"
+                      placeholder="Select or type town / city"
                       className={errorClass("partyLocality")}
                       styles={buildSelectStyles(!!fieldError("partyLocality"))}
                       aria-label="Party locality"
@@ -1436,7 +1454,7 @@ const OrderDetailsModal = ({
 
                 <Col md={4}>
                   <Form.Group>
-                    <Form.Label>Pincode *</Form.Label>
+                    <Form.Label>Pincode (Optional)</Form.Label>
                     <Form.Control
                       ref={(element) => {
                         fieldRefs.current.partyPincode = element;
@@ -1663,7 +1681,10 @@ const OrderDetailsModal = ({
                               value={
                                 brandOptions.find(
                                   (option) =>
-                                    option.value === normalizeBrand(item.brand || item.brand_name),
+                                    option.value ===
+                                    normalizeBrand(
+                                      item.brand || item.brand_name,
+                                    ),
                                 ) || brandOptions[0]
                               }
                               onChange={(option) =>
@@ -1760,44 +1781,95 @@ const OrderDetailsModal = ({
                 <tfoot>
                   <tr className="sales-order-items-total-row">
                     <td colSpan={3} />
-                    <td className="text-end"><strong>Grand Total</strong></td>
-                    <td className="text-end"><strong>{money(totalAmount)}</strong></td>
+                    <td className="text-end">
+                      <strong>Grand Total</strong>
+                    </td>
+                    <td className="text-end">
+                      <strong>{money(totalAmount)}</strong>
+                    </td>
                     {editMode && <td />}
                   </tr>
                   <tr className="sales-order-items-discount-row">
                     <td colSpan={3} />
-                    <td className="text-end"><strong>Discount</strong></td>
+                    <td className="text-end">
+                      <strong>Discount</strong>
+                    </td>
                     <td className="text-end">
                       {editMode ? (
                         <div className="sales-order-table-discount-editor">
-                          <div className="sales-discount-toggle" role="group" aria-label="Order discount type">
-                            <button type="button" className={orderDiscountType === "percent" ? "is-active" : ""} onClick={() => { setOrderDiscountType("percent"); setSaved(false); }}>%</button>
-                            <button type="button" className={orderDiscountType === "value" ? "is-active" : ""} onClick={() => { setOrderDiscountType("value"); setSaved(false); }}>Val</button>
+                          <div
+                            className="sales-discount-toggle"
+                            role="group"
+                            aria-label="Order discount type"
+                          >
+                            <button
+                              type="button"
+                              className={
+                                orderDiscountType === "percent"
+                                  ? "is-active"
+                                  : ""
+                              }
+                              onClick={() => {
+                                setOrderDiscountType("percent");
+                                setSaved(false);
+                              }}
+                            >
+                              %
+                            </button>
+                            <button
+                              type="button"
+                              className={
+                                orderDiscountType === "value" ? "is-active" : ""
+                              }
+                              onClick={() => {
+                                setOrderDiscountType("value");
+                                setSaved(false);
+                              }}
+                            >
+                              Val
+                            </button>
                           </div>
                           <div className="sales-order-table-discount-input">
                             <Form.Control
                               type="number"
                               min="0"
-                              max={orderDiscountType === "percent" ? 100 : undefined}
+                              max={
+                                orderDiscountType === "percent"
+                                  ? 100
+                                  : undefined
+                              }
                               step="0.01"
                               value={orderDiscountValue}
                               onChange={(event) => {
                                 const raw = event.target.value;
-                                if (raw === "") { setOrderDiscountValue(""); setSaved(false); return; }
+                                if (raw === "") {
+                                  setOrderDiscountValue("");
+                                  setSaved(false);
+                                  return;
+                                }
                                 const numeric = Number(raw);
-                                if (!Number.isFinite(numeric) || numeric < 0) return;
-                                setOrderDiscountValue(orderDiscountType === "percent" ? Math.min(100, numeric) : numeric);
+                                if (!Number.isFinite(numeric) || numeric < 0)
+                                  return;
+                                setOrderDiscountValue(
+                                  orderDiscountType === "percent"
+                                    ? Math.min(100, numeric)
+                                    : numeric,
+                                );
                                 setSaved(false);
                               }}
                               className="sales-discount-input"
                               aria-label="Order discount value"
                             />
-                            <span>{orderDiscountType === "percent" ? "%" : "Rs."}</span>
+                            <span>
+                              {orderDiscountType === "percent" ? "%" : "Rs."}
+                            </span>
                           </div>
                         </div>
                       ) : (
                         <strong className="sales-discount-value">
-                          {orderDiscountType === "percent" ? `${orderDiscountNumber.toFixed(2)}%` : money(orderDiscountNumber)}
+                          {orderDiscountType === "percent"
+                            ? `${orderDiscountNumber.toFixed(2)}%`
+                            : money(orderDiscountNumber)}
                         </strong>
                       )}
                     </td>
@@ -1805,14 +1877,30 @@ const OrderDetailsModal = ({
                   </tr>
                   <tr className="sales-order-items-after-discount-row">
                     <td colSpan={3} />
-                    <td className="text-end"><strong>After Discount</strong></td>
-                    <td className="text-end"><strong className={orderFinalAmount < 0 ? "sales-negative-total" : "sales-positive-total"}>{money(orderFinalAmount)}</strong></td>
+                    <td className="text-end">
+                      <strong>After Discount</strong>
+                    </td>
+                    <td className="text-end">
+                      <strong
+                        className={
+                          orderFinalAmount < 0
+                            ? "sales-negative-total"
+                            : "sales-positive-total"
+                        }
+                      >
+                        {money(orderFinalAmount)}
+                      </strong>
+                    </td>
                     {editMode && <td />}
                   </tr>
                   <tr className="sales-order-items-final-row">
                     <td colSpan={3} />
-                    <td className="text-end"><strong>Final Amount</strong></td>
-                    <td className="text-end"><strong>{money(orderFinalAmount)}</strong></td>
+                    <td className="text-end">
+                      <strong>Final Amount</strong>
+                    </td>
+                    <td className="text-end">
+                      <strong>{money(orderFinalAmount)}</strong>
+                    </td>
                     {editMode && <td />}
                   </tr>
                 </tfoot>
@@ -1961,6 +2049,11 @@ const OrderDetailsModal = ({
           </Button>
         )}
       </Modal.Footer>
+
+      <ContactInfoModal
+        show={showContactInfo}
+        onHide={() => setShowContactInfo(false)}
+      />
 
       <AlertModal
         show={alert.show}

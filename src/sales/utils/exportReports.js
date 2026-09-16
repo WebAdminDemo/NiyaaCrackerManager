@@ -1,4 +1,3 @@
-
 import * as XLSX from "xlsx-js-style";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -21,23 +20,14 @@ const statusText = (value) =>
 
 const getBrand = (item) => String(item?.brand || "").trim();
 
-/**
- * Returns the discount exactly as it was saved on the ORDER ITEM.
- * The product/catalog discount is never used when an order-item discount
- * has been saved. This is important because editing an order must not
- * change the catalog product discount.
- */
 const getDiscountType = (item) => {
-  const value =
-    item?.discountType ??
-    item?.discount_type;
+  const value = item?.discountType ?? item?.discount_type;
 
   if (value === "value" || value === "percent") {
     return value;
   }
 
-  // Backward compatibility for older order rows that only stored
-  // discount_percent.
+  
   return "percent";
 };
 
@@ -45,9 +35,7 @@ const getDiscountValue = (item) => {
   const type = getDiscountType(item);
 
   if (type === "value") {
-    const savedValue =
-      item?.discountValue ??
-      item?.discount_value;
+    const savedValue = item?.discountValue ?? item?.discount_value;
 
     if (
       savedValue !== null &&
@@ -57,16 +45,12 @@ const getDiscountValue = (item) => {
       return Math.max(0, Number(savedValue) || 0);
     }
 
-    const amount =
-      item?.discount_amount ??
-      item?.discountAmount;
+    const amount = item?.discount_amount ?? item?.discountAmount;
 
     return Math.max(0, Number(amount) || 0);
   }
 
-  const savedValue =
-    item?.discountValue ??
-    item?.discount_value;
+  const savedValue = item?.discountValue ?? item?.discount_value;
 
   if (
     savedValue !== null &&
@@ -80,11 +64,7 @@ const getDiscountValue = (item) => {
     0,
     Math.min(
       100,
-      Number(
-        item?.discount_percent ??
-        item?.discountPercent ??
-        0,
-      ) || 0,
+      Number(item?.discount_percent ?? item?.discountPercent ?? 0) || 0,
     ),
   );
 };
@@ -93,13 +73,8 @@ const discountDisplay = (item) => {
   const type = getDiscountType(item);
   const value = getDiscountValue(item);
 
-  return type === "value"
-    ? money(value)
-    : `${value.toFixed(2)}%`;
+  return type === "value" ? money(value) : `${value.toFixed(2)}%`;
 };
-
-
-
 
 const getOrderDiscountType = (order) =>
   order?.discountMode === "value" || order?.discount_mode === "value"
@@ -112,8 +87,8 @@ const getOrderDiscountValue = (order) => {
     order?.discountValue ??
     order?.discount_value ??
     (type === "percent"
-      ? order?.discountPercent ?? order?.discount_percent ?? 0
-      : order?.discountAmount ?? order?.discount_amount ?? 0);
+      ? (order?.discountPercent ?? order?.discount_percent ?? 0)
+      : (order?.discountAmount ?? order?.discount_amount ?? 0));
   const value = Number(raw);
   return Number.isFinite(value) && value >= 0 ? value : 0;
 };
@@ -122,7 +97,11 @@ const getOrderGrossTotal = (order, items = getItems(order)) => {
   const saved = Number(order?.totalAmount);
   if (Number.isFinite(saved)) return saved;
   return items.reduce(
-    (sum, item) => sum + Number(item?.total ?? Number(item?.price || 0) * Number(item?.quantity || 0)),
+    (sum, item) =>
+      sum +
+      Number(
+        item?.total ?? Number(item?.price || 0) * Number(item?.quantity || 0),
+      ),
     0,
   );
 };
@@ -131,12 +110,15 @@ const getOrderDiscountAmount = (order, grossTotal) => {
   const type = getOrderDiscountType(order);
   const value = getOrderDiscountValue(order);
   if (type === "value") return value;
-  return grossTotal * Math.min(100, value) / 100;
+  return (grossTotal * Math.min(100, value)) / 100;
 };
 
 const getOrderFinalTotal = (order, grossTotal) => {
   const saved = Number(order?.finalAmount ?? order?.final_amount);
-  if (Number.isFinite(saved) && (order?.finalAmount != null || order?.final_amount != null)) {
+  if (
+    Number.isFinite(saved) &&
+    (order?.finalAmount != null || order?.final_amount != null)
+  ) {
     return saved;
   }
   return grossTotal - getOrderDiscountAmount(order, grossTotal);
@@ -149,11 +131,7 @@ const orderDiscountDisplay = (order) => {
 };
 
 const getParty = (order) => ({
-  name:
-    order?.partyName ||
-    order?.customerName ||
-    order?.customer?.name ||
-    "",
+  name: order?.partyName || order?.customerName || order?.customer?.name || "",
   number:
     order?.partyNumber || order?.customerPhone || order?.customer?.phone || "",
   sector: order?.partySector || order?.location || "",
@@ -190,9 +168,15 @@ const orderRows = (orders = []) =>
       "Party District": party.district,
       "Party Locality": party.locality,
       Pincode: party.pincode,
-      "Discount": orderDiscountDisplay(order),
-      "After Discount": getOrderFinalTotal(order, getOrderGrossTotal(order, items)),
-      "Final Amount": getOrderFinalTotal(order, getOrderGrossTotal(order, items)),
+      Discount: orderDiscountDisplay(order),
+      "After Discount": getOrderFinalTotal(
+        order,
+        getOrderGrossTotal(order, items),
+      ),
+      "Final Amount": getOrderFinalTotal(
+        order,
+        getOrderGrossTotal(order, items),
+      ),
       "Items Ordered":
         items
           .map(
@@ -481,181 +465,693 @@ export function exportSalesPdf(
 export function exportSingleOrderPdf(order) {
   if (!order) return;
 
-  const doc = new jsPDF({ orientation: "portrait", unit: "pt", format: "a4" });
+  // A4 portrait is used so the quotation is suitable for normal
+  // office / home printers and standard A4 paper.
+  const doc = new jsPDF({
+    orientation: "portrait",
+    unit: "pt",
+    format: "a4",
+  });
+
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
+
   const margin = 34;
   const printableWidth = pageWidth - margin * 2;
+
   const items = getItems(order);
   const party = getParty(order);
   const orderNumber = order.ref || order.id || "";
 
-  const totalQuantity = items.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
+  const totalQuantity = items.reduce(
+    (sum, item) => sum + Number(item.quantity || 0),
+    0,
+  );
+
   const grossTotal = getOrderGrossTotal(order, items);
+
   const discountType = getOrderDiscountType(order);
   const discountValue = getOrderDiscountValue(order);
   const discountAmount = getOrderDiscountAmount(order, grossTotal);
   const finalTotal = getOrderFinalTotal(order, grossTotal);
 
-  const drawFooter = (pageNumber) => {
-    doc.setDrawColor(0, 0, 0);
-    doc.setLineWidth(0.5);
-    doc.line(margin, pageHeight - 34, pageWidth - margin, pageHeight - 34);
+  /*
+   * Discount rows are shown only when an actual discount is given.
+   *
+   * 0, "0", "", null and undefined are treated as no discount.
+   */
+  const hasDiscount =
+    discountAmount !== null &&
+    discountAmount !== undefined &&
+    Number(discountAmount) > 0;
+
+  
+  const BLACK = [0, 0, 0];
+  const DARK_GRAY = [45, 45, 45];
+  const MID_GRAY = [100, 100, 100];
+  const LIGHT_GRAY = [235, 235, 235];
+  const WHITE = [255, 255, 255];
+
+  /*
+   * Header:
+   *
+   * ┌──────────────────────────────────────────────────────────┐
+   * │ NCW & SVA                              ORDER ORD-XXXX    │
+   * │ QUOTATION FORM                          Date / Time       │
+   * └──────────────────────────────────────────────────────────┘
+   *
+   * No filled background is used.
+   */
+  const drawHeader = () => {
+    const headerTop = 28;
+    const headerHeight = 66;
+
+    doc.setFillColor(...WHITE);
+    doc.setDrawColor(...BLACK);
+    doc.setLineWidth(1);
+
+    doc.rect(
+      margin,
+      headerTop,
+      printableWidth,
+      headerHeight,
+      "FD",
+    );
+
+    // Company name
+    doc.setTextColor(...BLACK);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+
+    doc.text(
+      "NCW & SVA",
+      margin + 12,
+      headerTop + 25,
+    );
+
+    // Quotation form
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(7.5);
-    doc.setTextColor(80, 80, 80);
-    doc.text("Niyaa Order Management", margin, pageHeight - 20);
-    doc.text(`Page ${pageNumber}`, pageWidth - margin, pageHeight - 20, { align: "right" });
+    doc.setFontSize(9.5);
+
+    doc.text(
+      "QUOTATION FORM",
+      margin + 12,
+      headerTop + 43,
+    );
+
+    // Order number
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(9);
+
+    doc.text(
+      `ORDER ${orderNumber}`,
+      pageWidth - margin - 12,
+      headerTop + 25,
+      {
+        align: "right",
+      },
+    );
+
+    // Order date
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8.5);
+
+    doc.text(
+      order.orderDate || order.createdAt
+        ? dayjs(
+            order.orderDate || order.createdAt,
+          ).format("DD MMM YYYY, hh:mm A")
+        : "",
+      pageWidth - margin - 12,
+      headerTop + 43,
+      {
+        align: "right",
+      },
+    );
   };
 
-  // Niyaa / firecracker theme: white document with deep purple header and orange accent.
-  doc.setFillColor(31, 25, 70);
-  doc.rect(0, 0, pageWidth, 78, "F");
-  doc.setTextColor(255, 255, 255);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(20);
-  doc.text("NIYAA", margin, 31);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(8.5);
-  doc.text("ORDER INVOICE", margin, 47);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(10);
-  doc.text(`ORDER ${orderNumber}`, pageWidth - margin, 31, { align: "right" });
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(8.5);
-  doc.text(
-    order.orderDate || order.createdAt
-      ? dayjs(order.orderDate || order.createdAt).format("DD MMM YYYY, hh:mm A")
-      : "",
-    pageWidth - margin,
-    47,
-    { align: "right" },
-  );
+  /*
+   * Footer:
+   *
+   * Welcome to our family,
+   *
+   * For more details
+   *
+   * Contact,
+   * NCW - +91-99622-01775
+   * SVA - +81-86675-51556
+   *
+   * Our websites,
+   * www.niyaacrackers.com
+   * www.sreevariagency.com
+   *
+   * 
+   */
+  const drawFooter = (pageNumber) => {
+    const footerBottom = pageHeight - 28;
+    const footerHeight = 105;
+    const footerTop = footerBottom - footerHeight;
 
-  let y = 105;
-  doc.setTextColor(20, 20, 25);
+    doc.setFillColor(...WHITE);
+    doc.setDrawColor(...BLACK);
+    doc.setLineWidth(0.8);
+
+    doc.rect(
+      margin,
+      footerTop,
+      printableWidth,
+      footerHeight,
+      "FD",
+    );
+
+    doc.setTextColor(...BLACK);
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8.5);
+
+    doc.text(
+      "Welcome to our family,",
+      margin + 12,
+      footerTop + 17,
+    );
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+
+    doc.text(
+      "For more details",
+      margin + 12,
+      footerTop + 31,
+    );
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8);
+
+    doc.text(
+      "Contact,",
+      margin + 12,
+      footerTop + 45,
+    );
+
+    doc.setFont("helvetica", "normal");
+
+    doc.text(
+      "NCW - +91-99622-01775",
+      margin + 12,
+      footerTop + 58,
+    );
+
+    doc.text(
+      "SVA - +81-86675-51556",
+      margin + 12,
+      footerTop + 71,
+    );
+
+    doc.setFont("helvetica", "bold");
+
+    doc.text(
+      "Our websites,",
+      margin + 205,
+      footerTop + 45,
+    );
+
+    doc.setFont("helvetica", "normal");
+
+    doc.text(
+      "www.niyaacrackers.com",
+      margin + 205,
+      footerTop + 58,
+    );
+
+    doc.text(
+      "www.sreevariagency.com",
+      margin + 205,
+      footerTop + 71,
+    );
+
+    // Thin separator before page information.
+    doc.setDrawColor(...MID_GRAY);
+    doc.setLineWidth(0.5);
+
+    doc.line(
+      margin + 12,
+      footerTop + 84,
+      pageWidth - margin - 12,
+      footerTop + 84,
+    );
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(7);
+
+    doc.setTextColor(...MID_GRAY);
+
+    doc.text(
+      "NCW & SVA Quotation",
+      margin + 12,
+      footerTop + 97,
+    );
+
+    doc.text(
+      `Page ${pageNumber}`,
+      pageWidth - margin - 12,
+      footerTop + 97,
+      {
+        align: "right",
+      },
+    );
+  };
+
+  drawHeader();
+
+  // ---------------------------------------------------------
+  // ORDER SUMMARY
+  // ---------------------------------------------------------
+
+  let y = 119;
+
+  doc.setTextColor(...BLACK);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(13);
-  doc.text("Order Summary", margin, y);
+
+  doc.text(
+    "Order Summary",
+    margin,
+    y,
+  );
+
   y += 20;
 
   const half = printableWidth / 2;
   const leftX = margin;
   const rightX = margin + half;
-  const summaryField = (label, value, x, fieldY, width) => {
+
+  const summaryField = (
+    label,
+    value,
+    x,
+    fieldY,
+    width,
+  ) => {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(7.5);
-    doc.setTextColor(55, 55, 65);
-    doc.text(label.toUpperCase(), x, fieldY);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(9.5);
-    doc.setTextColor(15, 15, 20);
-    const lines = doc.splitTextToSize(String(value || ""), width);
-    doc.text(lines, x, fieldY + 12);
+    doc.setTextColor(...DARK_GRAY);
+
+    doc.text(
+      label.toUpperCase(),
+      x,
+      fieldY,
+    );
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(...BLACK);
+
+    const displayValue = String(value || "").trim() || "—";
+
+    const lines = doc.splitTextToSize(
+      displayValue,
+      width,
+    );
+
+    doc.text(
+      lines,
+      x,
+      fieldY + 12,
+    );
   };
 
-  summaryField("Party Name", party.name, leftX, y, half - 16);
-  summaryField("Party Number", party.number, rightX, y, half - 16);
-  summaryField("Location / Sector", party.sector, leftX, y + 37, half - 16);
-  summaryField("Country", party.country, rightX, y + 37, half - 16);
-  summaryField("State", party.state, leftX, y + 74, half - 16);
-  summaryField("District", party.district, rightX, y + 74, half - 16);
-  summaryField("Town / City / Village", party.locality, leftX, y + 111, half - 16);
-  summaryField("Pincode", party.pincode, rightX, y + 111, half - 16);
+  summaryField(
+    "Party Name",
+    party.name,
+    leftX,
+    y,
+    half - 16,
+  );
+
+  summaryField(
+    "Party Number",
+    party.number,
+    rightX,
+    y,
+    half - 16,
+  );
+
+  summaryField(
+    "Location / Sector",
+    party.sector,
+    leftX,
+    y + 37,
+    half - 16,
+  );
+
+  summaryField(
+    "Country",
+    party.country,
+    rightX,
+    y + 37,
+    half - 16,
+  );
+
+  summaryField(
+    "State",
+    party.state,
+    leftX,
+    y + 74,
+    half - 16,
+  );
+
+  summaryField(
+    "District",
+    party.district,
+    rightX,
+    y + 74,
+    half - 16,
+  );
+
+  summaryField(
+    "Town / City / Village",
+    party.locality,
+    leftX,
+    y + 111,
+    half - 16,
+  );
+
+  if (party.pincode) {
+    summaryField(
+      "Pincode",
+      party.pincode,
+      rightX,
+      y + 111,
+      half - 16,
+    );
+  }
 
   const addressY = y + 148;
-  summaryField("Party Address", party.address, margin, addressY, printableWidth);
-  const addressLines = doc.splitTextToSize(String(party.address || ""), printableWidth);
-  const afterAddress = addressY + 15 + Math.max(1, addressLines.length) * 11;
 
-  doc.setDrawColor(240, 171, 0);
-  doc.setLineWidth(2);
-  doc.line(margin, afterAddress + 10, pageWidth - margin, afterAddress + 10);
+  summaryField(
+    "Party Address",
+    party.address,
+    margin,
+    addressY,
+    printableWidth,
+  );
+
+  const addressLines = doc.splitTextToSize(
+    String(party.address || "").trim() || "—",
+    printableWidth,
+  );
+
+  const afterAddress =
+    addressY +
+    15 +
+    Math.max(1, addressLines.length) * 11;
+
+  doc.setDrawColor(...BLACK);
+  doc.setLineWidth(0.8);
+
+  doc.line(
+    margin,
+    afterAddress + 10,
+    pageWidth - margin,
+    afterAddress + 10,
+  );
+
+  // ---------------------------------------------------------
+  // PRODUCT TABLE
+  // ---------------------------------------------------------
 
   const tableStart = afterAddress + 25;
-  const tableRows = items.map((item, index) => {
-    const quantity = Number(item.quantity || 0);
-    const price = Number(item.price || 0);
-    const total = Number(item.total ?? price * quantity);
-    return [
-      String(index + 1),
-      getBrand(item),
-      item.name || item.productName || item.title || "Item",
-      quantity.toLocaleString("en-IN"),
-      money(price),
-      money(total),
-    ];
-  });
 
-  // Order-level totals are part of the same bordered table.
-  tableRows.push(["", "", "", "", "Grand Total", money(grossTotal)]);
-  tableRows.push(["", "", "", "", "Discount", orderDiscountDisplay(order)]);
-  tableRows.push(["", "", "", "", "After Discount", money(finalTotal)]);
-  tableRows.push(["", "", "", "", "Final Amount", money(finalTotal)]);
+  const tableRows = items.map(
+    (item, index) => {
+      const quantity = Number(
+        item.quantity || 0,
+      );
+
+      const price = Number(
+        item.price || 0,
+      );
+
+      const total = Number(
+        item.total ??
+          price * quantity,
+      );
+
+      return [
+        String(index + 1),
+        getBrand(item),
+        item.name ||
+          item.productName ||
+          item.title ||
+          "Item",
+        quantity.toLocaleString("en-IN"),
+        money(price),
+        money(total),
+      ];
+    },
+  );
+
+  // Grand Total is always shown.
+  tableRows.push([
+    "",
+    "",
+    "",
+    "",
+    "Grand Total",
+    money(grossTotal),
+  ]);
+
+  /*
+   * Discount-related rows are shown ONLY when an actual
+   * discount amount is greater than zero.
+   */
+  if (hasDiscount) {
+    tableRows.push([
+      "",
+      "",
+      "",
+      "",
+      "Discount",
+      orderDiscountDisplay(order),
+    ]);
+
+    tableRows.push([
+      "",
+      "",
+      "",
+      "",
+      "After Discount",
+      money(finalTotal),
+    ]);
+
+    tableRows.push([
+      "",
+      "",
+      "",
+      "",
+      "Final Amount",
+      money(finalTotal),
+    ]);
+  }
+
+  // ---------------------------------------------------------
+  // TABLE
+  // ---------------------------------------------------------
 
   autoTable(doc, {
     startY: tableStart,
-    margin: { left: margin, right: margin, top: 28, bottom: 42 },
+
+    margin: {
+      left: margin,
+      right: margin,
+      top: 105,
+      bottom: 145,
+    },
+
     tableWidth: printableWidth,
+
     theme: "grid",
-    head: [["#", "Brand", "Product", "Qty", "Unit Price", "Total"]],
+
+    head: [
+      [
+        "#",
+        "Brand",
+        "Product",
+        "Qty",
+        "Unit Price",
+        "Total",
+      ],
+    ],
+
     body: tableRows,
+
     styles: {
       font: "helvetica",
       fontSize: 8.5,
-      cellPadding: { top: 6, right: 5, bottom: 6, left: 5 },
+
+      cellPadding: {
+        top: 6,
+        right: 5,
+        bottom: 6,
+        left: 5,
+      },
+
       overflow: "linebreak",
+
       valign: "middle",
-      textColor: [15, 15, 18],
-      lineColor: [155, 155, 165],
+
+      textColor: BLACK,
+
+      lineColor: BLACK,
+
       lineWidth: 0.5,
     },
+
     headStyles: {
-      fillColor: [45, 35, 95],
-      textColor: [255, 255, 255],
+      // White header with black text for B&W printer compatibility.
+      fillColor: WHITE,
+      textColor: BLACK,
+
       fontStyle: "bold",
       fontSize: 8.5,
+
       halign: "center",
       valign: "middle",
-      lineColor: [45, 35, 95],
-      lineWidth: 0.6,
+
+      lineColor: BLACK,
+      lineWidth: 0.7,
     },
-    alternateRowStyles: { fillColor: [255, 255, 255] },
+
+    alternateRowStyles: {
+      fillColor: WHITE,
+    },
+
     columnStyles: {
-      0: { cellWidth: 25, halign: "center" },
-      1: { cellWidth: 75, halign: "left" },
-      2: { cellWidth: 175, halign: "left" },
-      3: { cellWidth: 48, halign: "center" },
-      4: { cellWidth: 82, halign: "right" },
-      5: { cellWidth: 85, halign: "right" },
+      0: {
+        cellWidth: 25,
+        halign: "center",
+      },
+
+      1: {
+        cellWidth: 75,
+        halign: "left",
+      },
+
+      2: {
+        cellWidth: 175,
+        halign: "left",
+      },
+
+      3: {
+        cellWidth: 48,
+        halign: "center",
+      },
+
+      4: {
+        cellWidth: 82,
+        halign: "right",
+      },
+
+      5: {
+        cellWidth: 85,
+        halign: "right",
+      },
     },
+
     didParseCell(data) {
-      const last = tableRows.length - 1;
-      const totalStart = tableRows.length - 4;
-      if (data.section === "body" && data.row.index >= totalStart) {
-        data.cell.styles.fontStyle = "bold";
-        data.cell.styles.fillColor = data.row.index === last ? [247, 239, 255] : [252, 250, 255];
-        data.cell.styles.lineColor = [120, 120, 130];
-        data.cell.styles.lineWidth = 0.55;
-        if (data.column.index === 4 || data.column.index === 5) data.cell.styles.halign = "right";
-        if (data.column.index === 4 && data.row.index === totalStart + 1) data.cell.styles.textColor = [200, 0, 0];
-        if (data.column.index === 4 && data.row.index >= totalStart + 2) data.cell.styles.textColor = [0, 120, 65];
+      const totalRowsCount = hasDiscount ? 4 : 1;
+
+      const totalStart =
+        tableRows.length - totalRowsCount;
+
+      const last =
+        tableRows.length - 1;
+
+      if (
+        data.section === "body" &&
+        data.row.index >= totalStart
+      ) {
+        data.cell.styles.fontStyle =
+          "bold";
+
+        data.cell.styles.fillColor =
+          WHITE;
+
+        data.cell.styles.textColor =
+          BLACK;
+
+        data.cell.styles.lineColor =
+          BLACK;
+
+        data.cell.styles.lineWidth =
+          0.6;
+
+        if (
+          data.column.index === 4 ||
+          data.column.index === 5
+        ) {
+          data.cell.styles.halign =
+            "right";
+        }
+
+        if (
+          hasDiscount &&
+          data.row.index === last
+        ) {
+          data.cell.styles.lineWidth =
+            0.8;
+        }
       }
     },
-    didDrawPage(data) { drawFooter(data.pageNumber); },
+
+    didDrawPage(data) {
+      drawHeader();
+      drawFooter(data.pageNumber);
+    },
   });
 
-  const tableEnd = doc.lastAutoTable?.finalY || tableStart + 40;
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(8.5);
-  doc.setTextColor(25, 25, 30);
-  doc.text(
-    `Total Products: ${items.length}    Total Quantity: ${totalQuantity.toLocaleString("en-IN")}`,
-    margin,
-    Math.min(tableEnd + 20, pageHeight - 48),
+  // ---------------------------------------------------------
+  // PRODUCT COUNT / QUANTITY
+  // ---------------------------------------------------------
+
+  const tableEnd =
+    doc.lastAutoTable?.finalY ||
+    tableStart + 40;
+
+ 
+  const countY = Math.min(
+    tableEnd + 18,
+    pageHeight - 145,
   );
 
-  const safeOrderNumber = String(orderNumber).replace(/[^a-zA-Z0-9_-]/g, "_");
-  doc.save(`niyaa-order-${safeOrderNumber}-${fileStamp()}.pdf`);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8.5);
+  doc.setTextColor(...BLACK);
+
+  doc.text(
+    `Total Products: ${items.length}    Total Quantity: ${totalQuantity.toLocaleString(
+      "en-IN",
+    )}`,
+    margin,
+    countY,
+  );
+
+ 
+  drawFooter(1);
+
+  // ---------------------------------------------------------
+  // SAVE PDF
+  // ---------------------------------------------------------
+
+  const safeOrderNumber = String(
+    orderNumber,
+  ).replace(
+    /[^a-zA-Z0-9_-]/g,
+    "_",
+  );
+
+  doc.save(
+    `niyaa-order-${safeOrderNumber}-${fileStamp()}.pdf`,
+  );
 }
 

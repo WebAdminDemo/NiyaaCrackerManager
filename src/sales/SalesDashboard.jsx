@@ -121,24 +121,13 @@ const SalesDashboard = ({ onNavigateToOrders, onViewSoldProducts }) => {
     includeAnalytics: true,
   });
 
-  /*
-   * Save edited order details/items from OrderDetailsModal.
-   *
-   * OrderDetailsModal calls this when Submit/Save is clicked.
-   */
+  
   const handleOrderSave = useCallback(
     async (orderId, details, items) => {
       const updated = await salesApi.updateOrder(orderId, details, items);
 
-      /*
-       * Immediately replace the selected order so the modal
-       * displays the latest saved values.
-       */
       setSelectedOrder(updated);
 
-      /*
-       * Refresh dashboard KPIs, charts, recent orders, etc.
-       */
       await refresh(true);
 
       return updated;
@@ -295,7 +284,7 @@ const SalesDashboard = ({ onNavigateToOrders, onViewSoldProducts }) => {
     >
       <header className="sales-hero">
         <div>
-          <p className="eyebrow">NIYAA · SALES INTELLIGENCE</p>
+          <p className="eyebrow">NIYAA · SALES </p>
 
           <h1>Sales at a glance</h1>
 
