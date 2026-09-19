@@ -27,7 +27,6 @@ const getDiscountType = (item) => {
     return value;
   }
 
-  
   return "percent";
 };
 
@@ -163,16 +162,16 @@ const orderRows = (orders = []) =>
       "Party Name": party.name,
       "Party Number": party.number,
       "Party Sector": party.sector,
-      "Party Country": party.country,
+      //  "Party Country": party.country,
       "Party State": party.state,
       "Party District": party.district,
       "Party Locality": party.locality,
       Pincode: party.pincode,
       Discount: orderDiscountDisplay(order),
-      "After Discount": getOrderFinalTotal(
-        order,
-        getOrderGrossTotal(order, items),
-      ),
+      // "After Discount": getOrderFinalTotal(
+      //   order,
+      //   getOrderGrossTotal(order, items),
+      // ),
       "Final Amount": getOrderFinalTotal(
         order,
         getOrderGrossTotal(order, items),
@@ -505,7 +504,6 @@ export function exportSingleOrderPdf(order) {
     discountAmount !== undefined &&
     Number(discountAmount) > 0;
 
-  
   const BLACK = [0, 0, 0];
   const DARK_GRAY = [45, 45, 45];
   const MID_GRAY = [100, 100, 100];
@@ -530,47 +528,28 @@ export function exportSingleOrderPdf(order) {
     doc.setDrawColor(...BLACK);
     doc.setLineWidth(1);
 
-    doc.rect(
-      margin,
-      headerTop,
-      printableWidth,
-      headerHeight,
-      "FD",
-    );
+    doc.rect(margin, headerTop, printableWidth, headerHeight, "FD");
 
     // Company name
     doc.setTextColor(...BLACK);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(18);
 
-    doc.text(
-      "NCW & SVA",
-      margin + 12,
-      headerTop + 25,
-    );
+    doc.text("NCW & SVA", margin + 12, headerTop + 25);
 
     // Quotation form
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9.5);
 
-    doc.text(
-      "QUOTATION FORM",
-      margin + 12,
-      headerTop + 43,
-    );
+    doc.text("QUOTATION FORM", margin + 12, headerTop + 43);
 
     // Order number
     doc.setFont("helvetica", "bold");
     doc.setFontSize(9);
 
-    doc.text(
-      `ORDER ${orderNumber}`,
-      pageWidth - margin - 12,
-      headerTop + 25,
-      {
-        align: "right",
-      },
-    );
+    doc.text(`ORDER ${orderNumber}`, pageWidth - margin - 12, headerTop + 25, {
+      align: "right",
+    });
 
     // Order date
     doc.setFont("helvetica", "normal");
@@ -578,9 +557,9 @@ export function exportSingleOrderPdf(order) {
 
     doc.text(
       order.orderDate || order.createdAt
-        ? dayjs(
-            order.orderDate || order.createdAt,
-          ).format("DD MMM YYYY, hh:mm A")
+        ? dayjs(order.orderDate || order.createdAt).format(
+            "DD MMM YYYY, hh:mm A",
+          )
         : "",
       pageWidth - margin - 12,
       headerTop + 43,
@@ -605,7 +584,7 @@ export function exportSingleOrderPdf(order) {
    * www.niyaacrackers.com
    * www.sreevariagency.com
    *
-   * 
+   *
    */
   const drawFooter = (pageNumber) => {
     const footerBottom = pageHeight - 28;
@@ -616,78 +595,40 @@ export function exportSingleOrderPdf(order) {
     doc.setDrawColor(...BLACK);
     doc.setLineWidth(0.8);
 
-    doc.rect(
-      margin,
-      footerTop,
-      printableWidth,
-      footerHeight,
-      "FD",
-    );
+    doc.rect(margin, footerTop, printableWidth, footerHeight, "FD");
 
     doc.setTextColor(...BLACK);
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(8.5);
 
-    doc.text(
-      "Welcome to our family,",
-      margin + 12,
-      footerTop + 17,
-    );
+    doc.text("Welcome to our family,", margin + 12, footerTop + 17);
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
 
-    doc.text(
-      "For more details",
-      margin + 12,
-      footerTop + 31,
-    );
+    doc.text("For more details", margin + 12, footerTop + 31);
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(8);
 
-    doc.text(
-      "Contact,",
-      margin + 12,
-      footerTop + 45,
-    );
+    doc.text("Contact,", margin + 12, footerTop + 45);
 
     doc.setFont("helvetica", "normal");
 
-    doc.text(
-      "NCW - +91-99622-01775",
-      margin + 12,
-      footerTop + 58,
-    );
+    doc.text("NCW - +91-99622-01775", margin + 12, footerTop + 58);
 
-    doc.text(
-      "SVA - +81-86675-51556",
-      margin + 12,
-      footerTop + 71,
-    );
+    doc.text("SVA - +81-86675-51556", margin + 12, footerTop + 71);
 
     doc.setFont("helvetica", "bold");
 
-    doc.text(
-      "Our websites,",
-      margin + 205,
-      footerTop + 45,
-    );
+    doc.text("Our websites,", margin + 205, footerTop + 45);
 
     doc.setFont("helvetica", "normal");
 
-    doc.text(
-      "www.niyaacrackers.com",
-      margin + 205,
-      footerTop + 58,
-    );
+    doc.text("www.niyaacrackers.com", margin + 205, footerTop + 58);
 
-    doc.text(
-      "www.sreevariagency.com",
-      margin + 205,
-      footerTop + 71,
-    );
+    doc.text("www.sreevariagency.com", margin + 205, footerTop + 71);
 
     // Thin separator before page information.
     doc.setDrawColor(...MID_GRAY);
@@ -705,20 +646,11 @@ export function exportSingleOrderPdf(order) {
 
     doc.setTextColor(...MID_GRAY);
 
-    doc.text(
-      "NCW & SVA Quotation",
-      margin + 12,
-      footerTop + 97,
-    );
+    doc.text("NCW & SVA Quotation", margin + 12, footerTop + 97);
 
-    doc.text(
-      `Page ${pageNumber}`,
-      pageWidth - margin - 12,
-      footerTop + 97,
-      {
-        align: "right",
-      },
-    );
+    doc.text(`Page ${pageNumber}`, pageWidth - margin - 12, footerTop + 97, {
+      align: "right",
+    });
   };
 
   drawHeader();
@@ -733,11 +665,7 @@ export function exportSingleOrderPdf(order) {
   doc.setFont("helvetica", "bold");
   doc.setFontSize(13);
 
-  doc.text(
-    "Order Summary",
-    margin,
-    y,
-  );
+  doc.text("Order Summary", margin, y);
 
   y += 20;
 
@@ -745,22 +673,12 @@ export function exportSingleOrderPdf(order) {
   const leftX = margin;
   const rightX = margin + half;
 
-  const summaryField = (
-    label,
-    value,
-    x,
-    fieldY,
-    width,
-  ) => {
+  const summaryField = (label, value, x, fieldY, width) => {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(7.5);
     doc.setTextColor(...DARK_GRAY);
 
-    doc.text(
-      label.toUpperCase(),
-      x,
-      fieldY,
-    );
+    doc.text(label.toUpperCase(), x, fieldY);
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
@@ -768,65 +686,28 @@ export function exportSingleOrderPdf(order) {
 
     const displayValue = String(value || "").trim() || "—";
 
-    const lines = doc.splitTextToSize(
-      displayValue,
-      width,
-    );
+    const lines = doc.splitTextToSize(displayValue, width);
 
-    doc.text(
-      lines,
-      x,
-      fieldY + 12,
-    );
+    doc.text(lines, x, fieldY + 12);
   };
 
-  summaryField(
-    "Party Name",
-    party.name,
-    leftX,
-    y,
-    half - 16,
-  );
+  summaryField("Party Name", party.name, leftX, y, half - 16);
 
-  summaryField(
-    "Party Number",
-    party.number,
-    rightX,
-    y,
-    half - 16,
-  );
+  summaryField("Party Number", party.number, rightX, y, half - 16);
 
-  summaryField(
-    "Location / Sector",
-    party.sector,
-    leftX,
-    y + 37,
-    half - 16,
-  );
+  summaryField("Location / Sector", party.sector, leftX, y + 37, half - 16);
 
-  summaryField(
-    "Country",
-    party.country,
-    rightX,
-    y + 37,
-    half - 16,
-  );
+  // summaryField(
+  //   "Country",
+  //   party.country,
+  //   rightX,
+  //   y + 37,
+  //   half - 16,
+  // );
 
-  summaryField(
-    "State",
-    party.state,
-    leftX,
-    y + 74,
-    half - 16,
-  );
+  summaryField("State", party.state, leftX, y + 74, half - 16);
 
-  summaryField(
-    "District",
-    party.district,
-    rightX,
-    y + 74,
-    half - 16,
-  );
+  summaryField("District", party.district, rightX, y + 74, half - 16);
 
   summaryField(
     "Town / City / Village",
@@ -837,13 +718,7 @@ export function exportSingleOrderPdf(order) {
   );
 
   if (party.pincode) {
-    summaryField(
-      "Pincode",
-      party.pincode,
-      rightX,
-      y + 111,
-      half - 16,
-    );
+    summaryField("Pincode", party.pincode, rightX, y + 111, half - 16);
   }
 
   const addressY = y + 148;
@@ -861,20 +736,12 @@ export function exportSingleOrderPdf(order) {
     printableWidth,
   );
 
-  const afterAddress =
-    addressY +
-    15 +
-    Math.max(1, addressLines.length) * 11;
+  const afterAddress = addressY + 15 + Math.max(1, addressLines.length) * 11;
 
   doc.setDrawColor(...BLACK);
   doc.setLineWidth(0.8);
 
-  doc.line(
-    margin,
-    afterAddress + 10,
-    pageWidth - margin,
-    afterAddress + 10,
-  );
+  doc.line(margin, afterAddress + 10, pageWidth - margin, afterAddress + 10);
 
   // ---------------------------------------------------------
   // PRODUCT TABLE
@@ -882,76 +749,43 @@ export function exportSingleOrderPdf(order) {
 
   const tableStart = afterAddress + 25;
 
-  const tableRows = items.map(
-    (item, index) => {
-      const quantity = Number(
-        item.quantity || 0,
-      );
+  const tableRows = items.map((item, index) => {
+    const quantity = Number(item.quantity || 0);
 
-      const price = Number(
-        item.price || 0,
-      );
+    const price = Number(item.price || 0);
 
-      const total = Number(
-        item.total ??
-          price * quantity,
-      );
+    const total = Number(item.total ?? price * quantity);
 
-      return [
-        String(index + 1),
-        getBrand(item),
-        item.name ||
-          item.productName ||
-          item.title ||
-          "Item",
-        quantity.toLocaleString("en-IN"),
-        money(price),
-        money(total),
-      ];
-    },
-  );
+    return [
+      String(index + 1),
+      getBrand(item),
+      item.name || item.productName || item.title || "Item",
+      quantity.toLocaleString("en-IN"),
+      numberText(price),
+      numberText(total),
+    ];
+  });
 
   // Grand Total is always shown.
-  tableRows.push([
-    "",
-    "",
-    "",
-    "",
-    "Grand Total",
-    money(grossTotal),
-  ]);
+  tableRows.push(["", "", "", "", "Grand Total", money(grossTotal)]);
 
   /*
    * Discount-related rows are shown ONLY when an actual
    * discount amount is greater than zero.
    */
   if (hasDiscount) {
-    tableRows.push([
-      "",
-      "",
-      "",
-      "",
-      "Discount",
-      orderDiscountDisplay(order),
-    ]);
+    tableRows.push(["", "", "", "", "Discount", numberText(discountAmount)]);
 
-    tableRows.push([
-      "",
-      "",
-      "",
-      "",
-      "After Discount",
-      money(finalTotal),
-    ]);
+    // tableRows.push([
+    //   "",
+    //   "",
+    //   "",
+    //   "",
+    //   "After Discount",
+    //   money(finalTotal),
+    // ]);
 
-    tableRows.push([
-      "",
-      "",
-      "",
-      "",
-      "Final Amount",
-      money(finalTotal),
-    ]);
+    tableRows.push(["", "", "", "", "Final Amount", money(finalTotal)]);
   }
 
   // ---------------------------------------------------------
@@ -972,16 +806,7 @@ export function exportSingleOrderPdf(order) {
 
     theme: "grid",
 
-    head: [
-      [
-        "#",
-        "Brand",
-        "Product",
-        "Qty",
-        "Unit Price",
-        "Total",
-      ],
-    ],
+    head: [["#", "Brand", "Product", "Qty", "Unit Price", "Total"]],
 
     body: tableRows,
 
@@ -1061,45 +886,27 @@ export function exportSingleOrderPdf(order) {
     didParseCell(data) {
       const totalRowsCount = hasDiscount ? 4 : 1;
 
-      const totalStart =
-        tableRows.length - totalRowsCount;
+      const totalStart = tableRows.length - totalRowsCount;
 
-      const last =
-        tableRows.length - 1;
+      const last = tableRows.length - 1;
 
-      if (
-        data.section === "body" &&
-        data.row.index >= totalStart
-      ) {
-        data.cell.styles.fontStyle =
-          "bold";
+      if (data.section === "body" && data.row.index >= totalStart) {
+        data.cell.styles.fontStyle = "bold";
 
-        data.cell.styles.fillColor =
-          WHITE;
+        data.cell.styles.fillColor = WHITE;
 
-        data.cell.styles.textColor =
-          BLACK;
+        data.cell.styles.textColor = BLACK;
 
-        data.cell.styles.lineColor =
-          BLACK;
+        data.cell.styles.lineColor = BLACK;
 
-        data.cell.styles.lineWidth =
-          0.6;
+        data.cell.styles.lineWidth = 0.6;
 
-        if (
-          data.column.index === 4 ||
-          data.column.index === 5
-        ) {
-          data.cell.styles.halign =
-            "right";
+        if (data.column.index === 4 || data.column.index === 5) {
+          data.cell.styles.halign = "right";
         }
 
-        if (
-          hasDiscount &&
-          data.row.index === last
-        ) {
-          data.cell.styles.lineWidth =
-            0.8;
+        if (hasDiscount && data.row.index === last) {
+          data.cell.styles.lineWidth = 0.8;
         }
       }
     },
@@ -1114,15 +921,9 @@ export function exportSingleOrderPdf(order) {
   // PRODUCT COUNT / QUANTITY
   // ---------------------------------------------------------
 
-  const tableEnd =
-    doc.lastAutoTable?.finalY ||
-    tableStart + 40;
+  const tableEnd = doc.lastAutoTable?.finalY || tableStart + 40;
 
- 
-  const countY = Math.min(
-    tableEnd + 18,
-    pageHeight - 145,
-  );
+  const countY = Math.min(tableEnd + 18, pageHeight - 145);
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8.5);
@@ -1136,22 +937,13 @@ export function exportSingleOrderPdf(order) {
     countY,
   );
 
- 
   drawFooter(1);
 
   // ---------------------------------------------------------
   // SAVE PDF
   // ---------------------------------------------------------
 
-  const safeOrderNumber = String(
-    orderNumber,
-  ).replace(
-    /[^a-zA-Z0-9_-]/g,
-    "_",
-  );
+  const safeOrderNumber = String(orderNumber).replace(/[^a-zA-Z0-9_-]/g, "_");
 
-  doc.save(
-    `niyaa-order-${safeOrderNumber}-${fileStamp()}.pdf`,
-  );
+  doc.save(`niyaa-order-${safeOrderNumber}-${fileStamp()}.pdf`);
 }
-
