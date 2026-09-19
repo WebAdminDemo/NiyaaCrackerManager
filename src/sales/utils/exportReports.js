@@ -705,15 +705,15 @@ export function exportSingleOrderPdf(order) {
   //   half - 16,
   // );
 
-  summaryField("State", party.state, leftX, y + 74, half - 16);
+  summaryField("State", party.state, rightX, y + 37, half - 16);
 
-  summaryField("District", party.district, rightX, y + 74, half - 16);
+  summaryField("District", party.district, leftX, y + 74, half - 16);
 
   summaryField(
     "Town / City / Village",
     party.locality,
-    leftX,
-    y + 111,
+    rightX,
+    y + 74,
     half - 16,
   );
 
@@ -721,7 +721,7 @@ export function exportSingleOrderPdf(order) {
     summaryField("Pincode", party.pincode, rightX, y + 111, half - 16);
   }
 
-  const addressY = y + 148;
+  const addressY = y + 111;
 
   summaryField(
     "Party Address",
